@@ -302,7 +302,15 @@ function main(): void {
           );
         }
 
-        const { draftDir, reportPath, modelPath, proofPath, capabilityPath, manifestPath } =
+        const {
+          draftDir,
+          reportPath,
+          modelPath,
+          proofPath,
+          capabilityPath,
+          engineeringHandoffPath,
+          manifestPath
+        } =
           await runDraftFromArgument(process.cwd(), argument);
         console.log(await fs.readFile(reportPath, "utf8"));
         console.log("");
@@ -310,6 +318,7 @@ function main(): void {
         console.log(`World model: ${modelPath}`);
         console.log(`Proof: ${proofPath}`);
         console.log(`Capability: ${capabilityPath}`);
+        console.log(`Engineering handoff: ${engineeringHandoffPath}`);
         console.log(`Manifest: ${manifestPath}`);
         return;
       }

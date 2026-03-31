@@ -30,6 +30,7 @@
 - `ralph-loop.sh` shell entrypoint wired to the typed job runner and tracked example jobs
 - deterministic interview loop with persisted question artifacts and optional implementation preferences
 - deterministic interview-answer parser and first-draft semantic synthesis with blueprint and proof artifacts
+- deterministic engineering handoff artifacts that turn drafts into build-first implementation packets for engineers
 - capability-tier assessment, tracked model persistence, and guarded draft-to-job promotion
 - semantic model diffing across tracked models, draft artifacts, benchmark fixtures, and job files
 - semantic patch application with before/after, diff, and proof artifacts
@@ -45,6 +46,7 @@
 - The architecture now has an explicit follow-on OpenSpec change for internal builders and language strategy.
 - The repo now has a prompt-first interview step before forcing a full semantic job.
 - The repo can now turn a filled interview artifact into a first semantic world model, blueprint, and proof report.
+- The repo can now emit `engineering-handoff.md` from draft synthesis so an SWE gets build order, runtime surface guidance, proof pressure, and product-improvement opportunities in one artifact.
 - The repo can now classify synthesized drafts and promote only tier-a drafts into tracked Ralph jobs automatically.
 - The repo can now diff semantic models with stable paths before rebuild, replay, or promotion.
 - The repo can now apply typed semantic patches and prove the patched result immediately.
@@ -52,6 +54,7 @@
 - The proof harness now checks workflow replay from initial states and verifies invariants fail on intentional mutations.
 - The repo can now materialize an interactive local runtime package with deterministic seed data, workflow actions, local persistence, and machine-readable runtime files.
 - The repo can now accept prompts from broader software categories and respond with an explicit ideation brief, proof regime, and category-specific interview path instead of forcing every idea into a workflow-app shape.
+- The ideation brief can now suggest stronger functionality earlier in the flow, so product shaping starts before the interview is even answered.
 - The interview synthesizer now infers relation graphs for supported patterns, so more drafts arrive without a generic `relation-map` ambiguity.
 - The implementation is still early, but it can now execute validated job files, load tracked workflow and role config, persist durable run artifacts, and batch over tracked jobs.
 
@@ -60,4 +63,4 @@
 1. Add relation-aware editing and richer local data operations to the interactive runtime package.
 2. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
 3. Add browser-native model inspection and merge review in the future studio.
-4. Expand category coverage with tracked ideation probes and stronger architecture-spec outputs for non-app software classes.
+4. Expand ideation improvement heuristics with correction memory instead of only category-driven suggestions.

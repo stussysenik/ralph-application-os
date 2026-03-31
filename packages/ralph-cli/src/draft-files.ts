@@ -78,6 +78,7 @@ export interface RalphDraftManifest {
     model: string;
     blueprint: string;
     proof: string;
+    engineeringHandoff: string;
     report: string;
   };
 }
@@ -98,6 +99,7 @@ export interface RalphDraftRun {
   modelPath: string;
   blueprintPath: string;
   proofPath: string;
+  engineeringHandoffPath: string;
   reportPath: string;
 }
 
@@ -340,6 +342,222 @@ function formatDraftReport(
   return lines.join("\n");
 }
 
+function summarizeEntityRelations(model: SemanticWorldModel, entityName: string): string[] {
+  return model.relations
+    .filter((relation) => relation.from === entityName)
+    .map(
+      (relation) =>
+        `${relation.name} -> ${relation.to} (${relation.cardinality})${relation.description ? `: ${relation.description}` : ""}`
+    );
+}
+
+function inferSuggestedInterfaces(
+  model: SemanticWorldModel,
+  blueprint: ApplicationBlueprint,
+  implementationPreferences?: RalphImplementationPreferences
+): string[] {
+  const suggestions: string[] = [];
+  const preferredSurfaces = implementationPreferences?.targetSurfaces ?? [];
+  const primaryWorkflow = blueprint.workflows[0];
+  const primaryView = blueprint.views[0];
+
+  if (preferredSurfaces.includes("api") || preferredSurfaces.length === 0) {
+    if (primaryWorkflow) {
+      suggestions.push(
+        `API mutations for ${primaryWorkflow.entity} transitions: ${primaryWorkflow.transitions.join(", ")}`
+      );
+    }
+
+    if (primaryView) {
+      suggestions.push(
+        `API query surface for ${primaryView.entity} ${primaryView.kind}: ${primaryView.name}`
+      );
+    }
+  }
+
+  if (preferredSurfaces.includes("web") || preferredSurfaces.includes("mobile")) {
+    const surface = preferredSurfaces.includes("mobile") ? "mobile capture and comparison flow" : "web operator flow";
+    suggestions.push(`Primary ${surface} backed by ${blueprint.views.map((view) => view.name).join(", ")}`);
+  }
+
+  if (model.effects.length > 0) {
+    suggestions.push(
+      `Background jobs for side effects: ${model.effects.map((effect) => effect.name).join(", ")}`
+    );
+  }
+
+  if (suggestions.length === 0) {
+    suggestions.push("No specific interface surface inferred yet; begin with the semantic draft and proof artifacts.");
+  }
+
+  return suggestions;
+}
+
+function inferProductImprovements(
+  answers: InterviewAnswerDocument,
+  model: SemanticWorldModel
+): string[] {
+  const suggestions: string[] = [];
+  const lowerPrompt = answers.prompt.toLowerCase();
+  const entityNames = new Set(model.entities.map((entity) => entity.name));
+  const attributeNames = new Set(
+    model.entities.flatMap((entity) => entity.attributes.map((attribute) => attribute.name))
+  );
+
+  if (
+    entityNames.has("AlternativeRecommendation") ||
+    attributeNames.has("overallHealthScore") ||
+    attributeNames.has("rank")
+  ) {
+    suggestions.push(
+      "Add explainable ranking so every recommendation shows the health, allergen, price, and availability reasons behind its ordering."
+    );
+  }
+
+  if (
+    entityNames.has("RetailerOffer") ||
+    attributeNames.has("price") ||
+    attributeNames.has("savingsEstimate")
+  ) {
+    suggestions.push(
+      "Add retailer-offer freshness windows, historical price tracking, and price-drop alerts instead of treating price as a timeless field."
+    );
+  }
+
+  if (
+    entityNames.has("IngredientObservation") ||
+    entityNames.has("ScanSession") ||
+    attributeNames.has("confidenceScore") ||
+    lowerPrompt.includes("scan")
+  ) {
+    suggestions.push(
+      "Add a human correction loop for low-confidence scans so users can fix extracted ingredients and improve future matching."
+    );
+  }
+
+  if (entityNames.has("UserProfile")) {
+    suggestions.push(
+      "Add personalization rules driven by dietary goals, allergens, and budget mode so ranking changes per user instead of staying globally static."
+    );
+  }
+
+  if (model.policies.length === 0 && (entityNames.has("UserProfile") || lowerPrompt.includes("user"))) {
+    suggestions.push(
+      "Add account, privacy, and admin-review policies before production because user-specific data and recommendation logic need access boundaries."
+    );
+  }
+
+  if (suggestions.length === 0) {
+    suggestions.push(
+      "Add saved histories, feedback loops, and clearer operator review flows so the first version teaches Ralph which functionality users actually keep."
+    );
+  }
+
+  return suggestions;
+}
+
+function inferImplementationSequence(
+  model: SemanticWorldModel,
+  blueprint: ApplicationBlueprint,
+  implementationPreferences?: RalphImplementationPreferences
+): string[] {
+  const sequence: string[] = [];
+  const primaryWorkflow = blueprint.workflows[0];
+  const surfaces = implementationPreferences?.targetSurfaces?.join(", ") ?? "web/api";
+
+  sequence.push("Lock the semantic model and relation graph before writing UI code.");
+
+  if (primaryWorkflow) {
+    sequence.push(
+      `Implement the ${primaryWorkflow.entity} workflow first so the core state machine exists before secondary views.`
+    );
+  }
+
+  if (model.relations.length > 0) {
+    sequence.push("Build the read model around entity relations so the main screens can traverse the semantic graph directly.");
+  }
+
+  sequence.push(`Add the first operator surfaces for ${surfaces} after the workflow and query paths are stable.`);
+  sequence.push("Keep proof checks in CI so invariants and relation validity stay ahead of feature growth.");
+
+  return sequence;
+}
+
+function formatEngineeringHandoff(
+  sourcePath: string,
+  answers: InterviewAnswerDocument,
+  model: SemanticWorldModel,
+  blueprint: ApplicationBlueprint,
+  proof: ProofResult,
+  capability: RalphCapabilityAssessment,
+  implementationPreferences?: RalphImplementationPreferences
+): string {
+  const lines = [
+    "# Ralph Engineering Handoff",
+    "",
+    `Source: ${sourcePath}`,
+    `Prompt: ${answers.prompt}`,
+    `Model: ${model.name}`,
+    `Domain: ${model.domain}`,
+    `Capability Tier: ${capability.tier}`,
+    ""
+  ];
+
+  lines.push("## Build First");
+  lines.push("");
+  for (const item of inferImplementationSequence(model, blueprint, implementationPreferences)) {
+    lines.push(`- ${item}`);
+  }
+  lines.push("");
+
+  lines.push("## Core Data Model");
+  lines.push("");
+  for (const entity of model.entities) {
+    lines.push(`- ${entity.name}: ${entity.attributes.map((attribute) => `${attribute.name}:${attribute.type}`).join(", ")}`);
+    const relations = summarizeEntityRelations(model, entity.name);
+    for (const relation of relations) {
+      lines.push(`- relation from ${entity.name}: ${relation}`);
+    }
+  }
+  lines.push("");
+
+  lines.push("## Runtime Surfaces");
+  lines.push("");
+  for (const item of inferSuggestedInterfaces(model, blueprint, implementationPreferences)) {
+    lines.push(`- ${item}`);
+  }
+  lines.push("");
+
+  lines.push("## Workflow And Proof");
+  lines.push("");
+  for (const workflow of blueprint.workflows) {
+    lines.push(`- ${workflow.entity}: ${workflow.transitions.join(", ")}`);
+  }
+  for (const check of proof.checks.filter((candidate) => candidate.name.includes("state-chain") || candidate.name.startsWith("workflow-replay"))) {
+    lines.push(`- proof: ${check.name}`);
+  }
+  lines.push("");
+
+  lines.push("## Product Improvement Opportunities");
+  lines.push("");
+  for (const item of inferProductImprovements(answers, model)) {
+    lines.push(`- ${item}`);
+  }
+  lines.push("");
+
+  lines.push("## Open Questions");
+  lines.push("");
+  if (model.openQuestions.length === 0) {
+    lines.push("- none");
+  } else {
+    for (const question of model.openQuestions) {
+      lines.push(`- ${question.prompt}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
 export async function runDraftFromArgument(
   rootDir: string,
   argument: string
@@ -364,6 +582,7 @@ export async function runDraftFromArgument(
   const modelPath = path.join(draftDir, "world-model.json");
   const blueprintPath = path.join(draftDir, "blueprint.json");
   const proofPath = path.join(draftDir, "proof.json");
+  const engineeringHandoffPath = path.join(draftDir, "engineering-handoff.md");
   const reportPath = path.join(draftDir, "report.md");
   const manifest: RalphDraftManifest = {
     draftId,
@@ -380,6 +599,7 @@ export async function runDraftFromArgument(
       model: "world-model.json",
       blueprint: "blueprint.json",
       proof: "proof.json",
+      engineeringHandoff: "engineering-handoff.md",
       report: "report.md"
     }
   };
@@ -392,6 +612,19 @@ export async function runDraftFromArgument(
     fs.writeFile(modelPath, `${serializeWorldModel(model)}\n`, "utf8"),
     fs.writeFile(blueprintPath, `${JSON.stringify(blueprint, null, 2)}\n`, "utf8"),
     fs.writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`, "utf8"),
+    fs.writeFile(
+      engineeringHandoffPath,
+      `${formatEngineeringHandoff(
+        sourcePath,
+        answers,
+        model,
+        blueprint,
+        proof,
+        capability,
+        implementationPreferences
+      )}\n`,
+      "utf8"
+    ),
     fs.writeFile(
       reportPath,
       `${formatDraftReport(
@@ -423,6 +656,7 @@ export async function runDraftFromArgument(
     modelPath,
     blueprintPath,
     proofPath,
+    engineeringHandoffPath,
     reportPath
   };
 }

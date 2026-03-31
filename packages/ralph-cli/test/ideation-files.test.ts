@@ -44,7 +44,9 @@ describe("runIdeationFromArgument", () => {
     expect(architectureRaw).toContain("# Ralph Architecture Outline");
     expect(architectureRaw).toContain("## Core Subsystems");
     expect(reportRaw).toContain("Primary category: compiler toolchain");
+    expect(reportRaw).toContain("## Idea Improvement Opportunities");
     expect(ideationRaw).toContain('"primaryCategory": "compiler-toolchain"');
+    expect(ideationRaw).toContain('"improvementOpportunities"');
     expect(manifestRaw).toContain('"executionMode": "architecture-spec"');
     expect(answersTemplateRaw).toContain("## source-language-and-target");
     expect(questionsRaw).toContain("correctness-and-optimization-regime");

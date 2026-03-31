@@ -35,6 +35,7 @@ Ralph Application OS is a semantic software platform that turns intent into a wo
 - validated Ralph job files now persist run manifests and batch team summaries
 - loop runs now emit `report.md`, full run records, and JSONL ledger entries alongside machine artifacts
 - draft runs now emit capability manifests before promotion
+- draft runs now emit engineering handoffs with deterministic build order and product-improvement suggestions
 - safe drafts can now become tracked models and generated tracked jobs automatically
 - semantic model diffs now make semantic drift inspectable before further promotion
 - semantic patch runs now make model corrections durable and proof-visible
@@ -43,6 +44,7 @@ Ralph Application OS is a semantic software platform that turns intent into a wo
 - the builder can now emit an interactive local runtime package instead of only a prose blueprint
 - the intake surface can now classify broader software categories and declare whether Ralph should behave like a runtime path or an architecture-spec tool
 - interview synthesis now reaches one level deeper into the moat by inferring relation graphs instead of deferring them as generic open questions
+- Ralph can now improve an idea during ideation and again at handoff by suggesting better functionality grounded in category and semantic structure instead of only preserving the idea verbatim
 
 ### Current Limits
 
@@ -103,6 +105,6 @@ Take this branch if:
 ## Next Irreversible Moves
 
 1. Add richer data editing, relation browsing, and persistence semantics to the runtime package
-2. Add tracked ideation probes for compilers, rendering systems, and kernel-adjacent prompts
-3. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
-4. Expand benchmark replay and mutation pressure to every benchmark family
+2. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
+3. Expand benchmark replay and mutation pressure to every benchmark family
+4. Turn idea-improvement suggestions from category heuristics into correction-memory-driven guidance

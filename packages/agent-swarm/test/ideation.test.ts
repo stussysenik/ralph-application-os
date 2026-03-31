@@ -35,6 +35,9 @@ describe("buildIdeationBrief", () => {
     expect(brief.interviewFocusIds).toContain("capture-extraction-and-provenance");
     expect(brief.interviewFocusIds).toContain("alternative-ranking-and-price-comparison");
     expect(brief.recommendedLanguages).toContain("Python");
+    expect(brief.improvementOpportunities).toContain(
+      "Add explainable recommendation reasons so healthier or cheaper alternatives are justified by structured evidence instead of opaque ranking."
+    );
   });
 
   it("treats kernel prompts as architecture-first systems work", () => {

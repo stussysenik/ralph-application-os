@@ -87,6 +87,57 @@ Answer:
 - Platform chooses.
 `;
 
+const visionCommerceInterview = `# Ralph Interview Answers
+
+Prompt: Build a computer vision app that scans food ingredients, recommends healthier alternatives, price matches equivalent products, and helps users compare options while shopping.
+
+## primary-user-and-outcome
+Category: domain
+Priority: high (blocking)
+Question: Who is the primary user, and what is the one outcome they must achieve reliably?
+Why: The product needs a concrete operator and success condition before modeling.
+Answer:
+- Health-conscious shoppers should reliably understand whether a scanned product is a good choice and immediately see healthier similarly-priced alternatives.
+
+## core-records
+Category: data
+Priority: high (blocking)
+Question: What are the 3-7 core records, components, or semantic objects this system must track or model?
+Why: The data model is the enabling core value, so the first durable objects must be explicit.
+Answer:
+- UserProfile: dietaryGoals, allergens, budgetMode
+- ScanSession: capturedAt, status, location
+- Product: name, brand, packageSize, category
+- IngredientObservation: rawText, normalizedIngredient, confidenceScore
+- NutritionProfile: sugarScore, proteinScore, additiveScore, overallHealthScore
+- AlternativeRecommendation: reason, rank, savingsEstimate, healthDelta
+- RetailerOffer: retailerName, price, currency, inStockStatus
+
+## core-workflow
+Category: workflow
+Priority: high (blocking)
+Question: What is the critical lifecycle, execution loop, or workflow from start to finish?
+Why: The platform needs the main transitions or control flow before it can build or prove behavior.
+Answer:
+- ScanSession: captured -> extracted -> normalized -> scored -> compared -> saved
+
+## target-surface
+Category: interface
+Priority: high (blocking)
+Question: What should the first implementation target: web app, CLI, API, worker, mobile, desktop, or a mix?
+Why: Target surface affects builders, runtime assumptions, and proof flows.
+Answer:
+- mobile, web, api
+
+## language-constraints
+Category: implementation
+Priority: medium
+Question: Do you have hard language, framework, or runtime constraints, or should the platform choose?
+Why: Language choices are optional implementation constraints, not semantic source of truth.
+Answer:
+- Platform chooses. Python for vision and scoring pipelines is acceptable; TypeScript for product surfaces is acceptable.
+`;
+
 describe("runDraftFromArgument", () => {
   it("writes a semantic draft, blueprint, and proof from answered interview input", async () => {
     const rootDir = await createTempRoot();
@@ -96,20 +147,48 @@ describe("runDraftFromArgument", () => {
     await fs.mkdir(interviewDir, { recursive: true });
     await fs.writeFile(answersTemplatePath, `${answeredInterview}\n`, "utf8");
 
-    const { draftDir, model, proof, reportPath, modelPath } = await runDraftFromArgument(
+    const {
+      draftDir,
+      model,
+      proof,
+      reportPath,
+      modelPath,
+      engineeringHandoffPath
+    } = await runDraftFromArgument(
       rootDir,
       interviewDir
     );
 
-    const [reportRaw, modelRaw] = await Promise.all([
+    const [reportRaw, modelRaw, handoffRaw] = await Promise.all([
       fs.readFile(reportPath, "utf8"),
-      fs.readFile(modelPath, "utf8")
+      fs.readFile(modelPath, "utf8"),
+      fs.readFile(engineeringHandoffPath, "utf8")
     ]);
 
     expect(proof.ok).toBe(true);
     expect(path.dirname(reportPath)).toBe(draftDir);
     expect(model.entities.some((entity) => entity.name === "Capture")).toBe(true);
     expect(reportRaw).toContain("Ralph Draft Synthesis");
+    expect(handoffRaw).toContain("# Ralph Engineering Handoff");
+    expect(handoffRaw).toContain("## Build First");
+    expect(handoffRaw).toContain("## Product Improvement Opportunities");
+    expect(handoffRaw).toContain("Lock the semantic model and relation graph before writing UI code.");
     expect(modelRaw).toContain(`"name": "${model.name}"`);
+  });
+
+  it("adds product-improvement suggestions for recommendation-heavy ideas", async () => {
+    const rootDir = await createTempRoot();
+    const interviewDir = path.join(rootDir, "artifacts/ralph/interviews/vision-example");
+    const answersTemplatePath = path.join(interviewDir, "answers.template.md");
+
+    await fs.mkdir(interviewDir, { recursive: true });
+    await fs.writeFile(answersTemplatePath, `${visionCommerceInterview}\n`, "utf8");
+
+    const { engineeringHandoffPath } = await runDraftFromArgument(rootDir, interviewDir);
+    const handoffRaw = await fs.readFile(engineeringHandoffPath, "utf8");
+
+    expect(handoffRaw).toContain("Add explainable ranking so every recommendation shows");
+    expect(handoffRaw).toContain("Add retailer-offer freshness windows");
+    expect(handoffRaw).toContain("Add a human correction loop for low-confidence scans");
   });
 });

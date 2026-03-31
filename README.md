@@ -11,6 +11,7 @@ The system's job is to turn intent, examples, and human corrections into a canon
 - [Purpose](#purpose)
 - [Why It Works](#why-it-works)
 - [How It Works](#how-it-works)
+- [How Ralph Improves Ideas](#how-ralph-improves-ideas)
 - [Principles](#principles)
 - [Current Stack](#current-stack)
 - [Workspace Layout](#workspace-layout)
@@ -48,19 +49,29 @@ Instead of hand-assembling schemas, endpoints, workflows, views, and proofs sepa
 - the proof harness blocks unsafe promotion
 - every step leaves durable artifacts instead of hidden prompt state
 - drafts can now become tracked models and tracked jobs automatically when they are strong enough
+- drafts now emit an engineering handoff that tells an SWE what to build first and which product improvements the model is signaling
 
 ## How It Works
 
 1. Start with a prompt.
 2. Run an interview to clarify missing records, workflow, policy, and target surface.
 3. Synthesize a semantic draft from the answered interview.
-4. Score the draft with proof and capability assessment.
-5. Promote safe drafts into tracked models and tracked jobs.
-6. Diff tracked semantic models before promotion or rebuild.
-7. Apply semantic patches as durable correction artifacts.
-8. Merge semantic branches when parallel edits diverge.
-9. Materialize a runnable runtime package.
-10. Run the loop and keep iterating.
+4. Emit an engineering handoff with build order, runtime surfaces, proof obligations, and improvement ideas.
+5. Score the draft with proof and capability assessment.
+6. Promote safe drafts into tracked models and tracked jobs.
+7. Diff tracked semantic models before promotion or rebuild.
+8. Apply semantic patches as durable correction artifacts.
+9. Merge semantic branches when parallel edits diverge.
+10. Materialize a runnable runtime package.
+11. Run the loop and keep iterating.
+
+## How Ralph Improves Ideas
+
+- it turns vague product claims into durable entities, relations, states, and policies
+- it surfaces missing semantic structure before implementation, especially relations and proof obligations
+- it emits deterministic product-improvement opportunities during ideation and again at draft handoff instead of generic brainstorming
+- it gives engineering a build-first sequence so ideation pressure becomes execution pressure quickly
+- it keeps open questions explicit, which prevents false certainty from turning into bad architecture
 
 ## Principles
 
@@ -188,12 +199,13 @@ For a new idea:
 1. `pnpm ralph:ideate "<your idea>"`
 2. Review the software category, execution mode, and generated `answers.template.md`
 3. `pnpm ralph:draft <ideation-dir-or-answer-file>`
-4. `pnpm ralph:job:from-draft <ideation-dir-or-answer-file>`
-5. `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`
-6. `pnpm ralph:model:patch <model-input> <patch-file>`
-7. `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`
-8. `pnpm ralph:artifact <model-or-job-or-draft>`
-9. `pnpm ralph:loop <generated-job-file>`
+4. Review `engineering-handoff.md` to see what to build first, what relations still matter, and which functionality Ralph thinks should be added
+5. `pnpm ralph:job:from-draft <ideation-dir-or-answer-file>`
+6. `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`
+7. `pnpm ralph:model:patch <model-input> <patch-file>`
+8. `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`
+9. `pnpm ralph:artifact <model-or-job-or-draft>`
+10. `pnpm ralph:loop <generated-job-file>`
 
 For repo hygiene:
 
@@ -228,6 +240,7 @@ Draft synthesis artifacts persist under:
 - `artifacts/ralph/drafts/<run-id>/world-model.json`
 - `artifacts/ralph/drafts/<run-id>/blueprint.json`
 - `artifacts/ralph/drafts/<run-id>/proof.json`
+- `artifacts/ralph/drafts/<run-id>/engineering-handoff.md`
 - `artifacts/ralph/drafts/<run-id>/report.md`
 
 Promotion artifacts persist under:
@@ -298,6 +311,7 @@ Tracked example jobs:
 Tracked example answered interviews:
 
 - `.ralph/interviews/examples/screenshot-studio.answers.md`
+- `.ralph/interviews/examples/vision-commerce-grocery-assistant.answers.md`
 
 Tracked generated outputs:
 
@@ -348,10 +362,11 @@ It is not yet ready for:
 
 Today the primary outputs are:
 
-- ideation briefs with software-category, execution mode, proof regime, and recommended language/surface hints
+- ideation briefs with software-category, execution mode, proof regime, recommended language/surface hints, and idea-improvement opportunities
 - architecture outlines for categories that need design pressure before implementation
 - interview question sets
 - first-draft semantic world models synthesized from interview answers
+- engineering handoffs with build-first sequencing, runtime surface guidance, proof obligations, and product-improvement suggestions
 - capability-tier assessments and promotion recommendations
 - semantic world models
 - semantic patch documents and patched models
@@ -389,11 +404,11 @@ Current benchmark families:
 
 ## Current Demo Modes
 
-- `pnpm ralph:ideate <prompt-or-job-file>`: universal intake -> software category classification -> execution-mode recommendation -> generated interview template
+- `pnpm ralph:ideate <prompt-or-job-file>`: universal intake -> software category classification -> execution-mode recommendation -> idea-improvement opportunities -> generated interview template
 - `pnpm demo`: benchmark world models -> internal blueprints -> proof
 - `pnpm swarm:demo`: Ralph loop swarm execution with typed stage artifacts and promotion decisions
 - `pnpm ralph:interview <prompt-or-job-file>`: prompt or tracked job -> deterministic clarification questions -> persisted interview artifacts
-- `pnpm ralph:draft <interview-dir-or-answers-template>`: answered interview -> synthesized world model -> blueprint -> proof -> persisted draft artifacts
+- `pnpm ralph:draft <interview-dir-or-answers-template>`: answered interview -> synthesized world model -> blueprint -> proof -> engineering handoff -> persisted draft artifacts
 - `pnpm ralph:job:from-draft <interview-dir-or-answers-template>`: tier-a draft -> tracked model + generated job when safe, otherwise tracked model + rejection report
 - `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`: compare semantic drift between tracked models, draft outputs, benchmark fixtures, or job files
 - `pnpm ralph:model:patch <model-input> <patch-file>`: apply a typed semantic patch, persist before/after/diff/proof artifacts, and keep the correction as a durable runtime input

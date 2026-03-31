@@ -82,6 +82,7 @@ export interface RalphIdeationBrief {
   builderTargets: string[];
   recommendedSurfaces: RalphIdeationSurface[];
   recommendedLanguages: string[];
+  improvementOpportunities: string[];
   suggestedCommands: string[];
   interviewFocusIds: string[];
 }
@@ -1072,6 +1073,79 @@ function buildSuggestedCommands(
   return commands;
 }
 
+function buildImprovementOpportunities(
+  primaryCategory: RalphSoftwareCategory,
+  secondaryCategories: RalphSoftwareCategory[]
+): string[] {
+  const byCategory: Record<RalphSoftwareCategory, string[]> = {
+    "workflow-app": [
+      "Add explicit exception queues and manual override paths so the first workflow does not collapse on edge cases.",
+      "Add SLA, escalation, and audit views early so operational value is visible before deeper automation."
+    ],
+    "knowledge-system": [
+      "Add semantic backlinks, reusable templates, and change history so the workspace gets smarter over time instead of becoming another flat document pile.",
+      "Add publishing and review states early so collaboration rules stay inside the model instead of leaking into ad hoc UI logic."
+    ],
+    "vision-commerce": [
+      "Add explainable recommendation reasons so healthier or cheaper alternatives are justified by structured evidence instead of opaque ranking.",
+      "Add retailer-offer freshness and correction loops so scans, prices, and substitutions stay trustworthy in the real world."
+    ],
+    "developer-tooling": [
+      "Add golden fixtures, watch-mode feedback, and extension points so the tool becomes useful inside a real developer loop rather than only in demos.",
+      "Add an artifact inspector so users can see exactly what changed when the tool rewrites or generates output."
+    ],
+    "api-service": [
+      "Add contract versioning and sandbox environments early so integrations do not hard-fork the API the first time requirements change.",
+      "Add retry, idempotency, and webhook replay semantics before scaling traffic so failure behavior stays explicit."
+    ],
+    "agent-system": [
+      "Add trace replay and human approval checkpoints so the agent can be tuned safely instead of only judged by anecdotes.",
+      "Add memory boundaries and tool call budgets so autonomy stays legible under load."
+    ],
+    "data-pipeline": [
+      "Add lineage, freshness alerts, and backfill controls early so operators can trust the data when something goes wrong.",
+      "Add source quality scoring so unreliable upstream systems become visible before they poison downstream outputs."
+    ],
+    "graphics-rendering": [
+      "Add frame capture, resource inspection, and hot-reloadable scenes so the rendering architecture stays debuggable under performance pressure.",
+      "Add explicit frame-budget and resource-lifetime tracking before chasing visual breadth."
+    ],
+    "game-system": [
+      "Add replay capture, authoritative-state inspection, and save-state tooling so gameplay iteration does not outrun debuggability.",
+      "Add player-feedback and progression telemetry early so design changes can be measured instead of guessed."
+    ],
+    "compiler-toolchain": [
+      "Add IR inspection, golden fixture tests, and diagnostic reporting early so optimization work does not outrun correctness visibility.",
+      "Add source-map and error-reporting quality as a first-class goal instead of treating the compiler as only a codegen problem."
+    ],
+    "browser-engine": [
+      "Add subsystem traces and standards-test checkpoints early so layout, script, and rendering behavior can be isolated when invariants break.",
+      "Add a minimal inspector surface so engine decisions are observable instead of buried in internal state."
+    ],
+    "system-kernel": [
+      "Add syscall tracing, capability inspection, and deterministic boot scenarios so systems debugging is part of the design from the start.",
+      "Add a simulator or QEMU-first harness before broad device ambition so proof pressure stays tractable."
+    ],
+    "protocol-embedded": [
+      "Add simulated devices, packet traces, and timing-budget checks early so protocol and hardware assumptions stay testable.",
+      "Add fault injection around retries, drops, and clock drift before hardware integration becomes the only truth source."
+    ],
+    "scientific-compute": [
+      "Add reproducible datasets, sensitivity analysis, and numeric verification before building a large interface around unstable math.",
+      "Add provenance for every derived result so evidence survives model iteration."
+    ],
+    "general-product": [
+      "Add a narrower first wedge, operator persona, and measurable success loop before broadening feature scope.",
+      "Add saved histories and feedback capture so the product can learn which functionality users actually keep."
+    ]
+  };
+
+  return uniqueStrings([
+    ...byCategory[primaryCategory],
+    ...secondaryCategories.flatMap((category) => byCategory[category] ?? [])
+  ]).slice(0, 4);
+}
+
 function findDefinition(category: RalphSoftwareCategory): CategoryDefinition {
   const definition = CATEGORY_DEFINITIONS.find((candidate) => candidate.category === category);
 
@@ -1129,6 +1203,10 @@ export function buildIdeationBrief(context: RalphIdeationContext): RalphIdeation
     ...primary.definition.builderTargets,
     ...secondaryDefinitions.flatMap((candidate) => candidate.definition.builderTargets)
   ]).slice(0, 6);
+  const improvementOpportunities = buildImprovementOpportunities(
+    primary.definition.category,
+    secondaryDefinitions.map((candidate) => candidate.definition.category)
+  );
   const interviewFocusIds = uniqueStrings([
     ...primary.definition.interviewQuestions.map((question) => question.id),
     ...secondaryDefinitions.flatMap((candidate) =>
@@ -1164,6 +1242,7 @@ export function buildIdeationBrief(context: RalphIdeationContext): RalphIdeation
     builderTargets,
     recommendedSurfaces,
     recommendedLanguages,
+    improvementOpportunities,
     suggestedCommands: buildSuggestedCommands(context.prompt, primary.definition.executionMode),
     interviewFocusIds
   };
@@ -1248,6 +1327,13 @@ export function formatIdeationBrief(brief: RalphIdeationBrief): string {
   lines.push("## Recommended Languages");
   lines.push("");
   for (const item of brief.recommendedLanguages) {
+    lines.push(`- ${item}`);
+  }
+  lines.push("");
+
+  lines.push("## Idea Improvement Opportunities");
+  lines.push("");
+  for (const item of brief.improvementOpportunities) {
     lines.push(`- ${item}`);
   }
   lines.push("");
