@@ -1,0 +1,54 @@
+{
+  "note": "Resolve the generated screenshot-studio relation map and close the open semantic question.",
+  "operations": [
+    {
+      "op": "add",
+      "path": "relations.Workspace:contains:Capture",
+      "value": {
+        "name": "contains",
+        "from": "Workspace",
+        "to": "Capture",
+        "cardinality": "one-to-many",
+        "description": "Workspace owns captured assets."
+      }
+    },
+    {
+      "op": "add",
+      "path": "relations.Collection:groups:Capture",
+      "value": {
+        "name": "groups",
+        "from": "Collection",
+        "to": "Capture",
+        "cardinality": "one-to-many",
+        "description": "Collections group captures into review sets."
+      }
+    },
+    {
+      "op": "add",
+      "path": "relations.Annotation:marksUp:Capture",
+      "value": {
+        "name": "marksUp",
+        "from": "Annotation",
+        "to": "Capture",
+        "cardinality": "one-to-many",
+        "description": "Annotations attach to captures."
+      }
+    },
+    {
+      "op": "add",
+      "path": "relations.ShareLink:publishes:Capture",
+      "value": {
+        "name": "publishes",
+        "from": "ShareLink",
+        "to": "Capture",
+        "cardinality": "one-to-one",
+        "description": "Share links publish a prepared capture."
+      }
+    },
+    {
+      "op": "set",
+      "path": "openQuestions.relation-map.status",
+      "value": "resolved"
+    }
+  ]
+}

@@ -22,6 +22,7 @@ import {
 import { runDraftFromArgument } from "./draft-files.js";
 import { runInterviewFromArgument } from "./interview-files.js";
 import { runModelDiffFromArguments } from "./model-diff-files.js";
+import { runModelPatchFromArguments } from "./model-patch-files.js";
 import { promoteDraftFromArgument } from "./promotion-files.js";
 
 function renderModelSummary(model: SemanticWorldModel): string {
@@ -198,6 +199,26 @@ function main(): void {
         console.log(`Artifacts written to: ${run.diffDir}`);
         console.log(`Manifest: ${run.manifestPath}`);
         console.log(`Diff: ${run.diffPath}`);
+        return;
+      }
+
+      if (command === "model:patch") {
+        const modelInput =
+          argument ??
+          path.join(
+            process.cwd(),
+            ".ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json"
+          );
+        const patchInput =
+          process.argv[4] ??
+          path.join(process.cwd(), ".ralph/patches/examples/screenshot-studio-relations.json");
+        const run = await runModelPatchFromArguments(process.cwd(), modelInput, patchInput);
+        console.log(await fs.readFile(run.reportPath, "utf8"));
+        console.log("");
+        console.log(`Artifacts written to: ${run.patchDir}`);
+        console.log(`Manifest: ${run.manifestPath}`);
+        console.log(`Patched model: ${run.patchedModelPath}`);
+        console.log(`Proof: ${run.proofPath}`);
         return;
       }
 

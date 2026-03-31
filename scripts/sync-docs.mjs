@@ -125,7 +125,7 @@ function buildProgressSnapshot({
     "- tracked answered interview examples: " + answeredInterviewCount,
     "- tracked generated models: " + generatedModelCount,
     "- tracked generated jobs: " + generatedJobCount,
-    "- current operator path: prompt -> interview -> draft -> promotion -> diff -> loop"
+    "- current operator path: prompt -> interview -> draft -> promotion -> diff -> patch -> loop"
   ].join("\n");
 }
 

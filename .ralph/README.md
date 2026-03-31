@@ -7,6 +7,7 @@ Tracked source of truth lives here.
 - `interviews/`
 - `jobs/`
 - `models/`
+- `patches/`
 - `workflows/`
 - `swarm/`
 
@@ -19,6 +20,8 @@ They go to:
 - `artifacts/ralph/interviews/<run-id>/`
 - `artifacts/ralph/drafts/<run-id>/`
 - `artifacts/ralph/promotions/<run-id>/`
+- `artifacts/ralph/model-diffs/<run-id>/`
+- `artifacts/ralph/model-patches/<run-id>/`
 - `artifacts/ralph/runs/<run-id>/`
 - `artifacts/ralph/hypertime-ledger.jsonl`
 
@@ -31,4 +34,5 @@ They go to:
 - interview runs derive clarification questions before a full job loop is necessary
 - draft runs synthesize a first semantic model from answered interviews
 - promotion runs write tracked models first and only generate tracked jobs when the draft is tier A and proof-clean
+- patch examples capture durable semantic corrections that can be replayed against tracked models
 - `pnpm ralph:team` walks these tracked jobs and emits a batch summary under `artifacts/ralph/teams/`

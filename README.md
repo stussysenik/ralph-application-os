@@ -57,7 +57,8 @@ Instead of hand-assembling schemas, endpoints, workflows, views, and proofs sepa
 4. Score the draft with proof and capability assessment.
 5. Promote safe drafts into tracked models and tracked jobs.
 6. Diff tracked semantic models before promotion or rebuild.
-7. Run the loop and keep iterating.
+7. Apply semantic patches as durable correction artifacts.
+8. Run the loop and keep iterating.
 
 ## Principles
 
@@ -113,6 +114,7 @@ pnpm ralph:interview "Build a screenshot studio for marketers"
 pnpm ralph:draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:job:from-draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:model:diff .ralph/jobs/examples/screenshot-studio.json .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json
+pnpm ralph:model:patch .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json .ralph/patches/examples/screenshot-studio-relations.json
 pnpm ralph:job:validate .ralph/jobs/examples/screenshot-studio.json
 pnpm ralph:loop .ralph/jobs/examples/screenshot-studio.json
 pnpm prompt
@@ -154,6 +156,7 @@ pnpm ralph:interview "Build a screenshot studio for marketers"
 pnpm ralph:draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:job:from-draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:model:diff .ralph/jobs/examples/screenshot-studio.json .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json
+pnpm ralph:model:patch .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json .ralph/patches/examples/screenshot-studio-relations.json
 pnpm ralph:job:new screenshot-studio
 pnpm ralph:job:validate .ralph/jobs/examples/screenshot-studio.json
 pnpm ralph:loop .ralph/jobs/examples/screenshot-studio.json
@@ -167,7 +170,7 @@ pnpm ralph:team
 - answered interview examples: 1
 - tracked generated models: 1
 - tracked generated jobs: 1
-- operator commands: ralph:draft, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:team
+- operator commands: ralph:draft, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:model:patch, ralph:team
 <!-- generated:readme-snapshot:end -->
 
 ## How To Use Ralph Now
@@ -179,7 +182,8 @@ For a new idea:
 3. `pnpm ralph:draft <interview-dir-or-answer-file>`
 4. `pnpm ralph:job:from-draft <interview-dir-or-answer-file>`
 5. `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`
-6. `pnpm ralph:loop <generated-job-file>`
+6. `pnpm ralph:model:patch <model-input> <patch-file>`
+7. `pnpm ralph:loop <generated-job-file>`
 
 For repo hygiene:
 
@@ -217,6 +221,15 @@ Model diff artifacts persist under:
 - `artifacts/ralph/model-diffs/<run-id>/diff.json`
 - `artifacts/ralph/model-diffs/<run-id>/report.md`
 
+Model patch artifacts persist under:
+
+- `artifacts/ralph/model-patches/<run-id>/original.json`
+- `artifacts/ralph/model-patches/<run-id>/patched.json`
+- `artifacts/ralph/model-patches/<run-id>/patch.json`
+- `artifacts/ralph/model-patches/<run-id>/diff.json`
+- `artifacts/ralph/model-patches/<run-id>/proof.json`
+- `artifacts/ralph/model-patches/<run-id>/report.md`
+
 Each loop run persists:
 
 - `job.json`
@@ -241,6 +254,7 @@ Tracked generated outputs:
 
 - `.ralph/models/generated/`
 - `.ralph/jobs/generated/`
+- `.ralph/patches/examples/`
 
 ## Product Goal
 
@@ -264,6 +278,7 @@ It is ready for:
 - deterministic interview-answer to world-model draft synthesis
 - capability classification for synthesized drafts
 - tracked model persistence and guarded draft-to-job promotion
+- semantic model diffing and patching with durable artifacts
 - semantic benchmark modeling
 - blueprint generation
 - proof-gated loop execution
@@ -284,6 +299,7 @@ Today the primary outputs are:
 - first-draft semantic world models synthesized from interview answers
 - capability-tier assessments and promotion recommendations
 - semantic world models
+- semantic patch documents and patched models
 - internal application blueprints
 - proof results
 - run manifests and reports
@@ -320,6 +336,7 @@ Current benchmark families:
 - `pnpm ralph:draft <interview-dir-or-answers-template>`: answered interview -> synthesized world model -> blueprint -> proof -> persisted draft artifacts
 - `pnpm ralph:job:from-draft <interview-dir-or-answers-template>`: tier-a draft -> tracked model + generated job when safe, otherwise tracked model + rejection report
 - `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`: compare semantic drift between tracked models, draft outputs, benchmark fixtures, or job files
+- `pnpm ralph:model:patch <model-input> <patch-file>`: apply a typed semantic patch, persist before/after/diff/proof artifacts, and keep the correction as a durable runtime input
 - `pnpm ralph:loop <job-file>`: validated job -> swarm run -> persisted run artifacts
 - `pnpm ralph:team [jobs-directory]`: batch swarm run over tracked jobs with a persisted team summary
 

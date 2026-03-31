@@ -9,7 +9,7 @@
 - tracked answered interview examples: 1
 - tracked generated models: 1
 - tracked generated jobs: 1
-- current operator path: prompt -> interview -> draft -> promotion -> diff -> loop
+- current operator path: prompt -> interview -> draft -> promotion -> diff -> patch -> loop
 <!-- generated:progress-snapshot:end -->
 
 ### Established
@@ -32,6 +32,7 @@
 - deterministic interview-answer parser and first-draft semantic synthesis with blueprint and proof artifacts
 - capability-tier assessment, tracked model persistence, and guarded draft-to-job promotion
 - semantic model diffing across tracked models, draft artifacts, benchmark fixtures, and job files
+- semantic patch application with before/after, diff, and proof artifacts
 
 ### Current Truth
 
@@ -41,11 +42,12 @@
 - The repo can now turn a filled interview artifact into a first semantic world model, blueprint, and proof report.
 - The repo can now classify synthesized drafts and promote only tier-a drafts into tracked Ralph jobs automatically.
 - The repo can now diff semantic models with stable paths before rebuild, replay, or promotion.
+- The repo can now apply typed semantic patches and prove the patched result immediately.
 - The implementation is still early, but it can now execute validated job files, load tracked workflow and role config, persist durable run artifacts, and batch over tracked jobs.
 
 ### Next Steps
 
-1. Add semantic merge and patch semantics on top of stable diff paths.
+1. Add semantic merge semantics on top of stable diff and patch paths.
 2. Grow the proof harness beyond structural invariants into replay and mutation tests.
 3. Turn blueprints into the first executable substrate artifacts.
 4. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.

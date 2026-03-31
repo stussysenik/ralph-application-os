@@ -1,4 +1,19 @@
 import { canonicalizeWorldModel } from "./serialize.js";
+import {
+  semanticActionKey,
+  semanticAttributeKey,
+  semanticConceptKey,
+  semanticEffectKey,
+  semanticEntityKey,
+  semanticInvariantKey,
+  semanticOpenQuestionKey,
+  semanticPolicyKey,
+  semanticPolicyRuleKey,
+  semanticProvenanceKey,
+  semanticRelationKey,
+  semanticStateKey,
+  semanticViewKey
+} from "./keys.js";
 import type {
   SemanticAction,
   SemanticAttribute,
@@ -149,7 +164,7 @@ function diffAttributes(
   left: SemanticAttribute[],
   right: SemanticAttribute[]
 ): void {
-  diffKeyedCollection(changes, path, "attribute", left, right, (attribute) => attribute.name, (items, itemPath, leftAttribute, rightAttribute) => {
+  diffKeyedCollection(changes, path, "attribute", left, right, semanticAttributeKey, (items, itemPath, leftAttribute, rightAttribute) => {
     diffScalar(
       items,
       `${itemPath}.type`,
@@ -186,7 +201,7 @@ function diffProvenance(
     "provenance entry",
     left,
     right,
-    (entry) => `${entry.sourceType}:${entry.sourceRef}:${entry.note ?? ""}`,
+    semanticProvenanceKey,
     (items, itemPath, leftEntry, rightEntry) => {
       diffScalar(
         items,
@@ -204,7 +219,7 @@ function diffConcepts(
   left: SemanticConcept[],
   right: SemanticConcept[]
 ): void {
-  diffKeyedCollection(changes, "concepts", "concept", left, right, (concept) => concept.name, (items, itemPath, leftConcept, rightConcept) => {
+  diffKeyedCollection(changes, "concepts", "concept", left, right, semanticConceptKey, (items, itemPath, leftConcept, rightConcept) => {
     diffScalar(
       items,
       `${itemPath}.description`,
@@ -233,7 +248,7 @@ function diffEntities(
   left: SemanticEntity[],
   right: SemanticEntity[]
 ): void {
-  diffKeyedCollection(changes, "entities", "entity", left, right, (entity) => entity.name, (items, itemPath, leftEntity, rightEntity) => {
+  diffKeyedCollection(changes, "entities", "entity", left, right, semanticEntityKey, (items, itemPath, leftEntity, rightEntity) => {
     diffScalar(
       items,
       `${itemPath}.description`,
@@ -261,7 +276,7 @@ function diffRelations(
     "relation",
     left,
     right,
-    (relation) => `${relation.from}:${relation.name}:${relation.to}`,
+    semanticRelationKey,
     (items, itemPath, leftRelation, rightRelation) => {
       diffScalar(
         items,
@@ -292,7 +307,7 @@ function diffStates(
     "state",
     left,
     right,
-    (state) => `${state.entity}:${state.name}`,
+    semanticStateKey,
     (items, itemPath, leftState, rightState) => {
       diffScalar(
         items,
@@ -330,7 +345,7 @@ function diffActions(
     "action",
     left,
     right,
-    (action) => `${action.entity}:${action.name}:${action.from}:${action.to}`,
+    semanticActionKey,
     (items, itemPath, leftAction, rightAction) => {
       diffStringList(
         items,
@@ -362,7 +377,7 @@ function diffRules(
     "policy rule",
     left,
     right,
-    (rule) => `${rule.field}:${rule.operator}:${String(rule.value)}`
+    semanticPolicyRuleKey
   );
 }
 
@@ -371,7 +386,7 @@ function diffPolicies(
   left: SemanticPolicy[],
   right: SemanticPolicy[]
 ): void {
-  diffKeyedCollection(changes, "policies", "policy", left, right, (policy) => policy.name, (items, itemPath, leftPolicy, rightPolicy) => {
+  diffKeyedCollection(changes, "policies", "policy", left, right, semanticPolicyKey, (items, itemPath, leftPolicy, rightPolicy) => {
     diffScalar(
       items,
       `${itemPath}.appliesTo`,
@@ -409,7 +424,7 @@ function diffViews(
   left: SemanticView[],
   right: SemanticView[]
 ): void {
-  diffKeyedCollection(changes, "views", "view", left, right, (view) => view.name, (items, itemPath, leftView, rightView) => {
+  diffKeyedCollection(changes, "views", "view", left, right, semanticViewKey, (items, itemPath, leftView, rightView) => {
     diffScalar(
       items,
       `${itemPath}.entity`,
@@ -446,7 +461,7 @@ function diffEffects(
   left: SemanticEffect[],
   right: SemanticEffect[]
 ): void {
-  diffKeyedCollection(changes, "effects", "effect", left, right, (effect) => effect.name, (items, itemPath, leftEffect, rightEffect) => {
+  diffKeyedCollection(changes, "effects", "effect", left, right, semanticEffectKey, (items, itemPath, leftEffect, rightEffect) => {
     diffScalar(
       items,
       `${itemPath}.kind`,
@@ -476,7 +491,7 @@ function diffInvariants(
   left: SemanticInvariant[],
   right: SemanticInvariant[]
 ): void {
-  diffKeyedCollection(changes, "invariants", "invariant", left, right, (invariant) => invariant.name, (items, itemPath, leftInvariant, rightInvariant) => {
+  diffKeyedCollection(changes, "invariants", "invariant", left, right, semanticInvariantKey, (items, itemPath, leftInvariant, rightInvariant) => {
     const keys = [...new Set([...Object.keys(leftInvariant), ...Object.keys(rightInvariant)])]
       .filter((key) => key !== "name")
       .sort((leftKey, rightKey) => leftKey.localeCompare(rightKey));
@@ -504,7 +519,7 @@ function diffOpenQuestions(
     "open question",
     left,
     right,
-    (question) => question.id,
+    semanticOpenQuestionKey,
     (items, itemPath, leftQuestion, rightQuestion) => {
       diffScalar(
         items,
