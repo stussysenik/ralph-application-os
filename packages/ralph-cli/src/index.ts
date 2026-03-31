@@ -21,6 +21,7 @@ import {
 } from "./job-files.js";
 import { runDraftFromArgument } from "./draft-files.js";
 import { runInterviewFromArgument } from "./interview-files.js";
+import { runModelDiffFromArguments } from "./model-diff-files.js";
 import { promoteDraftFromArgument } from "./promotion-files.js";
 
 function renderModelSummary(model: SemanticWorldModel): string {
@@ -178,6 +179,25 @@ function main(): void {
         console.log(`Artifacts written to: ${promotion.promotionDir}`);
         console.log(`Tracked model: ${promotion.modelPath}`);
         console.log(`Tracked job: ${promotion.jobPath ?? "not written"}`);
+        return;
+      }
+
+      if (command === "model:diff") {
+        const leftInput =
+          argument ??
+          path.join(process.cwd(), ".ralph/jobs/examples/screenshot-studio.json");
+        const rightInput =
+          process.argv[4] ??
+          path.join(
+            process.cwd(),
+            ".ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json"
+          );
+        const run = await runModelDiffFromArguments(process.cwd(), leftInput, rightInput);
+        console.log(await fs.readFile(run.reportPath, "utf8"));
+        console.log("");
+        console.log(`Artifacts written to: ${run.diffDir}`);
+        console.log(`Manifest: ${run.manifestPath}`);
+        console.log(`Diff: ${run.diffPath}`);
         return;
       }
 

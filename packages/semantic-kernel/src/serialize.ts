@@ -128,8 +128,8 @@ function sortOpenQuestions(openQuestions: SemanticOpenQuestion[]): SemanticOpenQ
  * That contract is what later makes semantic diffing, provenance, replay,
  * and deterministic builder output possible.
  */
-export function serializeWorldModel(model: SemanticWorldModel): string {
-  const canonicalModel: SemanticWorldModel = {
+export function canonicalizeWorldModel(model: SemanticWorldModel): SemanticWorldModel {
+  return {
     ...model,
     concepts: sortConcepts(model.concepts),
     entities: sortEntities(model.entities),
@@ -143,6 +143,8 @@ export function serializeWorldModel(model: SemanticWorldModel): string {
     openQuestions: sortOpenQuestions(model.openQuestions),
     provenance: sortProvenanceEntries(model.provenance)
   };
+}
 
-  return JSON.stringify(canonicalModel, null, 2);
+export function serializeWorldModel(model: SemanticWorldModel): string {
+  return JSON.stringify(canonicalizeWorldModel(model), null, 2);
 }

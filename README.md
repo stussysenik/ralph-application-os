@@ -56,7 +56,8 @@ Instead of hand-assembling schemas, endpoints, workflows, views, and proofs sepa
 3. Synthesize a semantic draft from the answered interview.
 4. Score the draft with proof and capability assessment.
 5. Promote safe drafts into tracked models and tracked jobs.
-6. Run the loop and keep iterating.
+6. Diff tracked semantic models before promotion or rebuild.
+7. Run the loop and keep iterating.
 
 ## Principles
 
@@ -111,6 +112,7 @@ pnpm swarm:demo
 pnpm ralph:interview "Build a screenshot studio for marketers"
 pnpm ralph:draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:job:from-draft .ralph/interviews/examples/screenshot-studio.answers.md
+pnpm ralph:model:diff .ralph/jobs/examples/screenshot-studio.json .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json
 pnpm ralph:job:validate .ralph/jobs/examples/screenshot-studio.json
 pnpm ralph:loop .ralph/jobs/examples/screenshot-studio.json
 pnpm prompt
@@ -151,6 +153,7 @@ pnpm docs:sync
 pnpm ralph:interview "Build a screenshot studio for marketers"
 pnpm ralph:draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:job:from-draft .ralph/interviews/examples/screenshot-studio.answers.md
+pnpm ralph:model:diff .ralph/jobs/examples/screenshot-studio.json .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json
 pnpm ralph:job:new screenshot-studio
 pnpm ralph:job:validate .ralph/jobs/examples/screenshot-studio.json
 pnpm ralph:loop .ralph/jobs/examples/screenshot-studio.json
@@ -164,7 +167,7 @@ pnpm ralph:team
 - answered interview examples: 1
 - tracked generated models: 1
 - tracked generated jobs: 1
-- operator commands: ralph:draft, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:team
+- operator commands: ralph:draft, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:team
 <!-- generated:readme-snapshot:end -->
 
 ## How To Use Ralph Now
@@ -175,7 +178,8 @@ For a new idea:
 2. Fill the generated `answers.template.md`
 3. `pnpm ralph:draft <interview-dir-or-answer-file>`
 4. `pnpm ralph:job:from-draft <interview-dir-or-answer-file>`
-5. `pnpm ralph:loop <generated-job-file>`
+5. `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`
+6. `pnpm ralph:loop <generated-job-file>`
 
 For repo hygiene:
 
@@ -205,6 +209,13 @@ Promotion artifacts persist under:
 
 - `artifacts/ralph/promotions/<run-id>/promotion.json`
 - `artifacts/ralph/promotions/<run-id>/report.md`
+
+Model diff artifacts persist under:
+
+- `artifacts/ralph/model-diffs/<run-id>/left.json`
+- `artifacts/ralph/model-diffs/<run-id>/right.json`
+- `artifacts/ralph/model-diffs/<run-id>/diff.json`
+- `artifacts/ralph/model-diffs/<run-id>/report.md`
 
 Each loop run persists:
 
@@ -308,6 +319,7 @@ Current benchmark families:
 - `pnpm ralph:interview <prompt-or-job-file>`: prompt or tracked job -> deterministic clarification questions -> persisted interview artifacts
 - `pnpm ralph:draft <interview-dir-or-answers-template>`: answered interview -> synthesized world model -> blueprint -> proof -> persisted draft artifacts
 - `pnpm ralph:job:from-draft <interview-dir-or-answers-template>`: tier-a draft -> tracked model + generated job when safe, otherwise tracked model + rejection report
+- `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`: compare semantic drift between tracked models, draft outputs, benchmark fixtures, or job files
 - `pnpm ralph:loop <job-file>`: validated job -> swarm run -> persisted run artifacts
 - `pnpm ralph:team [jobs-directory]`: batch swarm run over tracked jobs with a persisted team summary
 

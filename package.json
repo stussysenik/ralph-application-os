@@ -18,6 +18,7 @@
     "swarm:demo": "pnpm build && node packages/ralph-cli/dist/index.js swarm",
     "ralph:interview": "pnpm build && node packages/ralph-cli/dist/index.js interview",
     "ralph:draft": "pnpm build && node packages/ralph-cli/dist/index.js draft",
+    "ralph:model:diff": "pnpm build && node packages/ralph-cli/dist/index.js model:diff",
     "ralph:loop": "pnpm build && node packages/ralph-cli/dist/index.js loop",
     "ralph:team": "pnpm build && node packages/ralph-cli/dist/index.js team",
     "ralph:job:new": "pnpm build && node packages/ralph-cli/dist/index.js job:new",
@@ -25,7 +26,7 @@
     "ralph:job:validate": "pnpm build && node packages/ralph-cli/dist/index.js job:validate",
     "release": "semantic-release",
     "release:dry": "semantic-release --dry-run",
-    "spec:validate": "openspec validate define-ralph-application-os && openspec validate shift-to-internal-builders && openspec validate add-job-runtime-and-ledger && openspec validate add-interview-loop && openspec validate add-draft-synthesis && openspec validate add-draft-promotion",
+    "spec:validate": "openspec validate define-ralph-application-os && openspec validate shift-to-internal-builders && openspec validate add-job-runtime-and-ledger && openspec validate add-interview-loop && openspec validate add-draft-synthesis && openspec validate add-draft-promotion && openspec validate add-semantic-model-diff",
     "prompt": "cat START_PROMPT.md"
   },
   "devDependencies": {

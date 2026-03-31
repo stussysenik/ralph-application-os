@@ -36,13 +36,14 @@ Ralph Application OS is a semantic software platform that turns intent into a wo
 - loop runs now emit `report.md`, full run records, and JSONL ledger entries alongside machine artifacts
 - draft runs now emit capability manifests before promotion
 - safe drafts can now become tracked models and generated tracked jobs automatically
+- semantic model diffs now make semantic drift inspectable before further promotion
 
 ### Current Limits
 
 - no executable substrate yet
 - no browser studio yet
 - no long-lived orchestration runtime yet
-- no semantic diff/merge engine yet
+- no semantic merge engine yet
 
 ## Rejected Branches
 
@@ -95,7 +96,7 @@ Take this branch if:
 
 ## Next Irreversible Moves
 
-1. Add kernel diff and merge semantics
+1. Add kernel merge and patch semantics
 2. Add benchmark replay and mutation tests
 3. Turn blueprints into executable artifacts
 4. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
