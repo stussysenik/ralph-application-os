@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/stussysenik/ralph-application-os/compare/v1.1.0...v1.2.0) (2026-03-31)
+
+
+### Features
+
+* add semantic model merging ([2fd1a44](https://github.com/stussysenik/ralph-application-os/commit/2fd1a44530bdd7fd4c0fcebf627e301f6c79d77d))
+
 # [1.1.0](https://github.com/stussysenik/ralph-application-os/compare/v1.0.0...v1.1.0) (2026-03-31)
 
 
