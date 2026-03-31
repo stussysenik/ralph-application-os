@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/stussysenik/ralph-application-os/compare/v1.6.0...v1.7.0) (2026-03-31)
+
+
+### Features
+
+* improve ideation and engineering handoffs ([c2d73d2](https://github.com/stussysenik/ralph-application-os/commit/c2d73d28b159baf531849fcf381afad3e8606a9d))
+
 # [1.6.0](https://github.com/stussysenik/ralph-application-os/compare/v1.5.0...v1.6.0) (2026-03-31)
 
 
