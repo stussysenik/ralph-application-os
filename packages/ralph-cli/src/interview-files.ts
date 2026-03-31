@@ -2,8 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import {
+  buildIdeationBrief,
   buildInterviewQuestions,
   formatInterviewQuestions,
+  type RalphIdeationBrief,
   type RalphInterviewBrief,
   type RalphInterviewQuestion
 } from "@ralph/agent-swarm";
@@ -14,9 +16,11 @@ const DEFAULT_INTERVIEWS_DIR = "artifacts/ralph/interviews";
 
 export interface RalphInterviewRun {
   brief: RalphInterviewBrief;
+  ideation: RalphIdeationBrief;
   questions: RalphInterviewQuestion[];
   interviewDir: string;
   briefPath: string;
+  ideationPath: string;
   questionsPath: string;
   reportPath: string;
   answersTemplatePath: string;
@@ -40,7 +44,7 @@ async function pathExists(candidatePath: string): Promise<boolean> {
   }
 }
 
-async function buildInterviewBriefFromArgument(
+export async function buildInterviewBriefFromArgument(
   rootDir: string,
   argument: string
 ): Promise<{ slug: string; brief: RalphInterviewBrief }> {
@@ -78,14 +82,17 @@ async function buildInterviewBriefFromArgument(
   };
 }
 
-function formatInterviewAnswerTemplate(
+export function formatInterviewAnswerTemplate(
   brief: RalphInterviewBrief,
   questions: RalphInterviewQuestion[]
 ): string {
+  const ideation = buildIdeationBrief(brief);
   const lines = [
     "# Ralph Interview Answers",
     "",
     `Prompt: ${brief.prompt}`,
+    `Primary Category: ${ideation.primaryCategory}`,
+    `Execution Mode: ${ideation.executionMode}`,
     "",
     "Instructions:",
     "- answer the blocking questions first",
@@ -113,6 +120,7 @@ export async function runInterviewFromArgument(
   argument: string
 ): Promise<RalphInterviewRun> {
   const { slug, brief } = await buildInterviewBriefFromArgument(rootDir, argument);
+  const ideation = buildIdeationBrief(brief);
   const questions = buildInterviewQuestions(brief);
   const interviewDir = path.join(
     rootDir,
@@ -120,6 +128,7 @@ export async function runInterviewFromArgument(
     `${new Date().toISOString().replace(/[:.]/g, "-")}-${slug}`
   );
   const briefPath = path.join(interviewDir, "brief.json");
+  const ideationPath = path.join(interviewDir, "ideation.json");
   const questionsPath = path.join(interviewDir, "questions.json");
   const reportPath = path.join(interviewDir, "report.md");
   const answersTemplatePath = path.join(interviewDir, "answers.template.md");
@@ -127,6 +136,7 @@ export async function runInterviewFromArgument(
   await fs.mkdir(interviewDir, { recursive: true });
   await Promise.all([
     fs.writeFile(briefPath, `${JSON.stringify(brief, null, 2)}\n`, "utf8"),
+    fs.writeFile(ideationPath, `${JSON.stringify(ideation, null, 2)}\n`, "utf8"),
     fs.writeFile(questionsPath, `${JSON.stringify(questions, null, 2)}\n`, "utf8"),
     fs.writeFile(reportPath, `${formatInterviewQuestions(brief, questions)}\n`, "utf8"),
     fs.writeFile(
@@ -138,9 +148,11 @@ export async function runInterviewFromArgument(
 
   return {
     brief,
+    ideation,
     questions,
     interviewDir,
     briefPath,
+    ideationPath,
     questionsPath,
     reportPath,
     answersTemplatePath

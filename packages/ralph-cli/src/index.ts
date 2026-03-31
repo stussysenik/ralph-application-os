@@ -21,6 +21,7 @@ import {
   type RalphTeamRun
 } from "./job-files.js";
 import { runDraftFromArgument } from "./draft-files.js";
+import { runIdeationFromArgument } from "./ideation-files.js";
 import { runInterviewFromArgument } from "./interview-files.js";
 import { runModelDiffFromArguments } from "./model-diff-files.js";
 import { runModelMergeFromArguments } from "./model-merge-files.js";
@@ -162,6 +163,22 @@ function main(): void {
         return;
       }
 
+      if (command === "ideate") {
+        const ideationInput =
+          argument ??
+          "Build a toy optimizing compiler from a small Lisp to WebAssembly.";
+        const run = await runIdeationFromArgument(process.cwd(), ideationInput);
+        console.log(await fs.readFile(run.reportPath, "utf8"));
+        console.log("");
+        console.log(`Prepared ${run.questions.length} interview questions.`);
+        console.log(`Artifacts written to: ${run.ideationDir}`);
+        console.log(`Brief: ${run.ideationPath}`);
+        console.log(`Architecture outline: ${run.architecturePath}`);
+        console.log(`Answer template: ${run.answersTemplatePath}`);
+        console.log(`Manifest: ${run.manifestPath}`);
+        return;
+      }
+
       if (command === "job:new") {
         const name = argument ?? "new-job";
         const { jobPath } = await createJobTemplate(process.cwd(), name);
@@ -263,7 +280,7 @@ function main(): void {
         const interviewInput =
           argument ??
           path.join(process.cwd(), ".ralph/jobs/examples/screenshot-studio.json");
-        const { questions, interviewDir, reportPath, answersTemplatePath } =
+        const { questions, interviewDir, ideationPath, reportPath, answersTemplatePath } =
           await runInterviewFromArgument(
           process.cwd(),
           interviewInput
@@ -272,6 +289,7 @@ function main(): void {
         console.log("");
         console.log(`Ralph interview generated ${questions.length} questions.`);
         console.log(`Artifacts written to: ${interviewDir}`);
+        console.log(`Ideation brief: ${ideationPath}`);
         console.log(`Report: ${reportPath}`);
         console.log(`Answer template: ${answersTemplatePath}`);
         return;

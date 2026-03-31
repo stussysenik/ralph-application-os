@@ -18,6 +18,12 @@ intent + artifacts + corrections
 
 ## Major Parts
 
+### Universal Intake
+
+Ralph now has a universal ideation front door before it promises execution. The intake layer classifies the software category, declares whether the current result should be an interactive runtime path, a semantic runtime plan, or an architecture-spec output, and then generates category-specific interview pressure.
+
+This is how Ralph can take kernels, compilers, renderers, pipelines, and workflow apps seriously without flattening them into the same shape.
+
 ### Semantic Kernel
 
 The semantic kernel is the canonical source of truth. It owns entities, relations, states, actions, constraints, policies, views, effects, and provenance.
@@ -77,7 +83,7 @@ Each stage emits structured artifacts and function-call records. This keeps the 
 
 ## Interaction Modes
 
-- Prompt-first: describe an app or a change
+- Prompt-first: describe any software idea, receive an ideation brief, then clarify the semantic model
 - Studio-first: inspect and edit the world model directly
 - Spec-first: define requirements and invariants
 - Code-first: edit builders and kernel packages

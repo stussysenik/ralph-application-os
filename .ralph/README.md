@@ -17,6 +17,7 @@ Runtime outputs do **not** live here.
 
 They go to:
 
+- `artifacts/ralph/ideation/<run-id>/`
 - `artifacts/ralph/interviews/<run-id>/`
 - `artifacts/ralph/drafts/<run-id>/`
 - `artifacts/ralph/promotions/<run-id>/`
@@ -33,6 +34,7 @@ They go to:
 - workflows define stage order and expected artifacts
 - swarm roles define which stage each role can claim
 - the job schema defines the tracked contract the runtime validates before execution
+- ideation runs classify software category, execution depth, and next proof obligations before the interview loop starts
 - interview runs derive clarification questions before a full job loop is necessary
 - draft runs synthesize a first semantic model from answered interviews
 - promotion runs write tracked models first and only generate tracked jobs when the draft is tier A and proof-clean

@@ -25,14 +25,22 @@ afterEach(async () => {
 describe("runInterviewFromArgument", () => {
   it("writes prompt-first interview artifacts", async () => {
     const rootDir = await createTempRoot();
-    const { interviewDir, reportPath, questionsPath, answersTemplatePath, questions } =
+    const {
+      interviewDir,
+      ideationPath,
+      reportPath,
+      questionsPath,
+      answersTemplatePath,
+      questions
+    } =
       await runInterviewFromArgument(
         rootDir,
         "Build a screenshot studio for marketers to capture pages and share annotated images."
       );
 
-    const [reportRaw, questionsRaw, answersTemplateRaw] = await Promise.all([
+    const [reportRaw, ideationRaw, questionsRaw, answersTemplateRaw] = await Promise.all([
       fs.readFile(reportPath, "utf8"),
+      fs.readFile(ideationPath, "utf8"),
       fs.readFile(questionsPath, "utf8"),
       fs.readFile(answersTemplatePath, "utf8")
     ]);
@@ -40,8 +48,11 @@ describe("runInterviewFromArgument", () => {
     expect(questions.length).toBeGreaterThan(2);
     expect(path.dirname(reportPath)).toBe(interviewDir);
     expect(reportRaw).toContain("Ralph Interview Loop");
+    expect(reportRaw).toContain("Primary category:");
+    expect(ideationRaw).toContain('"primaryCategory"');
     expect(questionsRaw).toContain("target-surface");
     expect(answersTemplateRaw).toContain("# Ralph Interview Answers");
+    expect(answersTemplateRaw).toContain("Execution Mode:");
     expect(answersTemplateRaw).toContain("Answer:");
   });
 });

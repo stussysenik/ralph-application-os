@@ -49,6 +49,34 @@ describe("buildInterviewQuestions", () => {
     expect(questions.some((question) => question.id === "target-surface")).toBe(false);
     expect(questions.some((question) => question.id === "language-constraints")).toBe(false);
   });
+
+  it("asks compiler-specific questions for compiler prompts", () => {
+    const brief: RalphInterviewBrief = {
+      prompt: "Build a toy optimizing compiler from a small Lisp to WebAssembly."
+    };
+
+    const questions = buildInterviewQuestions(brief);
+
+    expect(questions.some((question) => question.id === "source-language-and-target")).toBe(true);
+    expect(
+      questions.some((question) => question.id === "correctness-and-optimization-regime")
+    ).toBe(true);
+  });
+
+  it("asks kernel-specific resource and capability questions for kernel prompts", () => {
+    const brief: RalphInterviewBrief = {
+      prompt: "Build a capability-based kernel with process scheduling and virtual memory."
+    };
+
+    const questions = buildInterviewQuestions(brief);
+
+    expect(
+      questions.some((question) => question.id === "capability-and-privilege-boundaries")
+    ).toBe(true);
+    expect(questions.some((question) => question.id === "resource-model-and-scheduling")).toBe(
+      true
+    );
+  });
 });
 
 describe("inspectRalphJob", () => {

@@ -12,6 +12,12 @@ import {
   runKernelProofs,
   type ProofResult
 } from "@ralph/proof-harness";
+import {
+  buildCategoryInterviewQuestions,
+  buildIdeationBrief
+} from "./ideation.js";
+
+export * from "./ideation.js";
 
 export type RalphAgentRole =
   | "researcher"
@@ -138,7 +144,11 @@ export type RalphInterviewQuestionCategory =
   | "policy"
   | "integration"
   | "interface"
-  | "implementation";
+  | "implementation"
+  | "runtime"
+  | "resource"
+  | "performance"
+  | "proof";
 
 export interface RalphInterviewBrief {
   prompt: string;
@@ -738,6 +748,7 @@ export function buildInterviewQuestions(
   const prompt = brief.prompt.trim().toLowerCase();
   const selectedModel =
     brief.worldModel ?? (brief.benchmarkName ? selectBenchmarkModel(brief.benchmarkName) : null);
+  const ideation = buildIdeationBrief(brief);
   const questions: RalphInterviewQuestion[] = [];
 
   addInterviewQuestion(questions, {
@@ -754,8 +765,9 @@ export function buildInterviewQuestions(
     category: "data",
     priority: "high",
     blocking: true,
-    prompt: "What are the 3-7 core records or entities this system must track?",
-    rationale: "The data model is the enabling core value, so the first records must be explicit."
+    prompt: "What are the 3-7 core records, components, or semantic objects this system must track or model?",
+    rationale:
+      "The data model is the enabling core value, so the first durable objects must be explicit."
   });
 
   addInterviewQuestion(questions, {
@@ -763,9 +775,14 @@ export function buildInterviewQuestions(
     category: "workflow",
     priority: "high",
     blocking: true,
-    prompt: "What is the critical lifecycle or workflow from start to finish?",
-    rationale: "The platform needs the main state transitions before it can build or prove behavior."
+    prompt: "What is the critical lifecycle, execution loop, or workflow from start to finish?",
+    rationale:
+      "The platform needs the main transitions or control flow before it can build or prove behavior."
   });
+
+  for (const question of buildCategoryInterviewQuestions(ideation)) {
+    addInterviewQuestion(questions, question);
+  }
 
   if (
     prompt.includes("approve") ||
@@ -846,9 +863,13 @@ export function formatInterviewQuestions(
   brief: RalphInterviewBrief,
   questions: RalphInterviewQuestion[]
 ): string {
+  const ideation = buildIdeationBrief(brief);
   const lines = [
     "Ralph Interview Loop",
     `Prompt: ${brief.prompt}`,
+    `Primary category: ${ideation.primaryCategory}`,
+    `Execution mode: ${ideation.executionMode}`,
+    `Confidence: ${(ideation.confidence * 100).toFixed(0)}%`,
     `Questions: ${questions.length}`,
     ""
   ];
@@ -857,6 +878,17 @@ export function formatInterviewQuestions(
     lines.push(`Benchmark: ${brief.benchmarkName}`);
     lines.push("");
   }
+
+  if (ideation.secondaryCategories.length > 0) {
+    lines.push(`Secondary categories: ${ideation.secondaryCategories.join(", ")}`);
+    lines.push("");
+  }
+
+  lines.push("Why this path:");
+  for (const item of ideation.rationale) {
+    lines.push(`- ${item}`);
+  }
+  lines.push("");
 
   for (const question of questions) {
     lines.push(

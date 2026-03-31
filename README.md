@@ -112,6 +112,7 @@ pnpm test
 pnpm spec:validate
 pnpm demo
 pnpm swarm:demo
+pnpm ralph:ideate "Build a toy optimizing compiler from a small Lisp to WebAssembly."
 pnpm ralph:interview "Build a screenshot studio for marketers"
 pnpm ralph:draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:job:from-draft .ralph/interviews/examples/screenshot-studio.answers.md
@@ -156,6 +157,7 @@ Useful commands:
 
 ```bash
 pnpm docs:sync
+pnpm ralph:ideate "Build a toy optimizing compiler from a small Lisp to WebAssembly."
 pnpm ralph:interview "Build a screenshot studio for marketers"
 pnpm ralph:draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:job:from-draft .ralph/interviews/examples/screenshot-studio.answers.md
@@ -176,17 +178,17 @@ pnpm ralph:team
 - answered interview examples: 1
 - tracked generated models: 1
 - tracked generated jobs: 1
-- operator commands: ralph:artifact, ralph:draft, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:model:merge, ralph:model:patch, ralph:team
+- operator commands: ralph:artifact, ralph:draft, ralph:ideate, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:model:merge, ralph:model:patch, ralph:team
 <!-- generated:readme-snapshot:end -->
 
 ## How To Use Ralph Now
 
 For a new idea:
 
-1. `pnpm ralph:interview "<your idea>"`
-2. Fill the generated `answers.template.md`
-3. `pnpm ralph:draft <interview-dir-or-answer-file>`
-4. `pnpm ralph:job:from-draft <interview-dir-or-answer-file>`
+1. `pnpm ralph:ideate "<your idea>"`
+2. Review the software category, execution mode, and generated `answers.template.md`
+3. `pnpm ralph:draft <ideation-dir-or-answer-file>`
+4. `pnpm ralph:job:from-draft <ideation-dir-or-answer-file>`
 5. `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`
 6. `pnpm ralph:model:patch <model-input> <patch-file>`
 7. `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`
@@ -200,9 +202,20 @@ For repo hygiene:
 3. `pnpm test`
 4. `pnpm spec:validate`
 
+Ideation artifacts persist under:
+
+- `artifacts/ralph/ideation/<run-id>/brief.json`
+- `artifacts/ralph/ideation/<run-id>/ideation.json`
+- `artifacts/ralph/ideation/<run-id>/questions.json`
+- `artifacts/ralph/ideation/<run-id>/architecture.md`
+- `artifacts/ralph/ideation/<run-id>/answers.template.md`
+- `artifacts/ralph/ideation/<run-id>/report.md`
+- `artifacts/ralph/ideation/<run-id>/manifest.json`
+
 Interview artifacts persist under:
 
 - `artifacts/ralph/interviews/<run-id>/brief.json`
+- `artifacts/ralph/interviews/<run-id>/ideation.json`
 - `artifacts/ralph/interviews/<run-id>/questions.json`
 - `artifacts/ralph/interviews/<run-id>/report.md`
 - `artifacts/ralph/interviews/<run-id>/answers.template.md`
@@ -306,10 +319,12 @@ The first supported domains are operational and workflow-heavy systems, not arbi
 
 ## Current Boundary
 
-This repo is **not ready for anything** yet.
+This repo is **not ready to execute anything** yet, but it is ready to take almost any software idea seriously at the ideation layer.
 
 It is ready for:
 
+- prompt-first ideation across workflow software, knowledge systems, compilers, rendering systems, kernels, embedded protocols, agent systems, and data pipelines
+- explicit software-category classification with confidence and execution-mode reporting
 - prompt-first interview and clarification
 - deterministic interview-answer to world-model draft synthesis
 - capability classification for synthesized drafts
@@ -326,13 +341,15 @@ It is not yet ready for:
 
 - arbitrary prompt-to-app generation
 - executable runtime artifacts from every blueprint
-- universal software classes like compilers, kernels, or modem stacks
+- deployable runtime artifacts for compilers, kernels, browser engines, or modem stacks
 - a browser-native studio experience
 
 ## Current Output
 
 Today the primary outputs are:
 
+- ideation briefs with software-category, execution mode, proof regime, and recommended language/surface hints
+- architecture outlines for categories that need design pressure before implementation
 - interview question sets
 - first-draft semantic world models synthesized from interview answers
 - capability-tier assessments and promotion recommendations
@@ -354,6 +371,7 @@ The moat is **not** “we can call models” and it is **not** “we have a loop
 If this becomes defensible, the moat will be:
 
 - a stable semantic kernel
+- a universal ideation front door that classifies software category before promising execution
 - proof before promotion
 - replay and mutation pressure in the proof harness
 - correction memory and provenance
@@ -371,6 +389,7 @@ Current benchmark families:
 
 ## Current Demo Modes
 
+- `pnpm ralph:ideate <prompt-or-job-file>`: universal intake -> software category classification -> execution-mode recommendation -> generated interview template
 - `pnpm demo`: benchmark world models -> internal blueprints -> proof
 - `pnpm swarm:demo`: Ralph loop swarm execution with typed stage artifacts and promotion decisions
 - `pnpm ralph:interview <prompt-or-job-file>`: prompt or tracked job -> deterministic clarification questions -> persisted interview artifacts

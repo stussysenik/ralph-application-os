@@ -9,7 +9,7 @@
 - tracked answered interview examples: 1
 - tracked generated models: 1
 - tracked generated jobs: 1
-- current operator path: prompt -> interview -> draft -> promotion -> diff -> patch -> merge -> artifact -> loop
+- current operator path: prompt -> ideate -> interview -> draft -> promotion -> diff -> patch -> merge -> artifact -> loop
 <!-- generated:progress-snapshot:end -->
 
 ### Established
@@ -36,6 +36,7 @@
 - semantic model merging with conflict artifacts and proof on conflict-free branches
 - workflow replay and mutation-resistance checks in the proof harness
 - runtime package generation with a browser-openable entrypoint
+- cross-domain ideation briefs that classify software category and execution depth before draft synthesis
 
 ### Current Truth
 
@@ -49,11 +50,12 @@
 - The repo can now merge two semantic branches against a shared base and keep conflicts as typed artifacts when auto-merge is unsafe.
 - The proof harness now checks workflow replay from initial states and verifies invariants fail on intentional mutations.
 - The repo can now materialize an interactive local runtime package with deterministic seed data, workflow actions, local persistence, and machine-readable runtime files.
+- The repo can now accept prompts from broader software categories and respond with an explicit ideation brief, proof regime, and category-specific interview path instead of forcing every idea into a workflow-app shape.
 - The implementation is still early, but it can now execute validated job files, load tracked workflow and role config, persist durable run artifacts, and batch over tracked jobs.
 
 ### Next Steps
 
-1. Add richer editable data operations and relation-aware records to the local runtime package.
+1. Add relation-aware editing and richer local data operations to the interactive runtime package.
 2. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
 3. Add browser-native model inspection and merge review in the future studio.
-4. Expand replay and mutation coverage across the full benchmark corpus.
+4. Expand category coverage with tracked ideation probes and stronger architecture-spec outputs for non-app software classes.

@@ -14,8 +14,8 @@ The point is not to predict the future perfectly. The point is to preserve:
 <!-- generated:ledger-snapshot:start -->
 - tracked generated models now exist: yes
 - tracked generated jobs now exist: yes
-- current irreversible move under test: interactive local runtime packages with executable workflow actions
-- latest capability contract artifact: artifacts/ralph/runtime-packages/<run-id>/manifest.json
+- current irreversible move under test: universal ideation briefs that classify software category before execution
+- latest capability contract artifact: artifacts/ralph/ideation/<run-id>/manifest.json
 <!-- generated:ledger-snapshot:end -->
 
 ## Current Branch
@@ -41,6 +41,7 @@ Ralph Application OS is a semantic software platform that turns intent into a wo
 - semantic merge runs now either prove conflict-free branches or preserve typed conflicts for operator review
 - proof runs now include workflow replay and mutation-resistance pressure
 - the builder can now emit an interactive local runtime package instead of only a prose blueprint
+- the intake surface can now classify broader software categories and declare whether Ralph should behave like a runtime path or an architecture-spec tool
 
 ### Current Limits
 
@@ -61,6 +62,7 @@ Reason:
 Reason:
 - the benchmark corpus is still narrow
 - proof regimes differ too much across software classes
+- ideation breadth is now ahead of executable breadth
 
 ### Rejected For Now: polyglot implementation from day one
 
@@ -100,6 +102,6 @@ Take this branch if:
 ## Next Irreversible Moves
 
 1. Add richer data editing, relation browsing, and persistence semantics to the runtime package
-2. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
-3. Add human-guided conflict resolution on top of typed semantic merge conflicts
+2. Add tracked ideation probes for compilers, rendering systems, and kernel-adjacent prompts
+3. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
 4. Expand benchmark replay and mutation pressure to every benchmark family
