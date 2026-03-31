@@ -1,5 +1,8 @@
 # Ralph Application OS
 
+![Demo](demo.gif)
+
+
 Ralph Application OS is a spec-driven, TDD-driven semantic application platform.
 
 The system's job is to turn intent, examples, and human corrections into a canonical semantic model, build working software from that model on our own substrate, prove the result, and continuously improve through a supervised loop.
