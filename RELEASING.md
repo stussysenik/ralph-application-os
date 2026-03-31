@@ -9,6 +9,7 @@ This repo uses `semantic-release`.
 - updates `CHANGELOG.md`
 - writes the release version back to `package.json`
 - creates the release commit through the configured git plugin
+- publishes a GitHub Release on the remote repository
 
 ## Local Checks Before Release
 
@@ -44,11 +45,9 @@ BREAKING CHANGE: run artifacts now write report.md instead of summary.txt
 
 ## Current Reality
 
-- release automation is configured
-- the repo is still local and uncommitted
-- no GitHub remote release has been executed yet
-
-So semantic-release is ready as a workflow, but not yet proven against a real hosted `main` branch.
+- release automation is configured on `main`
+- changelog and release commits are automated through semantic-release
+- GitHub Releases are now expected to publish through `@semantic-release/github`
 
 ## Docs Discipline
 

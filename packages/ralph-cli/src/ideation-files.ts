@@ -15,6 +15,7 @@ import {
   buildInterviewBriefFromArgument,
   formatInterviewAnswerTemplate
 } from "./interview-files.js";
+import { loadCorrectionMemories } from "./correction-memory-files.js";
 
 const DEFAULT_IDEATION_DIR = "artifacts/ralph/ideation";
 
@@ -26,6 +27,7 @@ export interface RalphIdeationRun {
   briefPath: string;
   ideationPath: string;
   questionsPath: string;
+  correctionMemoryPath: string;
   reportPath: string;
   architecturePath: string;
   answersTemplatePath: string;
@@ -42,7 +44,11 @@ export async function runIdeationFromArgument(
   argument: string
 ): Promise<RalphIdeationRun> {
   const { slug, brief } = await buildInterviewBriefFromArgument(rootDir, argument);
-  const ideation = buildIdeationBrief(brief);
+  const correctionMemories = await loadCorrectionMemories(rootDir);
+  const ideation = buildIdeationBrief({
+    ...brief,
+    correctionMemories
+  });
   const questions = buildInterviewQuestions(brief);
   const ideationDir = path.join(
     rootDir,
@@ -52,6 +58,7 @@ export async function runIdeationFromArgument(
   const briefPath = path.join(ideationDir, "brief.json");
   const ideationPath = path.join(ideationDir, "ideation.json");
   const questionsPath = path.join(ideationDir, "questions.json");
+  const correctionMemoryPath = path.join(ideationDir, "correction-memory.json");
   const reportPath = path.join(ideationDir, "report.md");
   const architecturePath = path.join(ideationDir, "architecture.md");
   const answersTemplatePath = path.join(ideationDir, "answers.template.md");
@@ -65,6 +72,7 @@ export async function runIdeationFromArgument(
       brief: "brief.json",
       ideation: "ideation.json",
       questions: "questions.json",
+      correctionMemory: "correction-memory.json",
       report: "report.md",
       architecture: "architecture.md",
       answersTemplate: "answers.template.md"
@@ -76,6 +84,11 @@ export async function runIdeationFromArgument(
     fs.writeFile(briefPath, `${JSON.stringify(brief, null, 2)}\n`, "utf8"),
     fs.writeFile(ideationPath, `${JSON.stringify(ideation, null, 2)}\n`, "utf8"),
     fs.writeFile(questionsPath, `${JSON.stringify(questions, null, 2)}\n`, "utf8"),
+    fs.writeFile(
+      correctionMemoryPath,
+      `${JSON.stringify(ideation.correctionMemoryMatches, null, 2)}\n`,
+      "utf8"
+    ),
     fs.writeFile(reportPath, `${formatIdeationBrief(ideation)}\n`, "utf8"),
     fs.writeFile(
       architecturePath,
@@ -98,6 +111,7 @@ export async function runIdeationFromArgument(
     briefPath,
     ideationPath,
     questionsPath,
+    correctionMemoryPath,
     reportPath,
     architecturePath,
     answersTemplatePath,

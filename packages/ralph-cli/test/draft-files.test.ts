@@ -180,15 +180,52 @@ describe("runDraftFromArgument", () => {
     const rootDir = await createTempRoot();
     const interviewDir = path.join(rootDir, "artifacts/ralph/interviews/vision-example");
     const answersTemplatePath = path.join(interviewDir, "answers.template.md");
+    const correctionDir = path.join(rootDir, ".ralph/corrections/examples");
+    const correctionPath = path.join(correctionDir, "offer-freshness.json");
 
     await fs.mkdir(interviewDir, { recursive: true });
     await fs.writeFile(answersTemplatePath, `${visionCommerceInterview}\n`, "utf8");
+    await fs.mkdir(correctionDir, { recursive: true });
+    await fs.writeFile(
+      correctionPath,
+      `${JSON.stringify(
+        {
+          id: "offer-freshness",
+          title: "Retailer offers need freshness tracking",
+          kind: "ranking",
+          summary: "Offer and stock data drift quickly in shopping flows.",
+          recommendation:
+            "Track retailer-offer freshness and source timestamps so stale comparisons do not outrank current inventory.",
+          categories: ["vision-commerce"],
+          entityNames: ["RetailerOffer", "AlternativeRecommendation"],
+          promptKeywords: ["price matches", "shopping"],
+          source: {
+            sourceType: "human-edit",
+            sourceRef: "operator:offer-freshness-v1"
+          }
+        },
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
 
-    const { engineeringHandoffPath } = await runDraftFromArgument(rootDir, interviewDir);
-    const handoffRaw = await fs.readFile(engineeringHandoffPath, "utf8");
+    const { engineeringHandoffPath, reportPath, correctionMemoryPath } = await runDraftFromArgument(
+      rootDir,
+      interviewDir
+    );
+    const [handoffRaw, reportRaw, correctionMemoryRaw] = await Promise.all([
+      fs.readFile(engineeringHandoffPath, "utf8"),
+      fs.readFile(reportPath, "utf8"),
+      fs.readFile(correctionMemoryPath, "utf8")
+    ]);
 
     expect(handoffRaw).toContain("Add explainable ranking so every recommendation shows");
     expect(handoffRaw).toContain("Add retailer-offer freshness windows");
     expect(handoffRaw).toContain("Add a human correction loop for low-confidence scans");
+    expect(handoffRaw).toContain("## Correction Memory");
+    expect(handoffRaw).toContain("Retailer offers need freshness tracking");
+    expect(reportRaw).toContain("Correction Memory:");
+    expect(correctionMemoryRaw).toContain("offer-freshness");
   });
 });

@@ -39,6 +39,7 @@
 - runtime package generation with a browser-openable entrypoint
 - cross-domain ideation briefs that classify software category and execution depth before draft synthesis
 - relation-aware interview synthesis that can now infer a usable semantic graph for screenshot and vision-commerce style products
+- correction-memory matching and repo-local correction files that feed durable operator lessons back into ideation and draft outputs
 
 ### Current Truth
 
@@ -55,12 +56,13 @@
 - The repo can now materialize an interactive local runtime package with deterministic seed data, workflow actions, local persistence, and machine-readable runtime files.
 - The repo can now accept prompts from broader software categories and respond with an explicit ideation brief, proof regime, and category-specific interview path instead of forcing every idea into a workflow-app shape.
 - The ideation brief can now suggest stronger functionality earlier in the flow, so product shaping starts before the interview is even answered.
+- The repo can now replay correction memory from `.ralph/corrections/` so project-specific semantic lessons show up during ideation and in engineering handoffs.
 - The interview synthesizer now infers relation graphs for supported patterns, so more drafts arrive without a generic `relation-map` ambiguity.
 - The implementation is still early, but it can now execute validated job files, load tracked workflow and role config, persist durable run artifacts, and batch over tracked jobs.
 
 ### Next Steps
 
-1. Add relation-aware editing and richer local data operations to the interactive runtime package.
-2. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
-3. Add browser-native model inspection and merge review in the future studio.
-4. Expand ideation improvement heuristics with correction memory instead of only category-driven suggestions.
+1. Turn correction memory from manual file entries into harvested output from patches, merges, and accepted edits.
+2. Add relation-aware editing and richer local data operations to the interactive runtime package.
+3. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
+4. Add browser-native model inspection and merge review in the future studio.

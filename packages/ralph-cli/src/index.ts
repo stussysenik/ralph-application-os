@@ -27,6 +27,7 @@ import { runModelDiffFromArguments } from "./model-diff-files.js";
 import { runModelMergeFromArguments } from "./model-merge-files.js";
 import { runModelPatchFromArguments } from "./model-patch-files.js";
 import { promoteDraftFromArgument } from "./promotion-files.js";
+import { createCorrectionTemplate } from "./correction-memory-files.js";
 
 function renderModelSummary(model: SemanticWorldModel): string {
   return [
@@ -173,9 +174,17 @@ function main(): void {
         console.log(`Prepared ${run.questions.length} interview questions.`);
         console.log(`Artifacts written to: ${run.ideationDir}`);
         console.log(`Brief: ${run.ideationPath}`);
+        console.log(`Correction memory: ${run.correctionMemoryPath}`);
         console.log(`Architecture outline: ${run.architecturePath}`);
         console.log(`Answer template: ${run.answersTemplatePath}`);
         console.log(`Manifest: ${run.manifestPath}`);
+        return;
+      }
+
+      if (command === "correction:new") {
+        const name = argument ?? "new-correction";
+        const { correctionPath } = await createCorrectionTemplate(process.cwd(), name);
+        console.log(`Created correction template: ${correctionPath}`);
         return;
       }
 
@@ -308,6 +317,7 @@ function main(): void {
           modelPath,
           proofPath,
           capabilityPath,
+          correctionMemoryPath,
           engineeringHandoffPath,
           manifestPath
         } =
@@ -318,6 +328,7 @@ function main(): void {
         console.log(`World model: ${modelPath}`);
         console.log(`Proof: ${proofPath}`);
         console.log(`Capability: ${capabilityPath}`);
+        console.log(`Correction memory: ${correctionMemoryPath}`);
         console.log(`Engineering handoff: ${engineeringHandoffPath}`);
         console.log(`Manifest: ${manifestPath}`);
         return;

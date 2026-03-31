@@ -1,4 +1,9 @@
-import type { SemanticWorldModel } from "@ralph/semantic-kernel";
+import {
+  matchCorrectionMemories,
+  type SemanticCorrectionMemory,
+  type SemanticCorrectionMemoryMatch,
+  type SemanticWorldModel
+} from "@ralph/semantic-kernel";
 
 /**
  * Cross-domain ideation is intentionally deterministic. Ralph can broaden its
@@ -54,6 +59,7 @@ export interface RalphIdeationContext {
   prompt: string;
   benchmarkName?: string;
   worldModel?: SemanticWorldModel;
+  correctionMemories?: SemanticCorrectionMemory[];
   implementationPreferences?: {
     targetSurfaces?: RalphIdeationSurface[];
     preferredLanguages?: string[];
@@ -82,6 +88,7 @@ export interface RalphIdeationBrief {
   builderTargets: string[];
   recommendedSurfaces: RalphIdeationSurface[];
   recommendedLanguages: string[];
+  correctionMemoryMatches: SemanticCorrectionMemoryMatch[];
   improvementOpportunities: string[];
   suggestedCommands: string[];
   interviewFocusIds: string[];
@@ -1203,10 +1210,27 @@ export function buildIdeationBrief(context: RalphIdeationContext): RalphIdeation
     ...primary.definition.builderTargets,
     ...secondaryDefinitions.flatMap((candidate) => candidate.definition.builderTargets)
   ]).slice(0, 6);
-  const improvementOpportunities = buildImprovementOpportunities(
-    primary.definition.category,
-    secondaryDefinitions.map((candidate) => candidate.definition.category)
+  const correctionMemoryMatches = matchCorrectionMemories(
+    context.correctionMemories ?? [],
+    {
+      prompt: context.prompt,
+      categories: [
+        primary.definition.category,
+        ...secondaryDefinitions.map((candidate) => candidate.definition.category)
+      ],
+      ...(context.worldModel?.domain ? { domain: context.worldModel.domain } : {}),
+      ...(context.worldModel
+        ? { entityNames: context.worldModel.entities.map((entity) => entity.name) }
+        : {})
+    }
   );
+  const improvementOpportunities = uniqueStrings([
+    ...buildImprovementOpportunities(
+      primary.definition.category,
+      secondaryDefinitions.map((candidate) => candidate.definition.category)
+    ),
+    ...correctionMemoryMatches.map((match) => match.memory.recommendation)
+  ]).slice(0, 6);
   const interviewFocusIds = uniqueStrings([
     ...primary.definition.interviewQuestions.map((question) => question.id),
     ...secondaryDefinitions.flatMap((candidate) =>
@@ -1242,6 +1266,7 @@ export function buildIdeationBrief(context: RalphIdeationContext): RalphIdeation
     builderTargets,
     recommendedSurfaces,
     recommendedLanguages,
+    correctionMemoryMatches,
     improvementOpportunities,
     suggestedCommands: buildSuggestedCommands(context.prompt, primary.definition.executionMode),
     interviewFocusIds
@@ -1337,6 +1362,18 @@ export function formatIdeationBrief(brief: RalphIdeationBrief): string {
     lines.push(`- ${item}`);
   }
   lines.push("");
+
+  if (brief.correctionMemoryMatches.length > 0) {
+    lines.push("## Correction Memory");
+    lines.push("");
+    for (const match of brief.correctionMemoryMatches) {
+      lines.push(`- ${match.memory.title}: ${match.memory.recommendation}`);
+      for (const reason of match.reasons) {
+        lines.push(`  reason: ${reason}`);
+      }
+    }
+    lines.push("");
+  }
 
   lines.push("## Suggested Commands");
   lines.push("");

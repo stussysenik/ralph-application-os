@@ -1,11 +1,17 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type { RalphImplementationPreferences, RalphTargetSurface } from "@ralph/agent-swarm";
 import {
+  buildIdeationBrief,
+  type RalphImplementationPreferences,
+  type RalphTargetSurface
+} from "@ralph/agent-swarm";
+import {
+  matchCorrectionMemories,
   parseInterviewAnswerMarkdown,
   serializeWorldModel,
   synthesizeWorldModelFromInterview,
+  type SemanticCorrectionMemoryMatch,
   type InterviewAnswerDocument,
   type SemanticWorldModel
 } from "@ralph/semantic-kernel";
@@ -15,6 +21,7 @@ import {
   type ApplicationBlueprint
 } from "@ralph/internal-builders";
 import { runKernelProofs, type ProofResult } from "@ralph/proof-harness";
+import { loadCorrectionMemories } from "./correction-memory-files.js";
 
 const DEFAULT_DRAFTS_DIR = "artifacts/ralph/drafts";
 const KNOWN_TARGET_SURFACES: RalphTargetSurface[] = [
@@ -78,6 +85,7 @@ export interface RalphDraftManifest {
     model: string;
     blueprint: string;
     proof: string;
+    correctionMemory: string;
     engineeringHandoff: string;
     report: string;
   };
@@ -99,6 +107,7 @@ export interface RalphDraftRun {
   modelPath: string;
   blueprintPath: string;
   proofPath: string;
+  correctionMemoryPath: string;
   engineeringHandoffPath: string;
   reportPath: string;
 }
@@ -293,7 +302,8 @@ function formatDraftReport(
   blueprint: ApplicationBlueprint,
   proof: ProofResult,
   capability: RalphCapabilityAssessment,
-  implementationPreferences?: RalphImplementationPreferences
+  implementationPreferences?: RalphImplementationPreferences,
+  correctionMemoryMatches: SemanticCorrectionMemoryMatch[] = []
 ): string {
   const lines = [
     "Ralph Draft Synthesis",
@@ -334,6 +344,18 @@ function formatDraftReport(
   lines.push(
     `- non-negotiables: ${implementationPreferences?.nonNegotiables?.join("; ") || "not specified"}`
   );
+  lines.push("");
+  lines.push("Correction Memory:");
+  if (correctionMemoryMatches.length === 0) {
+    lines.push("- none");
+  } else {
+    for (const match of correctionMemoryMatches) {
+      lines.push(`- ${match.memory.title}: ${match.memory.recommendation}`);
+      for (const reason of match.reasons) {
+        lines.push(`  reason: ${reason}`);
+      }
+    }
+  }
   lines.push("");
   lines.push(formatBlueprint(blueprint));
   lines.push("");
@@ -490,7 +512,8 @@ function formatEngineeringHandoff(
   blueprint: ApplicationBlueprint,
   proof: ProofResult,
   capability: RalphCapabilityAssessment,
-  implementationPreferences?: RalphImplementationPreferences
+  implementationPreferences?: RalphImplementationPreferences,
+  correctionMemoryMatches: SemanticCorrectionMemoryMatch[] = []
 ): string {
   const lines = [
     "# Ralph Engineering Handoff",
@@ -540,8 +563,27 @@ function formatEngineeringHandoff(
 
   lines.push("## Product Improvement Opportunities");
   lines.push("");
-  for (const item of inferProductImprovements(answers, model)) {
+  const productImprovements = [
+    ...inferProductImprovements(answers, model),
+    ...correctionMemoryMatches.map((match) => match.memory.recommendation)
+  ];
+  for (const item of [...new Set(productImprovements)]) {
     lines.push(`- ${item}`);
+  }
+  lines.push("");
+
+  lines.push("## Correction Memory");
+  lines.push("");
+  if (correctionMemoryMatches.length === 0) {
+    lines.push("- none");
+  } else {
+    for (const match of correctionMemoryMatches) {
+      lines.push(`- ${match.memory.title}: ${match.memory.summary}`);
+      lines.push(`- recommendation: ${match.memory.recommendation}`);
+      for (const reason of match.reasons) {
+        lines.push(`- reason: ${reason}`);
+      }
+    }
   }
   lines.push("");
 
@@ -570,6 +612,21 @@ export async function runDraftFromArgument(
   const proof = runKernelProofs(model);
   const capability = assessDraftCapability(model, blueprint, proof);
   const implementationPreferences = extractImplementationPreferences(answers);
+  const correctionMemories = await loadCorrectionMemories(rootDir);
+  const ideation = buildIdeationBrief({
+    prompt: answers.prompt,
+    worldModel: model,
+    ...(implementationPreferences ? { implementationPreferences } : {}),
+    correctionMemories
+  });
+  const correctionMemoryMatches = ideation.correctionMemoryMatches.length > 0
+    ? ideation.correctionMemoryMatches
+    : matchCorrectionMemories(correctionMemories, {
+        prompt: answers.prompt,
+        categories: [ideation.primaryCategory, ...ideation.secondaryCategories],
+        domain: model.domain,
+        entityNames: model.entities.map((entity) => entity.name)
+      });
   const draftId = `${new Date().toISOString().replace(/[:.]/g, "-")}-${slugify(model.name || "draft")}`;
   const draftDir = path.join(
     rootDir,
@@ -582,6 +639,7 @@ export async function runDraftFromArgument(
   const modelPath = path.join(draftDir, "world-model.json");
   const blueprintPath = path.join(draftDir, "blueprint.json");
   const proofPath = path.join(draftDir, "proof.json");
+  const correctionMemoryPath = path.join(draftDir, "correction-memory.json");
   const engineeringHandoffPath = path.join(draftDir, "engineering-handoff.md");
   const reportPath = path.join(draftDir, "report.md");
   const manifest: RalphDraftManifest = {
@@ -599,6 +657,7 @@ export async function runDraftFromArgument(
       model: "world-model.json",
       blueprint: "blueprint.json",
       proof: "proof.json",
+      correctionMemory: "correction-memory.json",
       engineeringHandoff: "engineering-handoff.md",
       report: "report.md"
     }
@@ -613,6 +672,11 @@ export async function runDraftFromArgument(
     fs.writeFile(blueprintPath, `${JSON.stringify(blueprint, null, 2)}\n`, "utf8"),
     fs.writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`, "utf8"),
     fs.writeFile(
+      correctionMemoryPath,
+      `${JSON.stringify(correctionMemoryMatches, null, 2)}\n`,
+      "utf8"
+    ),
+    fs.writeFile(
       engineeringHandoffPath,
       `${formatEngineeringHandoff(
         sourcePath,
@@ -621,7 +685,8 @@ export async function runDraftFromArgument(
         blueprint,
         proof,
         capability,
-        implementationPreferences
+        implementationPreferences,
+        correctionMemoryMatches
       )}\n`,
       "utf8"
     ),
@@ -634,7 +699,8 @@ export async function runDraftFromArgument(
         blueprint,
         proof,
         capability,
-        implementationPreferences
+        implementationPreferences,
+        correctionMemoryMatches
       )}\n`,
       "utf8"
     )
@@ -656,6 +722,7 @@ export async function runDraftFromArgument(
     modelPath,
     blueprintPath,
     proofPath,
+    correctionMemoryPath,
     engineeringHandoffPath,
     reportPath
   };

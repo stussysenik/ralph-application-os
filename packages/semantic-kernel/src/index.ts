@@ -7,3 +7,4 @@ export * from "./fixtures.js";
 export * from "./interview.js";
 export * from "./keys.js";
 export * from "./validate.js";
+export * from "./correction-memory.js";

@@ -1,0 +1,32 @@
+{
+  "id": "vision-commerce-offer-freshness",
+  "title": "Vision commerce needs offer freshness and correction loops",
+  "kind": "ranking",
+  "summary": "Shopping comparisons degrade quickly when price, stock, and OCR output are treated as static facts.",
+  "recommendation": "Track retailer-offer freshness, source timestamps, and low-confidence correction loops before trusting product comparisons at scale.",
+  "categories": [
+    "vision-commerce"
+  ],
+  "domains": [
+    "shopping",
+    "comparison"
+  ],
+  "promptKeywords": [
+    "price match",
+    "shopping",
+    "retailer",
+    "scan"
+  ],
+  "entityNames": [
+    "RetailerOffer",
+    "AlternativeRecommendation",
+    "IngredientObservation",
+    "ScanSession"
+  ],
+  "source": {
+    "sourceType": "human-edit",
+    "sourceRef": "operator:vision-commerce-v1",
+    "note": "Users trust recommendations more when freshness and extraction confidence are explicit.",
+    "confidence": 0.93
+  }
+}

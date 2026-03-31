@@ -40,6 +40,35 @@ describe("buildIdeationBrief", () => {
     );
   });
 
+  it("surfaces correction-memory matches in the ideation brief when the prompt overlaps known gaps", () => {
+    const brief = buildIdeationBrief({
+      prompt:
+        "Build a computer vision app that scans food ingredients, recommends healthier alternatives, price matches equivalent products, and helps users compare options while shopping.",
+      correctionMemories: [
+        {
+          id: "offer-freshness",
+          title: "Retailer offers need freshness",
+          kind: "ranking",
+          summary: "Offer data drifts quickly in shopping flows.",
+          recommendation:
+            "Track retailer-offer freshness and source timestamps so stale comparisons do not outrank live inventory.",
+          categories: ["vision-commerce"],
+          promptKeywords: ["price matches", "shopping"],
+          source: {
+            sourceType: "human-edit",
+            sourceRef: "operator:offer-freshness-v1"
+          }
+        }
+      ]
+    });
+
+    expect(brief.correctionMemoryMatches).toHaveLength(1);
+    expect(brief.correctionMemoryMatches[0]?.memory.id).toBe("offer-freshness");
+    expect(brief.improvementOpportunities).toContain(
+      "Track retailer-offer freshness and source timestamps so stale comparisons do not outrank live inventory."
+    );
+  });
+
   it("treats kernel prompts as architecture-first systems work", () => {
     const brief = buildIdeationBrief({
       prompt: "Build a capability-based kernel with process scheduling and virtual memory."

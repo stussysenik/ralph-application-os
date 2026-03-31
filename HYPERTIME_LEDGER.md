@@ -45,6 +45,7 @@ Ralph Application OS is a semantic software platform that turns intent into a wo
 - the intake surface can now classify broader software categories and declare whether Ralph should behave like a runtime path or an architecture-spec tool
 - interview synthesis now reaches one level deeper into the moat by inferring relation graphs instead of deferring them as generic open questions
 - Ralph can now improve an idea during ideation and again at handoff by suggesting better functionality grounded in category and semantic structure instead of only preserving the idea verbatim
+- Ralph now has a visible correction-memory path, so durable operator lessons can be replayed into later ideation and draft runs instead of staying trapped in one-off artifacts
 
 ### Current Limits
 
@@ -104,7 +105,7 @@ Take this branch if:
 
 ## Next Irreversible Moves
 
-1. Add richer data editing, relation browsing, and persistence semantics to the runtime package
-2. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
-3. Expand benchmark replay and mutation pressure to every benchmark family
-4. Turn idea-improvement suggestions from category heuristics into correction-memory-driven guidance
+1. Turn correction memory from manual repo entries into harvested output from patches, merges, and accepted edits
+2. Add richer data editing, relation browsing, and persistence semantics to the runtime package
+3. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
+4. Expand benchmark replay and mutation pressure to every benchmark family

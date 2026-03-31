@@ -53,26 +53,29 @@ Instead of hand-assembling schemas, endpoints, workflows, views, and proofs sepa
 - every step leaves durable artifacts instead of hidden prompt state
 - drafts can now become tracked models and tracked jobs automatically when they are strong enough
 - drafts now emit an engineering handoff that tells an SWE what to build first and which product improvements the model is signaling
+- correction memory now lets Ralph replay durable operator lessons into future ideation and draft runs
 
 ## How It Works
 
 1. Start with a prompt.
-2. Run an interview to clarify missing records, workflow, policy, and target surface.
-3. Synthesize a semantic draft from the answered interview.
-4. Emit an engineering handoff with build order, runtime surfaces, proof obligations, and improvement ideas.
-5. Score the draft with proof and capability assessment.
-6. Promote safe drafts into tracked models and tracked jobs.
-7. Diff tracked semantic models before promotion or rebuild.
-8. Apply semantic patches as durable correction artifacts.
-9. Merge semantic branches when parallel edits diverge.
-10. Materialize a runnable runtime package.
-11. Run the loop and keep iterating.
+2. Replay matching correction memory so known semantic gaps show up early.
+3. Run an interview to clarify missing records, workflow, policy, and target surface.
+4. Synthesize a semantic draft from the answered interview.
+5. Emit an engineering handoff with build order, runtime surfaces, proof obligations, and improvement ideas.
+6. Score the draft with proof and capability assessment.
+7. Promote safe drafts into tracked models and tracked jobs.
+8. Diff tracked semantic models before promotion or rebuild.
+9. Apply semantic patches as durable correction artifacts.
+10. Merge semantic branches when parallel edits diverge.
+11. Materialize a runnable runtime package.
+12. Run the loop and keep iterating.
 
 ## How Ralph Improves Ideas
 
 - it turns vague product claims into durable entities, relations, states, and policies
 - it surfaces missing semantic structure before implementation, especially relations and proof obligations
 - it emits deterministic product-improvement opportunities during ideation and again at draft handoff instead of generic brainstorming
+- it replays matched correction memory so Ralph gets sharper from prior operator lessons instead of staying purely category-driven
 - it gives engineering a build-first sequence so ideation pressure becomes execution pressure quickly
 - it keeps open questions explicit, which prevents false certainty from turning into bad architecture
 
@@ -128,6 +131,7 @@ pnpm demo
 pnpm swarm:demo
 pnpm ralph:ideate "Build a toy optimizing compiler from a small Lisp to WebAssembly."
 pnpm ralph:interview "Build a screenshot studio for marketers"
+pnpm ralph:correction:new "Vision commerce freshness"
 pnpm ralph:draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:job:from-draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:model:diff .ralph/jobs/examples/screenshot-studio.json .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json
@@ -173,6 +177,7 @@ Useful commands:
 pnpm docs:sync
 pnpm ralph:ideate "Build a toy optimizing compiler from a small Lisp to WebAssembly."
 pnpm ralph:interview "Build a screenshot studio for marketers"
+pnpm ralph:correction:new "Vision commerce freshness"
 pnpm ralph:draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:job:from-draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:model:diff .ralph/jobs/examples/screenshot-studio.json .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json
@@ -192,7 +197,7 @@ pnpm ralph:team
 - answered interview examples: 2
 - tracked generated models: 1
 - tracked generated jobs: 1
-- operator commands: ralph:artifact, ralph:draft, ralph:ideate, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:model:merge, ralph:model:patch, ralph:team
+- operator commands: ralph:artifact, ralph:correction:new, ralph:draft, ralph:ideate, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:model:merge, ralph:model:patch, ralph:team
 <!-- generated:readme-snapshot:end -->
 
 ## How To Use Ralph Now
@@ -200,7 +205,7 @@ pnpm ralph:team
 For a new idea:
 
 1. `pnpm ralph:ideate "<your idea>"`
-2. Review the software category, execution mode, and generated `answers.template.md`
+2. Review the software category, execution mode, correction-memory matches, and generated `answers.template.md`
 3. `pnpm ralph:draft <ideation-dir-or-answer-file>`
 4. Review `engineering-handoff.md` to see what to build first, what relations still matter, and which functionality Ralph thinks should be added
 5. `pnpm ralph:job:from-draft <ideation-dir-or-answer-file>`
@@ -222,6 +227,7 @@ Ideation artifacts persist under:
 - `artifacts/ralph/ideation/<run-id>/brief.json`
 - `artifacts/ralph/ideation/<run-id>/ideation.json`
 - `artifacts/ralph/ideation/<run-id>/questions.json`
+- `artifacts/ralph/ideation/<run-id>/correction-memory.json`
 - `artifacts/ralph/ideation/<run-id>/architecture.md`
 - `artifacts/ralph/ideation/<run-id>/answers.template.md`
 - `artifacts/ralph/ideation/<run-id>/report.md`
@@ -243,6 +249,7 @@ Draft synthesis artifacts persist under:
 - `artifacts/ralph/drafts/<run-id>/world-model.json`
 - `artifacts/ralph/drafts/<run-id>/blueprint.json`
 - `artifacts/ralph/drafts/<run-id>/proof.json`
+- `artifacts/ralph/drafts/<run-id>/correction-memory.json`
 - `artifacts/ralph/drafts/<run-id>/engineering-handoff.md`
 - `artifacts/ralph/drafts/<run-id>/report.md`
 
@@ -321,6 +328,7 @@ Tracked generated outputs:
 - `.ralph/models/generated/`
 - `.ralph/jobs/generated/`
 - `.ralph/patches/examples/`
+- `.ralph/corrections/examples/`
 
 ## Product Goal
 
@@ -365,7 +373,7 @@ It is not yet ready for:
 
 Today the primary outputs are:
 
-- ideation briefs with software-category, execution mode, proof regime, recommended language/surface hints, and idea-improvement opportunities
+- ideation briefs with software-category, execution mode, proof regime, recommended language/surface hints, correction-memory matches, and idea-improvement opportunities
 - architecture outlines for categories that need design pressure before implementation
 - interview question sets
 - first-draft semantic world models synthesized from interview answers
@@ -407,7 +415,8 @@ Current benchmark families:
 
 ## Current Demo Modes
 
-- `pnpm ralph:ideate <prompt-or-job-file>`: universal intake -> software category classification -> execution-mode recommendation -> idea-improvement opportunities -> generated interview template
+- `pnpm ralph:ideate <prompt-or-job-file>`: universal intake -> software category classification -> correction-memory matches -> execution-mode recommendation -> idea-improvement opportunities -> generated interview template
+- `pnpm ralph:correction:new <name>`: create a repo-local correction-memory template under `.ralph/corrections/examples/` so operator lessons can feed future runs
 - `pnpm demo`: benchmark world models -> internal blueprints -> proof
 - `pnpm swarm:demo`: Ralph loop swarm execution with typed stage artifacts and promotion decisions
 - `pnpm ralph:interview <prompt-or-job-file>`: prompt or tracked job -> deterministic clarification questions -> persisted interview artifacts

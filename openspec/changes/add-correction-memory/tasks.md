@@ -1,0 +1,5 @@
+- [x] 1.1 Add typed correction-memory matching to the semantic kernel
+- [x] 1.2 Load correction-memory files from `.ralph/corrections/`
+- [x] 1.3 Feed correction-memory matches into ideation and draft artifacts
+- [x] 1.4 Add sample correction-memory entries and repo docs
+- [x] 1.5 Verify and land the slice

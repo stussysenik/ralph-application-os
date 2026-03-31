@@ -1,4 +1,4 @@
 - [x] 1.1 Add deterministic improvement opportunities to `RalphIdeationBrief`
 - [x] 1.2 Render the new section in ideation reports
 - [x] 1.3 Add tests covering the brief and CLI ideation artifacts
-- [ ] 1.4 Update docs after verification
+- [x] 1.4 Update docs after verification
