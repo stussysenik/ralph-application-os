@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/stussysenik/ralph-application-os/compare/v1.7.0...v1.8.0) (2026-03-31)
+
+
+### Features
+
+* add correction memory to ideation loops ([ccec8df](https://github.com/stussysenik/ralph-application-os/commit/ccec8dfdaabf4872ec934dc932a063cf3b47f5f9))
+
 # [1.7.0](https://github.com/stussysenik/ralph-application-os/compare/v1.6.0...v1.7.0) (2026-03-31)
 
 
