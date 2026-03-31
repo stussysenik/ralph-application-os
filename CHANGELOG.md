@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/stussysenik/ralph-application-os/compare/v1.2.0...v1.3.0) (2026-03-31)
+
+
+### Features
+
+* add replay proofs and runtime artifacts ([c1aa4af](https://github.com/stussysenik/ralph-application-os/commit/c1aa4af2a4f7a76ea3e802c3f25bbe69889ee636))
+
 # [1.2.0](https://github.com/stussysenik/ralph-application-os/compare/v1.1.0...v1.2.0) (2026-03-31)
 
 
