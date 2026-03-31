@@ -42,6 +42,7 @@ Ralph Application OS is a semantic software platform that turns intent into a wo
 - proof runs now include workflow replay and mutation-resistance pressure
 - the builder can now emit an interactive local runtime package instead of only a prose blueprint
 - the intake surface can now classify broader software categories and declare whether Ralph should behave like a runtime path or an architecture-spec tool
+- interview synthesis now reaches one level deeper into the moat by inferring relation graphs instead of deferring them as generic open questions
 
 ### Current Limits
 

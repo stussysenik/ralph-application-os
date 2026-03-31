@@ -24,6 +24,19 @@ describe("buildIdeationBrief", () => {
     expect(brief.builderTargets).toContain("workflow runtime");
   });
 
+  it("classifies vision-assisted shopping prompts into a recommendation plan path", () => {
+    const brief = buildIdeationBrief({
+      prompt:
+        "Build a computer vision app that scans food ingredients, recommends healthier alternatives, price matches equivalent products, and helps users compare options while shopping."
+    });
+
+    expect(brief.primaryCategory).toBe("vision-commerce");
+    expect(brief.executionMode).toBe("semantic-runtime-plan");
+    expect(brief.interviewFocusIds).toContain("capture-extraction-and-provenance");
+    expect(brief.interviewFocusIds).toContain("alternative-ranking-and-price-comparison");
+    expect(brief.recommendedLanguages).toContain("Python");
+  });
+
   it("treats kernel prompts as architecture-first systems work", () => {
     const brief = buildIdeationBrief({
       prompt: "Build a capability-based kernel with process scheduling and virtual memory."

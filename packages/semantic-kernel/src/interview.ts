@@ -8,6 +8,7 @@ import type {
   SemanticOpenQuestion,
   SemanticPolicy,
   SemanticPolicyEffect,
+  SemanticRelation,
   SemanticState,
   SemanticView,
   SemanticWorldModel
@@ -541,6 +542,187 @@ function buildEffects(integrationItems: string[], actions: SemanticAction[]): Se
   return effects;
 }
 
+function buildRelations(
+  prompt: string,
+  entities: SemanticEntity[],
+  primaryEntity: string | null
+): SemanticRelation[] {
+  const relations: SemanticRelation[] = [];
+  const entityNames = new Set(entities.map((entity) => entity.name));
+  const normalizedPrompt = prompt.toLowerCase();
+
+  const hasEntity = (name: string): boolean => entityNames.has(name);
+
+  const addRelation = (
+    name: string,
+    from: string,
+    to: string,
+    cardinality: SemanticRelation["cardinality"],
+    description?: string
+  ): void => {
+    if (!hasEntity(from) || !hasEntity(to)) {
+      return;
+    }
+
+    if (
+      relations.some(
+        (relation) =>
+          relation.name === name && relation.from === from && relation.to === to
+      )
+    ) {
+      return;
+    }
+
+    relations.push({ name, from, to, cardinality, ...(description ? { description } : {}) });
+  };
+
+  if (hasEntity("Workspace")) {
+    if (hasEntity("Capture")) {
+      addRelation("contains", "Workspace", "Capture", "one-to-many");
+    }
+
+    if (hasEntity("Collection")) {
+      addRelation("contains", "Workspace", "Collection", "one-to-many");
+    }
+
+    if (hasEntity("Document")) {
+      addRelation("contains", "Workspace", "Document", "one-to-many");
+    }
+  }
+
+  if (hasEntity("Collection") && hasEntity("Capture")) {
+    addRelation("groups", "Collection", "Capture", "one-to-many");
+  }
+
+  if (hasEntity("Annotation") && hasEntity("Capture")) {
+    addRelation("marksUp", "Annotation", "Capture", "one-to-many");
+  }
+
+  if (hasEntity("ShareLink") && hasEntity("Capture")) {
+    addRelation("publishes", "ShareLink", "Capture", "one-to-one");
+  }
+
+  if (hasEntity("Member") && hasEntity("Workspace")) {
+    addRelation("memberOf", "Member", "Workspace", "one-to-many");
+  }
+
+  if (hasEntity("Issue") && hasEntity("Project")) {
+    addRelation("belongsTo", "Issue", "Project", "one-to-many");
+  }
+
+  if (hasEntity("Project") && hasEntity("Team")) {
+    addRelation("belongsTo", "Project", "Team", "one-to-many");
+  }
+
+  if (hasEntity("Issue") && hasEntity("Cycle")) {
+    addRelation("plannedIn", "Issue", "Cycle", "one-to-many");
+  }
+
+  if (hasEntity("Invoice") && hasEntity("Vendor")) {
+    addRelation("belongsTo", "Invoice", "Vendor", "one-to-many");
+  }
+
+  if (hasEntity("Vendor") && hasEntity("Organization")) {
+    addRelation("belongsTo", "Vendor", "Organization", "one-to-many");
+  }
+
+  if (hasEntity("Approval") && hasEntity("Invoice")) {
+    addRelation("decides", "Approval", "Invoice", "one-to-many");
+  }
+
+  if (hasEntity("Payment") && hasEntity("Invoice")) {
+    addRelation("settles", "Payment", "Invoice", "one-to-one");
+  }
+
+  if (hasEntity("UserProfile") && hasEntity("ScanSession")) {
+    addRelation(
+      "initiates",
+      "UserProfile",
+      "ScanSession",
+      "one-to-many",
+      "A shopper profile can generate many scan sessions."
+    );
+  }
+
+  if (hasEntity("ScanSession") && hasEntity("IngredientObservation")) {
+    addRelation(
+      "extracts",
+      "ScanSession",
+      "IngredientObservation",
+      "one-to-many",
+      "A scan session yields many ingredient observations."
+    );
+  }
+
+  if (hasEntity("ScanSession") && hasEntity("Product")) {
+    addRelation(
+      "identifies",
+      "ScanSession",
+      "Product",
+      normalizedPrompt.includes("compare") ? "one-to-many" : "one-to-one",
+      "A scan session identifies one or more product candidates."
+    );
+  }
+
+  if (hasEntity("Product") && hasEntity("NutritionProfile")) {
+    addRelation(
+      "hasNutrition",
+      "Product",
+      "NutritionProfile",
+      "one-to-one",
+      "Each canonical product has one nutrition profile."
+    );
+  }
+
+  if (hasEntity("Product") && hasEntity("RetailerOffer")) {
+    addRelation(
+      "hasOffer",
+      "Product",
+      "RetailerOffer",
+      "one-to-many",
+      "A product can have many retailer-specific offers."
+    );
+  }
+
+  if (hasEntity("ScanSession") && hasEntity("AlternativeRecommendation")) {
+    addRelation(
+      "compares",
+      "ScanSession",
+      "AlternativeRecommendation",
+      "one-to-many",
+      "A completed scan session yields ranked recommendations."
+    );
+  }
+
+  if (hasEntity("AlternativeRecommendation") && hasEntity("Product")) {
+    addRelation(
+      "recommends",
+      "AlternativeRecommendation",
+      "Product",
+      "one-to-one",
+      "Each recommendation points at one candidate product."
+    );
+  }
+
+  if (relations.length === 0 && primaryEntity) {
+    for (const entity of entities) {
+      if (entity.name === primaryEntity) {
+        continue;
+      }
+
+      addRelation(
+        "relatesTo",
+        primaryEntity,
+        entity.name,
+        "one-to-many",
+        `Fallback relation inferred between ${primaryEntity} and ${entity.name}.`
+      );
+    }
+  }
+
+  return relations;
+}
+
 function buildViews(entities: SemanticEntity[], primaryEntity: string | null): SemanticView[] {
   return entities.map((entity) => ({
     name:
@@ -667,11 +849,12 @@ export function synthesizeWorldModelFromInterview(
     states
   );
   const effects = buildEffects(getAnswerItems(document, "external-integrations"), actions);
+  const relations = buildRelations(prompt, entities, primaryEntity);
   const views = buildViews(entities, primaryEntity);
   const invariants = buildInvariants(actions);
   const primaryUserAnswer = getAnswerText(document, "primary-user-and-outcome");
   const concepts = buildConcepts(prompt, primaryUserAnswer, primaryEntity);
-  const openQuestions = buildOpenQuestions(entities, workflowInputs, 0);
+  const openQuestions = buildOpenQuestions(entities, workflowInputs, relations.length);
 
   return {
     name: deriveModelName(prompt, "interview-draft"),
@@ -679,7 +862,7 @@ export function synthesizeWorldModelFromInterview(
     domain: deriveDomain(prompt, primaryEntity),
     concepts,
     entities,
-    relations: [],
+    relations,
     states,
     actions,
     policies,

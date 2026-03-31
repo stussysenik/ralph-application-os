@@ -175,7 +175,7 @@ pnpm ralph:team
 
 <!-- generated:readme-snapshot:start -->
 - example jobs: 4
-- answered interview examples: 1
+- answered interview examples: 2
 - tracked generated models: 1
 - tracked generated jobs: 1
 - operator commands: ralph:artifact, ralph:draft, ralph:ideate, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:model:merge, ralph:model:patch, ralph:team

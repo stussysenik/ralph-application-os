@@ -63,6 +63,22 @@ describe("buildInterviewQuestions", () => {
     ).toBe(true);
   });
 
+  it("asks extraction and ranking questions for vision-assisted shopping prompts", () => {
+    const brief: RalphInterviewBrief = {
+      prompt:
+        "Build a computer vision app that scans food ingredients, recommends healthier alternatives, price matches equivalent products, and helps users compare options while shopping."
+    };
+
+    const questions = buildInterviewQuestions(brief);
+
+    expect(
+      questions.some((question) => question.id === "capture-extraction-and-provenance")
+    ).toBe(true);
+    expect(
+      questions.some((question) => question.id === "alternative-ranking-and-price-comparison")
+    ).toBe(true);
+  });
+
   it("asks kernel-specific resource and capability questions for kernel prompts", () => {
     const brief: RalphInterviewBrief = {
       prompt: "Build a capability-based kernel with process scheduling and virtual memory."

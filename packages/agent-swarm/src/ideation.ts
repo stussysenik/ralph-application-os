@@ -9,6 +9,7 @@ import type { SemanticWorldModel } from "@ralph/semantic-kernel";
 export type RalphSoftwareCategory =
   | "workflow-app"
   | "knowledge-system"
+  | "vision-commerce"
   | "developer-tooling"
   | "api-service"
   | "agent-system"
@@ -211,6 +212,71 @@ const CATEGORY_DEFINITIONS: readonly CategoryDefinition[] = [
         blocking: false,
         prompt: "What collaboration, publishing, or review flow must the content support?",
         rationale: "Publishing and collaboration rules determine states, permissions, and views."
+      }
+    ]
+  },
+  {
+    category: "vision-commerce",
+    keywords: [
+      "computer vision",
+      "scan",
+      "scanner",
+      "barcode",
+      "ingredient",
+      "ingredients",
+      "nutrition",
+      "healthier",
+      "alternative",
+      "alternatives",
+      "price match",
+      "shopping",
+      "shopper",
+      "retailer"
+    ],
+    executionMode: "semantic-runtime-plan",
+    semanticAxes: [
+      "capture and extraction pipeline",
+      "ingredient and product normalization",
+      "nutrition and health scoring",
+      "alternative ranking",
+      "retailer offer comparison"
+    ],
+    systemConcerns: [
+      "extraction confidence and provenance",
+      "canonical product and ingredient identity",
+      "explainable recommendations",
+      "price freshness and retailer coverage"
+    ],
+    proofRegime: [
+      "extraction confidence checks",
+      "product match consistency",
+      "recommendation rationale checks",
+      "price freshness validation"
+    ],
+    builderTargets: [
+      "scan ingestion pipeline",
+      "product and ingredient ontology",
+      "recommendation engine",
+      "comparison and offer views"
+    ],
+    recommendedSurfaces: ["mobile", "web", "api"],
+    recommendedLanguages: ["Python", "TypeScript"],
+    interviewQuestions: [
+      {
+        id: "capture-extraction-and-provenance",
+        category: "runtime",
+        priority: "high",
+        blocking: true,
+        prompt: "What capture inputs are supported first, how are ingredients extracted, and how should confidence and provenance be stored?",
+        rationale: "Vision-assisted commerce depends on trustworthy extraction, not just downstream UX."
+      },
+      {
+        id: "alternative-ranking-and-price-comparison",
+        category: "proof",
+        priority: "high",
+        blocking: true,
+        prompt: "What makes an alternative better: health score, allergen avoidance, ingredient quality, price delta, retailer availability, or some weighted mix?",
+        rationale: "Recommendation and price-comparison logic are the semantic center of this product."
       }
     ]
   },

@@ -6,7 +6,7 @@
 
 <!-- generated:progress-snapshot:start -->
 - tracked example jobs: 4
-- tracked answered interview examples: 1
+- tracked answered interview examples: 2
 - tracked generated models: 1
 - tracked generated jobs: 1
 - current operator path: prompt -> ideate -> interview -> draft -> promotion -> diff -> patch -> merge -> artifact -> loop
@@ -37,6 +37,7 @@
 - workflow replay and mutation-resistance checks in the proof harness
 - runtime package generation with a browser-openable entrypoint
 - cross-domain ideation briefs that classify software category and execution depth before draft synthesis
+- relation-aware interview synthesis that can now infer a usable semantic graph for screenshot and vision-commerce style products
 
 ### Current Truth
 
@@ -51,6 +52,7 @@
 - The proof harness now checks workflow replay from initial states and verifies invariants fail on intentional mutations.
 - The repo can now materialize an interactive local runtime package with deterministic seed data, workflow actions, local persistence, and machine-readable runtime files.
 - The repo can now accept prompts from broader software categories and respond with an explicit ideation brief, proof regime, and category-specific interview path instead of forcing every idea into a workflow-app shape.
+- The interview synthesizer now infers relation graphs for supported patterns, so more drafts arrive without a generic `relation-map` ambiguity.
 - The implementation is still early, but it can now execute validated job files, load tracked workflow and role config, persist durable run artifacts, and batch over tracked jobs.
 
 ### Next Steps
