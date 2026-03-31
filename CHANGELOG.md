@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/stussysenik/ralph-application-os/compare/v1.5.0...v1.6.0) (2026-03-31)
+
+
+### Features
+
+* infer semantic relations from interviews ([ed8728c](https://github.com/stussysenik/ralph-application-os/commit/ed8728cce07d23c3311724bd00b6416c39c3f1f8))
+
 # [1.5.0](https://github.com/stussysenik/ralph-application-os/compare/v1.4.0...v1.5.0) (2026-03-31)
 
 
