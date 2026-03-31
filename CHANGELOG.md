@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/stussysenik/ralph-application-os/compare/v1.8.0...v1.9.0) (2026-03-31)
+
+
+### Features
+
+* harvest correction memory from semantic changes ([0657469](https://github.com/stussysenik/ralph-application-os/commit/06574695419056e95b150fdc8bf77cfabb9c280d))
+
 # [1.8.0](https://github.com/stussysenik/ralph-application-os/compare/v1.7.0...v1.8.0) (2026-03-31)
 
 
