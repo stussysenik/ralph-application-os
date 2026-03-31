@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/stussysenik/ralph-application-os/compare/v1.3.0...v1.4.0) (2026-03-31)
+
+
+### Features
+
+* add local interactive runtime packages ([eee7976](https://github.com/stussysenik/ralph-application-os/commit/eee7976fd9eba5614a7a6cf36836a88359afa2c8))
+
 # [1.3.0](https://github.com/stussysenik/ralph-application-os/compare/v1.2.0...v1.3.0) (2026-03-31)
 
 
