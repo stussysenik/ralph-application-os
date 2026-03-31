@@ -1,0 +1,19 @@
+{
+  "id": "job-notion-like-workspace",
+  "prompt": "Build a structured workspace with documents, collections, members, publishing, and archiving.",
+  "benchmarkName": "notion-like-workspace",
+  "workflowName": "default",
+  "constraints": [
+    {
+      "name": "workspace-structure",
+      "detail": "Documents and collections should keep a coherent publishing lifecycle."
+    }
+  ],
+  "successCriteria": [
+    {
+      "name": "archive-guard",
+      "detail": "The proof harness must confirm that archive only happens after publish."
+    }
+  ],
+  "tags": ["workspace", "knowledge", "benchmark"]
+}

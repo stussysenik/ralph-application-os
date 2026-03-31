@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Ralph Job",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "prompt"],
+  "oneOf": [
+    { "required": ["benchmarkName"] },
+    { "required": ["worldModel"] }
+  ],
+  "properties": {
+    "id": { "type": "string" },
+    "prompt": { "type": "string" },
+    "workflowName": { "type": "string" },
+    "benchmarkName": { "type": "string" },
+    "worldModel": { "type": "object" },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "ref"],
+        "properties": {
+          "kind": { "type": "string" },
+          "ref": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "implementationPreferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "targetSurfaces": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "preferredLanguages": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "preferredFrameworks": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "nonNegotiables": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "detail"],
+        "properties": {
+          "name": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "successCriteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "detail"],
+        "properties": {
+          "name": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "job-ramp-like-spend-controls",
+  "prompt": "Build a spend approval system with vendors, invoices, approval thresholds, and a payment schedule.",
+  "benchmarkName": "ramp-like-spend-controls",
+  "workflowName": "default",
+  "constraints": [
+    {
+      "name": "auditability",
+      "detail": "Approval decisions must stay explainable through workflow and policy state."
+    }
+  ],
+  "successCriteria": [
+    {
+      "name": "payment-safety",
+      "detail": "The proof harness must confirm that payments only happen after scheduling."
+    }
+  ],
+  "tags": ["approvals", "finance", "benchmark"]
+}

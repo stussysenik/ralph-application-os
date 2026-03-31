@@ -1,0 +1,41 @@
+{
+  "name": "ralph-application-os",
+  "private": true,
+  "version": "0.0.0-development",
+  "description": "Semantic application OS for building provable evolving software from intent.",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "scripts": {
+    "build": "tsc -b --force tsconfig.json",
+    "typecheck": "tsc -b tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "docs:sync": "node scripts/sync-docs.mjs",
+    "demo": "pnpm build && node packages/ralph-cli/dist/index.js",
+    "swarm:demo": "pnpm build && node packages/ralph-cli/dist/index.js swarm",
+    "ralph:interview": "pnpm build && node packages/ralph-cli/dist/index.js interview",
+    "ralph:draft": "pnpm build && node packages/ralph-cli/dist/index.js draft",
+    "ralph:loop": "pnpm build && node packages/ralph-cli/dist/index.js loop",
+    "ralph:team": "pnpm build && node packages/ralph-cli/dist/index.js team",
+    "ralph:job:new": "pnpm build && node packages/ralph-cli/dist/index.js job:new",
+    "ralph:job:from-draft": "pnpm build && node packages/ralph-cli/dist/index.js job:from-draft",
+    "ralph:job:validate": "pnpm build && node packages/ralph-cli/dist/index.js job:validate",
+    "release": "semantic-release",
+    "release:dry": "semantic-release --dry-run",
+    "spec:validate": "openspec validate define-ralph-application-os && openspec validate shift-to-internal-builders && openspec validate add-job-runtime-and-ledger && openspec validate add-interview-loop && openspec validate add-draft-synthesis && openspec validate add-draft-promotion",
+    "prompt": "cat START_PROMPT.md"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/release-notes-generator": "^14.1.0",
+    "@types/node": "^24.6.0",
+    "semantic-release": "^24.2.7",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

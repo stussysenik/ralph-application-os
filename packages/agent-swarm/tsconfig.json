@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "references": [
+    { "path": "../semantic-kernel" },
+    { "path": "../internal-builders" },
+    { "path": "../proof-harness" }
+  ],
+  "include": ["src/**/*.ts"]
+}

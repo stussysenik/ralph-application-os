@@ -1,0 +1,163 @@
+{
+  "id": "job-screenshot-studio",
+  "prompt": "Build a screenshot studio with captures, annotations, collections, share links, and an editor flow from raw to annotated to share-ready.",
+  "workflowName": "default",
+  "inputs": [
+    {
+      "kind": "prompt",
+      "ref": "brief:screenshot-studio",
+      "note": "Primary operator brief for the benchmark job."
+    }
+  ],
+  "constraints": [
+    {
+      "name": "semantic-source-of-truth",
+      "detail": "The world model must remain the source of truth for builders and proof."
+    },
+    {
+      "name": "promotion-after-proof",
+      "detail": "Promotion is only allowed when the proof harness passes."
+    }
+  ],
+  "successCriteria": [
+    {
+      "name": "capture-flow-proved",
+      "detail": "The capture workflow must prove raw -> annotated -> share-ready."
+    },
+    {
+      "name": "durable-run",
+      "detail": "The job must emit manifest, report, and ledger artifacts."
+    }
+  ],
+  "notes": [
+    "This example keeps an inline world model to demonstrate arbitrary job input.",
+    "A future prompt-to-model stage should be able to synthesize this kernel instead of requiring the inline model."
+  ],
+  "tags": ["screenshot-studio", "media-tools", "benchmark"],
+  "worldModel": {
+    "name": "screenshot-studio",
+    "version": "0.1.0",
+    "domain": "capture-annotation-and-sharing",
+    "concepts": [
+      {
+        "name": "annotated-capture",
+        "description": "A screenshot can move from raw capture to annotated asset and then to shareable output.",
+        "aliases": ["edited-capture", "marked-up-shot"],
+        "provenance": [
+          {
+            "sourceType": "prompt",
+            "sourceRef": "screenshot-studio-brief",
+            "confidence": 0.92
+          }
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "name": "Workspace",
+        "description": "Top-level owner of captures and collections.",
+        "attributes": [{ "name": "name", "type": "string", "required": true }]
+      },
+      {
+        "name": "Capture",
+        "description": "A screenshot or recording frame asset.",
+        "attributes": [
+          { "name": "assetUrl", "type": "string", "required": true },
+          { "name": "capturedAt", "type": "datetime", "required": true },
+          { "name": "status", "type": "string", "required": true },
+          { "name": "title", "type": "string", "required": true }
+        ]
+      },
+      {
+        "name": "Annotation",
+        "description": "Markup region applied to a capture.",
+        "attributes": [
+          { "name": "kind", "type": "string", "required": true },
+          { "name": "payload", "type": "json", "required": true }
+        ]
+      },
+      {
+        "name": "Collection",
+        "description": "A named set of captures.",
+        "attributes": [
+          { "name": "name", "type": "string", "required": true },
+          { "name": "status", "type": "string", "required": true }
+        ]
+      },
+      {
+        "name": "ShareLink",
+        "description": "Public or private shareable link for a capture.",
+        "attributes": [
+          { "name": "slug", "type": "string", "required": true },
+          { "name": "status", "type": "string", "required": true }
+        ]
+      }
+    ],
+    "relations": [
+      { "name": "contains", "from": "Workspace", "to": "Capture", "cardinality": "one-to-many" },
+      { "name": "groups", "from": "Collection", "to": "Capture", "cardinality": "one-to-many" },
+      { "name": "marksUp", "from": "Annotation", "to": "Capture", "cardinality": "one-to-many" },
+      { "name": "publishes", "from": "ShareLink", "to": "Capture", "cardinality": "one-to-one" }
+    ],
+    "states": [
+      { "name": "raw", "entity": "Capture", "initial": true },
+      { "name": "annotated", "entity": "Capture" },
+      { "name": "share-ready", "entity": "Capture" },
+      { "name": "archived", "entity": "Capture", "terminal": true }
+    ],
+    "actions": [
+      { "name": "annotateCapture", "entity": "Capture", "from": "raw", "to": "annotated", "actors": ["editor"] },
+      { "name": "prepareShare", "entity": "Capture", "from": "annotated", "to": "share-ready", "actors": ["editor"] },
+      { "name": "archiveCapture", "entity": "Capture", "from": "share-ready", "to": "archived", "actors": ["editor"] }
+    ],
+    "policies": [
+      {
+        "name": "editor-can-publish",
+        "appliesTo": "Capture",
+        "effect": "allow",
+        "actors": ["editor"],
+        "rules": [{ "field": "status", "operator": "eq", "value": "share-ready" }]
+      }
+    ],
+    "views": [
+      { "name": "captureLibrary", "entity": "Capture", "kind": "table", "columns": ["assetUrl", "capturedAt", "status", "title"] },
+      { "name": "collectionBoard", "entity": "Collection", "kind": "board", "columns": ["name", "status"] },
+      { "name": "shareDashboard", "entity": "ShareLink", "kind": "table", "columns": ["slug", "status"] }
+    ],
+    "effects": [
+      { "name": "generateSharePreview", "kind": "calculation", "trigger": "prepareShare" }
+    ],
+    "invariants": [
+      {
+        "name": "sharing-requires-annotation",
+        "kind": "action-state-chain",
+        "action": "prepareShare",
+        "requiredFrom": "annotated",
+        "requiredTo": "share-ready"
+      },
+      {
+        "name": "publish-policy-exists",
+        "kind": "policy-threshold",
+        "policy": "editor-can-publish",
+        "field": "status",
+        "operator": "eq",
+        "value": "share-ready",
+        "requiredActor": "editor"
+      }
+    ],
+    "openQuestions": [
+      {
+        "id": "sq-1",
+        "prompt": "Should video snippets and still screenshots share the same Capture entity or split later?",
+        "status": "open"
+      }
+    ],
+    "provenance": [
+      {
+        "sourceType": "prompt",
+        "sourceRef": "screenshot-studio-brief",
+        "confidence": 0.92
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "job-linear-like-issue-tracker",
+  "prompt": "Build an issue tracker with backlog, cycle planning, in-progress work, and completion flow.",
+  "benchmarkName": "linear-like-issue-tracker",
+  "workflowName": "default",
+  "constraints": [
+    {
+      "name": "workflow-clarity",
+      "detail": "Issue progression must stay explicit across triage, start, and completion."
+    }
+  ],
+  "successCriteria": [
+    {
+      "name": "completion-guard",
+      "detail": "The proof harness must confirm that issues only complete from in-progress."
+    }
+  ],
+  "tags": ["issues", "workflow", "benchmark"]
+}

@@ -1,0 +1,375 @@
+{
+  "name": "screenshot-studio-marketers-capture-pages-annotate",
+  "version": "0.1.0",
+  "domain": "screenshot-studio-marketers-capture",
+  "concepts": [
+    {
+      "name": "capture-lifecycle",
+      "description": "Lifecycle semantics for Capture inferred from the interview answers.",
+      "aliases": [
+        "screenshot-studio-marketers-capture-pages-annotate"
+      ],
+      "provenance": [
+        {
+          "sourceType": "prompt",
+          "sourceRef": "Build a screenshot studio for marketers to capture pages, annotate them, and share results.",
+          "confidence": 0.6
+        }
+      ]
+    },
+    {
+      "name": "operator-outcome",
+      "description": "Marketing operators publish polished annotated screenshots quickly.",
+      "aliases": [],
+      "provenance": [
+        {
+          "sourceType": "human-edit",
+          "sourceRef": "interview:primary-user-and-outcome",
+          "confidence": 0.8
+        }
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "name": "Annotation",
+      "description": "Annotation synthesized from interview answers.",
+      "attributes": [
+        {
+          "name": "kind",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "json",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "Capture",
+      "description": "Capture synthesized from interview answers.",
+      "attributes": [
+        {
+          "name": "assetUrl",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "capturedAt",
+          "type": "datetime",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "Collection",
+      "description": "Collection synthesized from interview answers.",
+      "attributes": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ShareLink",
+      "description": "ShareLink synthesized from interview answers.",
+      "attributes": [
+        {
+          "name": "slug",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "Workspace",
+      "description": "Workspace synthesized from interview answers.",
+      "attributes": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "relations": [],
+  "states": [
+    {
+      "name": "annotated",
+      "entity": "Capture"
+    },
+    {
+      "name": "archived",
+      "entity": "Capture",
+      "terminal": true
+    },
+    {
+      "name": "raw",
+      "entity": "Capture",
+      "initial": true
+    },
+    {
+      "name": "share-ready",
+      "entity": "Capture"
+    },
+    {
+      "name": "draft",
+      "entity": "ShareLink",
+      "initial": true
+    },
+    {
+      "name": "expired",
+      "entity": "ShareLink",
+      "terminal": true
+    },
+    {
+      "name": "live",
+      "entity": "ShareLink"
+    }
+  ],
+  "actions": [
+    {
+      "name": "moveCaptureToAnnotated",
+      "entity": "Capture",
+      "from": "raw",
+      "to": "annotated",
+      "actors": [
+        "capture-operator"
+      ]
+    },
+    {
+      "name": "moveCaptureToArchived",
+      "entity": "Capture",
+      "from": "share-ready",
+      "to": "archived",
+      "actors": [
+        "capture-operator"
+      ]
+    },
+    {
+      "name": "moveCaptureToShareReady",
+      "entity": "Capture",
+      "from": "annotated",
+      "to": "share-ready",
+      "actors": [
+        "capture-operator"
+      ]
+    },
+    {
+      "name": "moveShareLinkToExpired",
+      "entity": "ShareLink",
+      "from": "live",
+      "to": "expired",
+      "actors": [
+        "capture-operator"
+      ]
+    },
+    {
+      "name": "moveShareLinkToLive",
+      "entity": "ShareLink",
+      "from": "draft",
+      "to": "live",
+      "actors": [
+        "capture-operator"
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "name": "admin-capture-access",
+      "appliesTo": "Capture",
+      "effect": "allow",
+      "actors": [
+        "admin"
+      ],
+      "rules": [
+        {
+          "field": "status",
+          "operator": "eq",
+          "value": "raw"
+        }
+      ],
+      "description": "Admin can manage share links and archive captures."
+    },
+    {
+      "name": "admin-share-link-access",
+      "appliesTo": "ShareLink",
+      "effect": "allow",
+      "actors": [
+        "admin"
+      ],
+      "rules": [
+        {
+          "field": "status",
+          "operator": "eq",
+          "value": "draft"
+        }
+      ],
+      "description": "Admin can manage share links and archive captures."
+    },
+    {
+      "name": "editor-capture-access",
+      "appliesTo": "Capture",
+      "effect": "allow",
+      "actors": [
+        "editor"
+      ],
+      "rules": [
+        {
+          "field": "status",
+          "operator": "eq",
+          "value": "raw"
+        }
+      ],
+      "description": "Editor can annotate and prepare captures for sharing."
+    }
+  ],
+  "views": [
+    {
+      "name": "annotationTable",
+      "entity": "Annotation",
+      "kind": "table",
+      "columns": [
+        "kind",
+        "payload"
+      ]
+    },
+    {
+      "name": "captureOverview",
+      "entity": "Capture",
+      "kind": "table",
+      "columns": [
+        "assetUrl",
+        "capturedAt",
+        "status",
+        "title"
+      ]
+    },
+    {
+      "name": "collectionTable",
+      "entity": "Collection",
+      "kind": "table",
+      "columns": [
+        "name",
+        "status"
+      ]
+    },
+    {
+      "name": "shareLinkTable",
+      "entity": "ShareLink",
+      "kind": "table",
+      "columns": [
+        "slug",
+        "status"
+      ]
+    },
+    {
+      "name": "workspaceTable",
+      "entity": "Workspace",
+      "kind": "table",
+      "columns": [
+        "name"
+      ]
+    }
+  ],
+  "effects": [
+    {
+      "name": "syncBrowserExtensionImport",
+      "kind": "integration",
+      "trigger": "moveCaptureToAnnotated",
+      "description": "Browser extension import"
+    },
+    {
+      "name": "syncSlackExport",
+      "kind": "integration",
+      "trigger": "moveCaptureToAnnotated",
+      "description": "Slack export"
+    }
+  ],
+  "invariants": [
+    {
+      "name": "move-capture-to-annotated-state-chain",
+      "kind": "action-state-chain",
+      "action": "moveCaptureToAnnotated",
+      "requiredFrom": "raw",
+      "requiredTo": "annotated",
+      "description": "Synthesized invariant for moveCaptureToAnnotated."
+    },
+    {
+      "name": "move-capture-to-archived-state-chain",
+      "kind": "action-state-chain",
+      "action": "moveCaptureToArchived",
+      "requiredFrom": "share-ready",
+      "requiredTo": "archived",
+      "description": "Synthesized invariant for moveCaptureToArchived."
+    },
+    {
+      "name": "move-capture-to-share-ready-state-chain",
+      "kind": "action-state-chain",
+      "action": "moveCaptureToShareReady",
+      "requiredFrom": "annotated",
+      "requiredTo": "share-ready",
+      "description": "Synthesized invariant for moveCaptureToShareReady."
+    },
+    {
+      "name": "move-share-link-to-expired-state-chain",
+      "kind": "action-state-chain",
+      "action": "moveShareLinkToExpired",
+      "requiredFrom": "live",
+      "requiredTo": "expired",
+      "description": "Synthesized invariant for moveShareLinkToExpired."
+    },
+    {
+      "name": "move-share-link-to-live-state-chain",
+      "kind": "action-state-chain",
+      "action": "moveShareLinkToLive",
+      "requiredFrom": "draft",
+      "requiredTo": "live",
+      "description": "Synthesized invariant for moveShareLinkToLive."
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "relation-map",
+      "prompt": "How should the core entities relate to one another?",
+      "status": "open"
+    }
+  ],
+  "provenance": [
+    {
+      "sourceType": "human-edit",
+      "sourceRef": "interview-answers",
+      "confidence": 0.9
+    },
+    {
+      "sourceType": "prompt",
+      "sourceRef": "Build a screenshot studio for marketers to capture pages, annotate them, and share results.",
+      "confidence": 0.7
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/semantic-kernel" },
+    { "path": "./packages/internal-builders" },
+    { "path": "./packages/proof-harness" },
+    { "path": "./packages/agent-swarm" },
+    { "path": "./packages/ralph-cli" }
+  ]
+}

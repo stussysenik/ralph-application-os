@@ -1,0 +1,21 @@
+{
+  "name": "@ralph/ralph-cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "typecheck": "tsc -b tsconfig.json"
+  },
+  "dependencies": {
+    "@ralph/agent-swarm": "workspace:*",
+    "@ralph/internal-builders": "workspace:*",
+    "@ralph/proof-harness": "workspace:*",
+    "@ralph/semantic-kernel": "workspace:*"
+  }
+}

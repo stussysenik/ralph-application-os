@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "references": [
+    { "path": "../semantic-kernel" },
+    { "path": "../internal-builders" },
+    { "path": "../proof-harness" },
+    { "path": "../agent-swarm" }
+  ],
+  "include": ["src/**/*.ts"]
+}

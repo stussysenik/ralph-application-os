@@ -1,0 +1,13 @@
+schema: spec-driven
+
+rules:
+  proposal:
+    - Keep proposals product-defining and benchmark-aware
+    - State the wedge before the universal ambition
+  design:
+    - Prefer internal builders over external platform dependence
+    - Keep the semantic kernel compact and inspectable
+  tasks:
+    - Require a failing test or proof obligation for implementation work
+    - Prefer the smallest empowered diff
+

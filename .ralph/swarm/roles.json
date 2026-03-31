@@ -1,0 +1,10 @@
+{
+  "roles": [
+    { "role": "researcher", "stages": ["research"] },
+    { "role": "semantic-architect", "stages": ["model"] },
+    { "role": "builder", "stages": ["build"] },
+    { "role": "verifier", "stages": ["prove"] },
+    { "role": "promoter", "stages": ["promote"] }
+  ]
+}
+

@@ -1,0 +1,6 @@
+{
+  "name": "default",
+  "stageOrder": ["research", "model", "build", "prove", "promote"],
+  "artifacts": ["research-brief", "world-model", "application-blueprint", "proof-result", "promotion-decision"]
+}
+
