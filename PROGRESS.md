@@ -9,7 +9,7 @@
 - tracked answered interview examples: 1
 - tracked generated models: 1
 - tracked generated jobs: 1
-- current operator path: prompt -> interview -> draft -> promotion -> diff -> patch -> loop
+- current operator path: prompt -> interview -> draft -> promotion -> diff -> patch -> merge -> loop
 <!-- generated:progress-snapshot:end -->
 
 ### Established
@@ -33,6 +33,7 @@
 - capability-tier assessment, tracked model persistence, and guarded draft-to-job promotion
 - semantic model diffing across tracked models, draft artifacts, benchmark fixtures, and job files
 - semantic patch application with before/after, diff, and proof artifacts
+- semantic model merging with conflict artifacts and proof on conflict-free branches
 
 ### Current Truth
 
@@ -43,11 +44,12 @@
 - The repo can now classify synthesized drafts and promote only tier-a drafts into tracked Ralph jobs automatically.
 - The repo can now diff semantic models with stable paths before rebuild, replay, or promotion.
 - The repo can now apply typed semantic patches and prove the patched result immediately.
+- The repo can now merge two semantic branches against a shared base and keep conflicts as typed artifacts when auto-merge is unsafe.
 - The implementation is still early, but it can now execute validated job files, load tracked workflow and role config, persist durable run artifacts, and batch over tracked jobs.
 
 ### Next Steps
 
-1. Add semantic merge semantics on top of stable diff and patch paths.
-2. Grow the proof harness beyond structural invariants into replay and mutation tests.
-3. Turn blueprints into the first executable substrate artifacts.
-4. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
+1. Grow the proof harness beyond structural invariants into replay and mutation tests.
+2. Turn blueprints into the first executable substrate artifacts.
+3. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
+4. Add browser-native model inspection and merge review in the future studio.

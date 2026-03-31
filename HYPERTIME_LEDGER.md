@@ -14,8 +14,8 @@ The point is not to predict the future perfectly. The point is to preserve:
 <!-- generated:ledger-snapshot:start -->
 - tracked generated models now exist: yes
 - tracked generated jobs now exist: yes
-- current irreversible move under test: draft capability gating before job generation
-- latest capability contract artifact: artifacts/ralph/drafts/<run-id>/capability.json
+- current irreversible move under test: semantic merge after diff and patch stabilization
+- latest capability contract artifact: artifacts/ralph/model-merges/<run-id>/manifest.json
 <!-- generated:ledger-snapshot:end -->
 
 ## Current Branch
@@ -38,13 +38,13 @@ Ralph Application OS is a semantic software platform that turns intent into a wo
 - safe drafts can now become tracked models and generated tracked jobs automatically
 - semantic model diffs now make semantic drift inspectable before further promotion
 - semantic patch runs now make model corrections durable and proof-visible
+- semantic merge runs now either prove conflict-free branches or preserve typed conflicts for operator review
 
 ### Current Limits
 
 - no executable substrate yet
 - no browser studio yet
 - no long-lived orchestration runtime yet
-- no semantic merge engine yet
 
 ## Rejected Branches
 
@@ -97,7 +97,7 @@ Take this branch if:
 
 ## Next Irreversible Moves
 
-1. Add kernel merge semantics
-2. Add benchmark replay and mutation tests
-3. Turn blueprints into executable artifacts
-4. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
+1. Add benchmark replay and mutation tests
+2. Turn blueprints into executable artifacts
+3. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
+4. Add human-guided conflict resolution on top of typed semantic merge conflicts

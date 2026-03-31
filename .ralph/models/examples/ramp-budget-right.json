@@ -1,0 +1,362 @@
+{
+  "name": "ramp-like-spend-controls",
+  "version": "0.1.0",
+  "domain": "approvals-and-payments",
+  "concepts": [
+    {
+      "name": "approval-threshold",
+      "description": "Approval routing changes based on invoice amount.",
+      "aliases": [
+        "spend-control",
+        "threshold-policy"
+      ],
+      "provenance": [
+        {
+          "sourceType": "benchmark",
+          "sourceRef": "ramp-benchmark",
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "name": "vendor-ledger",
+      "description": "Operators need a view of invoices and payments by vendor.",
+      "aliases": [
+        "payables-ledger"
+      ],
+      "provenance": [
+        {
+          "sourceType": "benchmark",
+          "sourceRef": "ramp-benchmark",
+          "confidence": 1
+        }
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "name": "Approval",
+      "description": "Captures approver decisions on invoices.",
+      "attributes": [
+        {
+          "name": "actorRole",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "decision",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "decidedAt",
+          "type": "datetime",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "Invoice",
+      "description": "Invoice submitted by a vendor.",
+      "attributes": [
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "invoiceNumber",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "submittedAt",
+          "type": "datetime",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "Organization",
+      "description": "Operating company that owns the invoice workflow.",
+      "attributes": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "Payment",
+      "description": "Scheduled or executed payment against an invoice.",
+      "attributes": [
+        {
+          "name": "scheduledFor",
+          "type": "date",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "Vendor",
+      "description": "External payee submitting invoices.",
+      "attributes": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "riskTier",
+          "type": "string",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "name": "belongsTo",
+      "from": "Invoice",
+      "to": "Vendor",
+      "cardinality": "one-to-many",
+      "description": "Each invoice belongs to a vendor."
+    },
+    {
+      "name": "belongsTo",
+      "from": "Vendor",
+      "to": "Organization",
+      "cardinality": "one-to-many",
+      "description": "Vendors are tracked within an organization."
+    },
+    {
+      "name": "decides",
+      "from": "Approval",
+      "to": "Invoice",
+      "cardinality": "one-to-many",
+      "description": "Approvals attach to a single invoice."
+    },
+    {
+      "name": "settles",
+      "from": "Payment",
+      "to": "Invoice",
+      "cardinality": "one-to-one",
+      "description": "A payment settles one invoice."
+    }
+  ],
+  "states": [
+    {
+      "name": "draft",
+      "entity": "Invoice",
+      "initial": true
+    },
+    {
+      "name": "submitted",
+      "entity": "Invoice"
+    },
+    {
+      "name": "manager-approved",
+      "entity": "Invoice"
+    },
+    {
+      "name": "finance-approved",
+      "entity": "Invoice"
+    },
+    {
+      "name": "scheduled",
+      "entity": "Invoice"
+    },
+    {
+      "name": "paid",
+      "entity": "Invoice",
+      "terminal": true
+    },
+    {
+      "name": "rejected",
+      "entity": "Invoice",
+      "terminal": true
+    }
+  ],
+  "actions": [
+    {
+      "name": "submitInvoice",
+      "entity": "Invoice",
+      "from": "draft",
+      "to": "submitted",
+      "actors": [
+        "submitter"
+      ]
+    },
+    {
+      "name": "managerApprove",
+      "entity": "Invoice",
+      "from": "submitted",
+      "to": "manager-approved",
+      "actors": [
+        "manager-approver"
+      ]
+    },
+    {
+      "name": "financeApprove",
+      "entity": "Invoice",
+      "from": "manager-approved",
+      "to": "finance-approved",
+      "actors": [
+        "finance-approver"
+      ]
+    },
+    {
+      "name": "rejectInvoice",
+      "entity": "Invoice",
+      "from": "submitted",
+      "to": "rejected",
+      "actors": [
+        "finance-approver",
+        "manager-approver"
+      ]
+    },
+    {
+      "name": "schedulePayment",
+      "entity": "Invoice",
+      "from": "finance-approved",
+      "to": "scheduled",
+      "actors": [
+        "finance-operator"
+      ]
+    },
+    {
+      "name": "markPaid",
+      "entity": "Invoice",
+      "from": "scheduled",
+      "to": "paid",
+      "actors": [
+        "finance-operator"
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "name": "manager-threshold",
+      "appliesTo": "Invoice",
+      "effect": "require-approval",
+      "actors": [
+        "manager-approver"
+      ],
+      "rules": [
+        {
+          "field": "amount",
+          "operator": "lte",
+          "value": 5000
+        }
+      ],
+      "description": "Managers can approve lower-value invoices."
+    },
+    {
+      "name": "finance-threshold",
+      "appliesTo": "Invoice",
+      "effect": "require-approval",
+      "actors": [
+        "finance-approver"
+      ],
+      "rules": [
+        {
+          "field": "amount",
+          "operator": "gte",
+          "value": 5000
+        }
+      ],
+      "description": "Finance must approve larger invoices."
+    }
+  ],
+  "views": [
+    {
+      "name": "approvalQueue",
+      "entity": "Invoice",
+      "kind": "table",
+      "columns": [
+        "amount",
+        "currency",
+        "invoiceNumber",
+        "status"
+      ]
+    },
+    {
+      "name": "vendorLedger",
+      "entity": "Invoice",
+      "kind": "dashboard",
+      "columns": [
+        "amount",
+        "invoiceNumber",
+        "status",
+        "submittedAt"
+      ]
+    },
+    {
+      "name": "paymentSchedule",
+      "entity": "Payment",
+      "kind": "table",
+      "columns": [
+        "scheduledFor",
+        "status"
+      ]
+    }
+  ],
+  "effects": [
+    {
+      "name": "notifyApprovers",
+      "kind": "notification",
+      "trigger": "submitInvoice",
+      "description": "Notify the next approval stage when an invoice is submitted."
+    }
+  ],
+  "invariants": [
+    {
+      "name": "finance-threshold-present",
+      "kind": "policy-threshold",
+      "policy": "finance-threshold",
+      "field": "amount",
+      "operator": "gte",
+      "value": 5000,
+      "requiredActor": "finance-approver",
+      "description": "Large invoices must route through finance."
+    },
+    {
+      "name": "paid-requires-scheduled",
+      "kind": "action-state-chain",
+      "action": "markPaid",
+      "requiredFrom": "scheduled",
+      "requiredTo": "paid",
+      "description": "Invoices must be scheduled before they are paid."
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "budget-scope",
+      "prompt": "Should budgets attach to organizations or cost centers?",
+      "status": "open"
+    }
+  ],
+  "provenance": [
+    {
+      "sourceType": "benchmark",
+      "sourceRef": "ramp-benchmark",
+      "confidence": 1
+    }
+  ]
+}

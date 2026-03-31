@@ -22,6 +22,7 @@ import {
 import { runDraftFromArgument } from "./draft-files.js";
 import { runInterviewFromArgument } from "./interview-files.js";
 import { runModelDiffFromArguments } from "./model-diff-files.js";
+import { runModelMergeFromArguments } from "./model-merge-files.js";
 import { runModelPatchFromArguments } from "./model-patch-files.js";
 import { promoteDraftFromArgument } from "./promotion-files.js";
 
@@ -219,6 +220,30 @@ function main(): void {
         console.log(`Manifest: ${run.manifestPath}`);
         console.log(`Patched model: ${run.patchedModelPath}`);
         console.log(`Proof: ${run.proofPath}`);
+        return;
+      }
+
+      if (command === "model:merge") {
+        const baseInput = argument ?? "ramp-like-spend-controls";
+        const leftInput = process.argv[4];
+        const rightInput = process.argv[5];
+
+        if (!leftInput || !rightInput) {
+          throw new Error(
+            "Model merge requires three inputs: <base-model-or-job> <left-model-or-job> <right-model-or-job>."
+          );
+        }
+
+        const run = await runModelMergeFromArguments(
+          process.cwd(),
+          baseInput,
+          leftInput,
+          rightInput
+        );
+        console.log(await fs.readFile(run.reportPath, "utf8"));
+        console.log("");
+        console.log(`Artifacts written to: ${run.mergeDir}`);
+        console.log(`Manifest: ${run.manifestPath}`);
         return;
       }
 

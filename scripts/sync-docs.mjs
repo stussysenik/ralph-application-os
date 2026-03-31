@@ -125,20 +125,19 @@ function buildProgressSnapshot({
     "- tracked answered interview examples: " + answeredInterviewCount,
     "- tracked generated models: " + generatedModelCount,
     "- tracked generated jobs: " + generatedJobCount,
-    "- current operator path: prompt -> interview -> draft -> promotion -> diff -> patch -> loop"
+    "- current operator path: prompt -> interview -> draft -> promotion -> diff -> patch -> merge -> loop"
   ].join("\n");
 }
 
 function buildLedgerSnapshot({
   generatedModelCount,
-  generatedJobCount,
-  draftCapabilityPath
+  generatedJobCount
 }) {
   return [
     "- tracked generated models now exist: " + (generatedModelCount > 0 ? "yes" : "no"),
     "- tracked generated jobs now exist: " + (generatedJobCount > 0 ? "yes" : "no"),
-    "- current irreversible move under test: draft capability gating before job generation",
-    "- latest capability contract artifact: " + draftCapabilityPath
+    "- current irreversible move under test: semantic merge after diff and patch stabilization",
+    "- latest capability contract artifact: artifacts/ralph/model-merges/<run-id>/manifest.json"
   ].join("\n");
 }
 
@@ -156,8 +155,7 @@ async function main() {
     exampleJobCount,
     answeredInterviewCount,
     generatedModelCount,
-    generatedJobCount,
-    draftCapabilityPath
+    generatedJobCount
   };
 
   const readmePath = path.join(rootDir, "README.md");

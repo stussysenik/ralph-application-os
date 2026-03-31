@@ -22,6 +22,7 @@ They go to:
 - `artifacts/ralph/promotions/<run-id>/`
 - `artifacts/ralph/model-diffs/<run-id>/`
 - `artifacts/ralph/model-patches/<run-id>/`
+- `artifacts/ralph/model-merges/<run-id>/`
 - `artifacts/ralph/runs/<run-id>/`
 - `artifacts/ralph/hypertime-ledger.jsonl`
 
@@ -35,4 +36,5 @@ They go to:
 - draft runs synthesize a first semantic model from answered interviews
 - promotion runs write tracked models first and only generate tracked jobs when the draft is tier A and proof-clean
 - patch examples capture durable semantic corrections that can be replayed against tracked models
+- model merge runs compare diverged semantic branches against a shared base and preserve typed conflicts when auto-merge is unsafe
 - `pnpm ralph:team` walks these tracked jobs and emits a batch summary under `artifacts/ralph/teams/`
