@@ -37,11 +37,13 @@ describe("runModelMergeFromArguments", () => {
       operations: [
         {
           op: "add",
-          path: "openQuestions.budget-scope",
+          path: "views.vendorOverview",
           value: {
-            id: "budget-scope",
-            prompt: "Should budgets attach to organizations or cost centers?",
-            status: "open"
+            name: "vendorOverview",
+            entity: "Vendor",
+            kind: "detail",
+            columns: ["name", "riskTier"],
+            description: "Vendor detail view"
           }
         }
       ]
@@ -56,12 +58,17 @@ describe("runModelMergeFromArguments", () => {
       leftPath,
       rightPath
     );
-    const report = await fs.readFile(run.reportPath, "utf8");
+    const [report, correctionMemoryRaw] = await Promise.all([
+      fs.readFile(run.reportPath, "utf8"),
+      fs.readFile(run.correctionMemoryPath, "utf8")
+    ]);
 
     expect(run.merge.ok).toBe(true);
     expect(run.proof?.ok).toBe(true);
     expect(report).toContain("Status: MERGED");
     expect(report).toContain("Proof: PASS");
+    expect(report).toContain("Harvested correction memory:");
+    expect(correctionMemoryRaw).toContain('"kind": "view"');
   });
 
   it("persists conflicts when branches collide on the same path", async () => {

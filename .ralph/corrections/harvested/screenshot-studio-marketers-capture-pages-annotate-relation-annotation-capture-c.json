@@ -1,0 +1,37 @@
+{
+  "id": "screenshot-studio-marketers-capture-pages-annotate-relation-annotation-capture-c",
+  "title": "relation lesson for screenshot-studio-marketers-capture-pages-annotate",
+  "kind": "relation",
+  "summary": "4 relation change(s) made Annotation, Capture, Collection, ShareLink, and Workspace more explicit in screenshot-studio-marketers-capture.",
+  "recommendation": "Promote explicit relations around Annotation, Capture, Collection, ShareLink, and Workspace so screenshot-studio-marketers-capture stays queryable and readable without hidden joins or implied edges.",
+  "categories": [
+    "knowledge-system",
+    "workflow-app"
+  ],
+  "domains": [
+    "screenshot-studio-marketers-capture"
+  ],
+  "promptKeywords": [
+    "screenshot",
+    "studio",
+    "marketers",
+    "capture",
+    "workspace",
+    "collection",
+    "annotation",
+    "sharelink"
+  ],
+  "entityNames": [
+    "Annotation",
+    "Capture",
+    "Collection",
+    "ShareLink",
+    "Workspace"
+  ],
+  "source": {
+    "sourceType": "human-edit",
+    "sourceRef": "patch:screenshot-studio-marketers-capture-pages-annotate",
+    "note": "Resolve the generated screenshot-studio relation map and close the open semantic question.",
+    "confidence": 0.82
+  }
+}

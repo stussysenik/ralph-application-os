@@ -21,6 +21,7 @@
     "ralph:interview": "pnpm build && node packages/ralph-cli/dist/index.js interview",
     "ralph:draft": "pnpm build && node packages/ralph-cli/dist/index.js draft",
     "ralph:correction:new": "pnpm build && node packages/ralph-cli/dist/index.js correction:new",
+    "ralph:correction:promote": "pnpm build && node packages/ralph-cli/dist/index.js correction:promote",
     "ralph:model:diff": "pnpm build && node packages/ralph-cli/dist/index.js model:diff",
     "ralph:model:merge": "pnpm build && node packages/ralph-cli/dist/index.js model:merge",
     "ralph:model:patch": "pnpm build && node packages/ralph-cli/dist/index.js model:patch",
@@ -31,7 +32,7 @@
     "ralph:job:validate": "pnpm build && node packages/ralph-cli/dist/index.js job:validate",
     "release": "semantic-release",
     "release:dry": "semantic-release --dry-run",
-    "spec:validate": "openspec validate define-ralph-application-os && openspec validate shift-to-internal-builders && openspec validate add-job-runtime-and-ledger && openspec validate add-interview-loop && openspec validate add-draft-synthesis && openspec validate add-draft-promotion && openspec validate add-semantic-model-diff && openspec validate add-semantic-model-patch && openspec validate add-semantic-model-merge && openspec validate add-replay-proofs-and-runtime-artifacts && openspec validate add-local-interactive-runtime && openspec validate add-cross-domain-ideation-briefs && openspec validate add-relation-aware-interview-synthesis && openspec validate add-engineering-handoff-artifacts && openspec validate add-ideation-improvement-opportunities && openspec validate add-correction-memory",
+    "spec:validate": "openspec validate define-ralph-application-os && openspec validate shift-to-internal-builders && openspec validate add-job-runtime-and-ledger && openspec validate add-interview-loop && openspec validate add-draft-synthesis && openspec validate add-draft-promotion && openspec validate add-semantic-model-diff && openspec validate add-semantic-model-patch && openspec validate add-semantic-model-merge && openspec validate add-replay-proofs-and-runtime-artifacts && openspec validate add-local-interactive-runtime && openspec validate add-cross-domain-ideation-briefs && openspec validate add-relation-aware-interview-synthesis && openspec validate add-engineering-handoff-artifacts && openspec validate add-ideation-improvement-opportunities && openspec validate add-correction-memory && openspec validate add-correction-harvest-promotion",
     "prompt": "cat START_PROMPT.md"
   },
   "devDependencies": {

@@ -2,12 +2,15 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import {
+  harvestCorrectionMemoriesFromPatch,
   mergeSemanticWorldModels,
   serializeWorldModel,
+  type SemanticCorrectionMemory,
   type SemanticWorldModelMergeResult
 } from "@ralph/semantic-kernel";
 import { runKernelProofs, type ProofResult } from "@ralph/proof-harness";
 
+import { enrichHarvestedCorrectionMemories } from "./correction-harvest-files.js";
 import { resolveWorldModelInput, type RalphModelInput } from "./model-diff-files.js";
 
 const DEFAULT_MODEL_MERGES_DIR = "artifacts/ralph/model-merges";
@@ -17,9 +20,11 @@ export interface RalphModelMergeRun {
   left: RalphModelInput;
   right: RalphModelInput;
   merge: SemanticWorldModelMergeResult;
+  harvestedCorrections: SemanticCorrectionMemory[];
   proof?: ProofResult;
   mergeDir: string;
   manifestPath: string;
+  correctionMemoryPath: string;
   reportPath: string;
 }
 
@@ -74,6 +79,14 @@ function formatModelMergeReport(run: RalphModelMergeRun): string {
     lines.push("");
   }
 
+  if (run.harvestedCorrections.length > 0) {
+    lines.push("Harvested correction memory:");
+    for (const memory of run.harvestedCorrections) {
+      lines.push(`- ${memory.title}: ${memory.recommendation}`);
+    }
+    lines.push("");
+  }
+
   lines.push("Merged operations:");
   for (const operation of run.merge.mergedPatch.operations) {
     lines.push(`- ${formatOperation(operation)}`);
@@ -95,9 +108,23 @@ export async function runModelMergeFromArguments(
   ]);
   const merge = mergeSemanticWorldModels(base.model, left.model, right.model);
   const proof = merge.ok && merge.mergedModel ? runKernelProofs(merge.mergedModel) : undefined;
+  const harvestedCorrections =
+    merge.ok && merge.mergedModel
+      ? enrichHarvestedCorrectionMemories(
+          merge.mergedModel,
+          merge.mergedPatch.note,
+          harvestCorrectionMemoriesFromPatch({
+            sourceModel: base.model,
+            targetModel: merge.mergedModel,
+            patch: merge.mergedPatch,
+            sourceRef: `merge:${base.model.name}`
+          })
+        )
+      : [];
   const mergeId = `${new Date().toISOString().replace(/[:.]/g, "-")}-${slugify(base.model.name)}-merge`;
   const mergeDir = path.join(rootDir, DEFAULT_MODEL_MERGES_DIR, mergeId);
   const manifestPath = path.join(mergeDir, "manifest.json");
+  const correctionMemoryPath = path.join(mergeDir, "correction-memory.json");
   const reportPath = path.join(mergeDir, "report.md");
 
   await fs.mkdir(mergeDir, { recursive: true });
@@ -107,9 +134,11 @@ export async function runModelMergeFromArguments(
     left,
     right,
     merge,
+    harvestedCorrections,
     ...(proof ? { proof } : {}),
     mergeDir,
     manifestPath,
+    correctionMemoryPath,
     reportPath
   };
 
@@ -121,6 +150,11 @@ export async function runModelMergeFromArguments(
     fs.writeFile(path.join(mergeDir, "right-patch.json"), `${JSON.stringify(merge.rightPatch, null, 2)}\n`, "utf8"),
     fs.writeFile(path.join(mergeDir, "merged-patch.json"), `${JSON.stringify(merge.mergedPatch, null, 2)}\n`, "utf8"),
     fs.writeFile(path.join(mergeDir, "conflicts.json"), `${JSON.stringify(merge.conflicts, null, 2)}\n`, "utf8"),
+    fs.writeFile(
+      correctionMemoryPath,
+      `${JSON.stringify(harvestedCorrections, null, 2)}\n`,
+      "utf8"
+    ),
     ...(merge.ok && merge.mergedModel
       ? [
           fs.writeFile(path.join(mergeDir, "merged.json"), `${serializeWorldModel(merge.mergedModel)}\n`, "utf8"),
@@ -146,6 +180,7 @@ export async function runModelMergeFromArguments(
             rightPatch: "right-patch.json",
             mergedPatch: "merged-patch.json",
             conflicts: "conflicts.json",
+            correctionMemory: "correction-memory.json",
             ...(merge.ok && merge.mergedModel ? { merged: "merged.json", proof: "proof.json" } : {}),
             report: "report.md"
           }

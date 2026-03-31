@@ -64,7 +64,7 @@ function isCorrectionKind(value: unknown): value is SemanticCorrectionKind {
   );
 }
 
-function parseCorrectionMemory(
+export function parseCorrectionMemory(
   raw: unknown,
   sourcePath: string
 ): SemanticCorrectionMemory {
@@ -151,6 +151,50 @@ export async function loadCorrectionMemories(
   );
 
   return parsed.flat();
+}
+
+export async function loadCorrectionMemoriesFromPath(
+  rootDir: string,
+  argument: string
+): Promise<{ sourcePath: string; memories: SemanticCorrectionMemory[] }> {
+  const trimmed = argument.trim();
+
+  if (trimmed.length === 0) {
+    throw new Error("Correction memory input must not be empty.");
+  }
+
+  const sourcePath = path.resolve(rootDir, trimmed);
+  const stat = await fs.stat(sourcePath).catch(() => null);
+
+  if (!stat?.isFile()) {
+    throw new Error(`Correction memory file not found: ${sourcePath}`);
+  }
+
+  const raw = JSON.parse(await fs.readFile(sourcePath, "utf8")) as unknown;
+  const memories = Array.isArray(raw)
+    ? raw.map((entry) => parseCorrectionMemory(entry, sourcePath))
+    : [parseCorrectionMemory(raw, sourcePath)];
+
+  return { sourcePath, memories };
+}
+
+export async function promoteCorrectionMemories(
+  rootDir: string,
+  memories: SemanticCorrectionMemory[]
+): Promise<string[]> {
+  const correctionDir = path.join(rootDir, DEFAULT_CORRECTIONS_DIR, "harvested");
+
+  await fs.mkdir(correctionDir, { recursive: true });
+
+  const writtenPaths: string[] = [];
+
+  for (const memory of memories) {
+    const targetPath = path.join(correctionDir, `${slugify(memory.id) || "correction"}.json`);
+    await fs.writeFile(targetPath, `${JSON.stringify(memory, null, 2)}\n`, "utf8");
+    writtenPaths.push(targetPath);
+  }
+
+  return writtenPaths;
 }
 
 export async function createCorrectionTemplate(

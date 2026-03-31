@@ -8,3 +8,4 @@ export * from "./interview.js";
 export * from "./keys.js";
 export * from "./validate.js";
 export * from "./correction-memory.js";
+export * from "./correction-harvest.js";

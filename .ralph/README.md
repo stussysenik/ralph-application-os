@@ -41,6 +41,7 @@ They go to:
 - promotion runs write tracked models first and only generate tracked jobs when the draft is tier A and proof-clean
 - patch examples capture durable semantic corrections that can be replayed against tracked models
 - correction memories capture reusable semantic lessons that should influence future ideation and draft runs
+- patch and merge runs can now emit harvested correction-memory proposals before those lessons are promoted into tracked memory
 - model merge runs compare diverged semantic branches against a shared base and preserve typed conflicts when auto-merge is unsafe
 - runtime package runs emit an interactive browser-openable local runtime from a world model
 - `pnpm ralph:team` walks these tracked jobs and emits a batch summary under `artifacts/ralph/teams/`

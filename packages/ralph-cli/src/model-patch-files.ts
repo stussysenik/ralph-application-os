@@ -4,12 +4,15 @@ import path from "node:path";
 import {
   applySemanticPatch,
   diffWorldModels,
+  harvestCorrectionMemoriesFromPatch,
   serializeWorldModel,
+  type SemanticCorrectionMemory,
   type SemanticPatchDocument,
   type SemanticWorldModel
 } from "@ralph/semantic-kernel";
 import { runKernelProofs, type ProofResult } from "@ralph/proof-harness";
 
+import { enrichHarvestedCorrectionMemories } from "./correction-harvest-files.js";
 import { resolveWorldModelInput, type RalphModelInput } from "./model-diff-files.js";
 
 const DEFAULT_MODEL_PATCHES_DIR = "artifacts/ralph/model-patches";
@@ -18,6 +21,7 @@ export interface RalphModelPatchRun {
   source: RalphModelInput;
   patch: SemanticPatchDocument;
   patchedModel: SemanticWorldModel;
+  harvestedCorrections: SemanticCorrectionMemory[];
   proof: ProofResult;
   patchDir: string;
   manifestPath: string;
@@ -26,6 +30,7 @@ export interface RalphModelPatchRun {
   patchedModelPath: string;
   diffPath: string;
   proofPath: string;
+  correctionMemoryPath: string;
   reportPath: string;
 }
 
@@ -109,6 +114,14 @@ function formatModelPatchReport(run: RalphModelPatchRun): string {
     lines.push(`- [${check.ok ? "pass" : "fail"}] ${check.name}: ${check.detail}`);
   }
 
+  if (run.harvestedCorrections.length > 0) {
+    lines.push("");
+    lines.push("Harvested correction memory:");
+    for (const memory of run.harvestedCorrections) {
+      lines.push(`- ${memory.title}: ${memory.recommendation}`);
+    }
+  }
+
   return lines.join("\n");
 }
 
@@ -124,6 +137,16 @@ export async function runModelPatchFromArguments(
   const patchedModel = applySemanticPatch(source.model, patchInput.patch);
   const diff = diffWorldModels(source.model, patchedModel);
   const proof = runKernelProofs(patchedModel);
+  const harvestedCorrections = enrichHarvestedCorrectionMemories(
+    patchedModel,
+    patchInput.patch.note,
+    harvestCorrectionMemoriesFromPatch({
+      sourceModel: source.model,
+      targetModel: patchedModel,
+      patch: patchInput.patch,
+      sourceRef: `patch:${source.model.name}`
+    })
+  );
   const patchId = `${new Date().toISOString().replace(/[:.]/g, "-")}-${slugify(source.model.name)}`;
   const patchDir = path.join(rootDir, DEFAULT_MODEL_PATCHES_DIR, patchId);
   const manifestPath = path.join(patchDir, "manifest.json");
@@ -132,6 +155,7 @@ export async function runModelPatchFromArguments(
   const patchedModelPath = path.join(patchDir, "patched.json");
   const diffPath = path.join(patchDir, "diff.json");
   const proofPath = path.join(patchDir, "proof.json");
+  const correctionMemoryPath = path.join(patchDir, "correction-memory.json");
   const reportPath = path.join(patchDir, "report.md");
 
   await fs.mkdir(patchDir, { recursive: true });
@@ -140,6 +164,7 @@ export async function runModelPatchFromArguments(
     source,
     patch: patchInput.patch,
     patchedModel,
+    harvestedCorrections,
     proof,
     patchDir,
     manifestPath,
@@ -148,6 +173,7 @@ export async function runModelPatchFromArguments(
     patchedModelPath,
     diffPath,
     proofPath,
+    correctionMemoryPath,
     reportPath
   };
 
@@ -157,6 +183,11 @@ export async function runModelPatchFromArguments(
     fs.writeFile(patchPath, `${JSON.stringify(patchInput.patch, null, 2)}\n`, "utf8"),
     fs.writeFile(diffPath, `${JSON.stringify(diff, null, 2)}\n`, "utf8"),
     fs.writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`, "utf8"),
+    fs.writeFile(
+      correctionMemoryPath,
+      `${JSON.stringify(harvestedCorrections, null, 2)}\n`,
+      "utf8"
+    ),
     fs.writeFile(reportPath, `${formatModelPatchReport(run)}\n`, "utf8"),
     fs.writeFile(
       manifestPath,
@@ -172,6 +203,7 @@ export async function runModelPatchFromArguments(
             patchedModel: "patched.json",
             diff: "diff.json",
             proof: "proof.json",
+            correctionMemory: "correction-memory.json",
             report: "report.md"
           }
         },

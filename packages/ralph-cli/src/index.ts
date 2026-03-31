@@ -28,6 +28,7 @@ import { runModelMergeFromArguments } from "./model-merge-files.js";
 import { runModelPatchFromArguments } from "./model-patch-files.js";
 import { promoteDraftFromArgument } from "./promotion-files.js";
 import { createCorrectionTemplate } from "./correction-memory-files.js";
+import { promoteCorrectionMemoriesFromArgument } from "./correction-promote-files.js";
 
 function renderModelSummary(model: SemanticWorldModel): string {
   return [
@@ -188,6 +189,19 @@ function main(): void {
         return;
       }
 
+      if (command === "correction:promote") {
+        if (!argument) {
+          throw new Error("Correction memory input required. Pass a correction-memory JSON file.");
+        }
+
+        const run = await promoteCorrectionMemoriesFromArgument(process.cwd(), argument);
+        console.log(await fs.readFile(run.reportPath, "utf8"));
+        console.log("");
+        console.log(`Artifacts written to: ${run.promotionDir}`);
+        console.log(`Manifest: ${run.manifestPath}`);
+        return;
+      }
+
       if (command === "job:new") {
         const name = argument ?? "new-job";
         const { jobPath } = await createJobTemplate(process.cwd(), name);
@@ -258,6 +272,7 @@ function main(): void {
         console.log(`Manifest: ${run.manifestPath}`);
         console.log(`Patched model: ${run.patchedModelPath}`);
         console.log(`Proof: ${run.proofPath}`);
+        console.log(`Harvested correction memory: ${run.correctionMemoryPath}`);
         return;
       }
 
@@ -282,6 +297,7 @@ function main(): void {
         console.log("");
         console.log(`Artifacts written to: ${run.mergeDir}`);
         console.log(`Manifest: ${run.manifestPath}`);
+        console.log(`Harvested correction memory: ${run.correctionMemoryPath}`);
         return;
       }
 

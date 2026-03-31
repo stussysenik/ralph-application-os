@@ -17,3 +17,4 @@ Shape:
 Current convention:
 
 - `examples/` holds runnable sample memories that pressure the current matcher
+- `harvested/` holds promoted memories accepted from patch and merge artifact proposals

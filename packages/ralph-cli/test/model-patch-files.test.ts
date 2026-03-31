@@ -46,6 +46,17 @@ describe("runModelPatchFromArguments", () => {
                 prompt: "Should budgets attach to organizations or cost centers?",
                 status: "open"
               }
+            },
+            {
+              op: "add",
+              path: "views.vendorOverview",
+              value: {
+                name: "vendorOverview",
+                entity: "Vendor",
+                kind: "detail",
+                columns: ["name", "riskTier"],
+                description: "Vendor detail view"
+              }
             }
           ]
         },
@@ -56,7 +67,10 @@ describe("runModelPatchFromArguments", () => {
     );
 
     const run = await runModelPatchFromArguments(rootDir, modelPath, patchPath);
-    const report = await fs.readFile(run.reportPath, "utf8");
+    const [report, correctionMemoryRaw] = await Promise.all([
+      fs.readFile(run.reportPath, "utf8"),
+      fs.readFile(run.correctionMemoryPath, "utf8")
+    ]);
 
     expect(run.patchedModel.domain).toBe("approvals-and-erp");
     expect(run.patchedModel.openQuestions.map((question) => question.id)).toContain(
@@ -65,5 +79,7 @@ describe("runModelPatchFromArguments", () => {
     expect(run.proof.ok).toBe(true);
     expect(report).toContain("Ralph Semantic Model Patch");
     expect(report).toContain("Proof: PASS");
+    expect(report).toContain("Harvested correction memory:");
+    expect(correctionMemoryRaw).toContain('"kind": "view"');
   });
 });

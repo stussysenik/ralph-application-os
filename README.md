@@ -54,6 +54,7 @@ Instead of hand-assembling schemas, endpoints, workflows, views, and proofs sepa
 - drafts can now become tracked models and tracked jobs automatically when they are strong enough
 - drafts now emit an engineering handoff that tells an SWE what to build first and which product improvements the model is signaling
 - correction memory now lets Ralph replay durable operator lessons into future ideation and draft runs
+- patch and merge runs can now harvest correction-memory proposals so accepted semantic fixes become reusable lessons faster
 
 ## How It Works
 
@@ -132,6 +133,7 @@ pnpm swarm:demo
 pnpm ralph:ideate "Build a toy optimizing compiler from a small Lisp to WebAssembly."
 pnpm ralph:interview "Build a screenshot studio for marketers"
 pnpm ralph:correction:new "Vision commerce freshness"
+pnpm ralph:correction:promote artifacts/ralph/model-patches/<run-id>/correction-memory.json
 pnpm ralph:draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:job:from-draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:model:diff .ralph/jobs/examples/screenshot-studio.json .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json
@@ -178,6 +180,7 @@ pnpm docs:sync
 pnpm ralph:ideate "Build a toy optimizing compiler from a small Lisp to WebAssembly."
 pnpm ralph:interview "Build a screenshot studio for marketers"
 pnpm ralph:correction:new "Vision commerce freshness"
+pnpm ralph:correction:promote artifacts/ralph/model-patches/<run-id>/correction-memory.json
 pnpm ralph:draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:job:from-draft .ralph/interviews/examples/screenshot-studio.answers.md
 pnpm ralph:model:diff .ralph/jobs/examples/screenshot-studio.json .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json
@@ -197,7 +200,7 @@ pnpm ralph:team
 - answered interview examples: 2
 - tracked generated models: 1
 - tracked generated jobs: 1
-- operator commands: ralph:artifact, ralph:correction:new, ralph:draft, ralph:ideate, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:model:merge, ralph:model:patch, ralph:team
+- operator commands: ralph:artifact, ralph:correction:new, ralph:correction:promote, ralph:draft, ralph:ideate, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:model:merge, ralph:model:patch, ralph:team
 <!-- generated:readme-snapshot:end -->
 
 ## How To Use Ralph Now
@@ -211,9 +214,10 @@ For a new idea:
 5. `pnpm ralph:job:from-draft <ideation-dir-or-answer-file>`
 6. `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`
 7. `pnpm ralph:model:patch <model-input> <patch-file>`
-8. `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`
-9. `pnpm ralph:artifact <model-or-job-or-draft>`
-10. `pnpm ralph:loop <generated-job-file>`
+8. Review harvested `correction-memory.json`, then `pnpm ralph:correction:promote <artifact-path>` when the lesson should become tracked repo memory
+9. `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`
+10. `pnpm ralph:artifact <model-or-job-or-draft>`
+11. `pnpm ralph:loop <generated-job-file>`
 
 For repo hygiene:
 
@@ -272,6 +276,7 @@ Model patch artifacts persist under:
 - `artifacts/ralph/model-patches/<run-id>/patch.json`
 - `artifacts/ralph/model-patches/<run-id>/diff.json`
 - `artifacts/ralph/model-patches/<run-id>/proof.json`
+- `artifacts/ralph/model-patches/<run-id>/correction-memory.json`
 - `artifacts/ralph/model-patches/<run-id>/report.md`
 
 Model merge artifacts persist under:
@@ -283,6 +288,7 @@ Model merge artifacts persist under:
 - `artifacts/ralph/model-merges/<run-id>/right-patch.json`
 - `artifacts/ralph/model-merges/<run-id>/merged-patch.json`
 - `artifacts/ralph/model-merges/<run-id>/conflicts.json`
+- `artifacts/ralph/model-merges/<run-id>/correction-memory.json`
 - `artifacts/ralph/model-merges/<run-id>/merged.json`
 - `artifacts/ralph/model-merges/<run-id>/proof.json`
 - `artifacts/ralph/model-merges/<run-id>/report.md`
@@ -382,6 +388,7 @@ Today the primary outputs are:
 - semantic world models
 - semantic patch documents and patched models
 - semantic merge reports and merged model candidates
+- harvested correction-memory proposals from patch and merge runs
 - internal application blueprints
 - interactive local runtime packages with seed data, runtime scripts, and HTML entrypoints
 - proof results
@@ -417,14 +424,15 @@ Current benchmark families:
 
 - `pnpm ralph:ideate <prompt-or-job-file>`: universal intake -> software category classification -> correction-memory matches -> execution-mode recommendation -> idea-improvement opportunities -> generated interview template
 - `pnpm ralph:correction:new <name>`: create a repo-local correction-memory template under `.ralph/corrections/examples/` so operator lessons can feed future runs
+- `pnpm ralph:correction:promote <correction-memory-json>`: promote harvested correction-memory proposals into `.ralph/corrections/harvested/` so later runs can reuse them
 - `pnpm demo`: benchmark world models -> internal blueprints -> proof
 - `pnpm swarm:demo`: Ralph loop swarm execution with typed stage artifacts and promotion decisions
 - `pnpm ralph:interview <prompt-or-job-file>`: prompt or tracked job -> deterministic clarification questions -> persisted interview artifacts
 - `pnpm ralph:draft <interview-dir-or-answers-template>`: answered interview -> synthesized world model -> blueprint -> proof -> engineering handoff -> persisted draft artifacts
 - `pnpm ralph:job:from-draft <interview-dir-or-answers-template>`: tier-a draft -> tracked model + generated job when safe, otherwise tracked model + rejection report
 - `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`: compare semantic drift between tracked models, draft outputs, benchmark fixtures, or job files
-- `pnpm ralph:model:patch <model-input> <patch-file>`: apply a typed semantic patch, persist before/after/diff/proof artifacts, and keep the correction as a durable runtime input
-- `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`: merge two semantic branches against a shared base, prove the merged result when conflict-free, and persist conflicts when they exist
+- `pnpm ralph:model:patch <model-input> <patch-file>`: apply a typed semantic patch, persist before/after/diff/proof artifacts, and harvest reusable correction-memory proposals from the accepted semantic change
+- `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`: merge two semantic branches against a shared base, prove the merged result when conflict-free, persist conflicts when they exist, and harvest reusable correction-memory proposals from the merged patch
 - `pnpm ralph:artifact <model-or-job-or-draft>`: emit an interactive local runtime package with deterministic seed data, executable workflow buttons, and a browser-openable `index.html`
 - `pnpm ralph:loop <job-file>`: validated job -> swarm run -> persisted run artifacts
 - `pnpm ralph:team [jobs-directory]`: batch swarm run over tracked jobs with a persisted team summary

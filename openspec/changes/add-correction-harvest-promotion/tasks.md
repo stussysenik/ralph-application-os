@@ -1,0 +1,4 @@
+- [x] 1.1 Add correction-memory harvesting from semantic patch documents
+- [x] 1.2 Persist harvested correction-memory artifacts in patch and merge runs
+- [x] 1.3 Add an explicit correction promotion command for tracked repo learning
+- [x] 1.4 Update docs and verify the slice
