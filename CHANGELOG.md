@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/stussysenik/ralph-application-os/compare/v1.4.0...v1.5.0) (2026-03-31)
+
+
+### Features
+
+* add cross-domain ideation briefs ([a3d13f9](https://github.com/stussysenik/ralph-application-os/commit/a3d13f94f6b86162b7cbe4e8341b8416d4678781))
+
 # [1.4.0](https://github.com/stussysenik/ralph-application-os/compare/v1.3.0...v1.4.0) (2026-03-31)
 
 
