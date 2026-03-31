@@ -29,7 +29,7 @@
     "ralph:job:validate": "pnpm build && node packages/ralph-cli/dist/index.js job:validate",
     "release": "semantic-release",
     "release:dry": "semantic-release --dry-run",
-    "spec:validate": "openspec validate define-ralph-application-os && openspec validate shift-to-internal-builders && openspec validate add-job-runtime-and-ledger && openspec validate add-interview-loop && openspec validate add-draft-synthesis && openspec validate add-draft-promotion && openspec validate add-semantic-model-diff && openspec validate add-semantic-model-patch && openspec validate add-semantic-model-merge && openspec validate add-replay-proofs-and-runtime-artifacts",
+    "spec:validate": "openspec validate define-ralph-application-os && openspec validate shift-to-internal-builders && openspec validate add-job-runtime-and-ledger && openspec validate add-interview-loop && openspec validate add-draft-synthesis && openspec validate add-draft-promotion && openspec validate add-semantic-model-diff && openspec validate add-semantic-model-patch && openspec validate add-semantic-model-merge && openspec validate add-replay-proofs-and-runtime-artifacts && openspec validate add-local-interactive-runtime",
     "prompt": "cat START_PROMPT.md"
   },
   "devDependencies": {

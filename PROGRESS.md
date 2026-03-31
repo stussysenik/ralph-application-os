@@ -48,12 +48,12 @@
 - The repo can now apply typed semantic patches and prove the patched result immediately.
 - The repo can now merge two semantic branches against a shared base and keep conflicts as typed artifacts when auto-merge is unsafe.
 - The proof harness now checks workflow replay from initial states and verifies invariants fail on intentional mutations.
-- The repo can now materialize a deterministic static runtime package with `index.html`, runtime manifests, and machine-readable schema/workflow/view files.
+- The repo can now materialize an interactive local runtime package with deterministic seed data, workflow actions, local persistence, and machine-readable runtime files.
 - The implementation is still early, but it can now execute validated job files, load tracked workflow and role config, persist durable run artifacts, and batch over tracked jobs.
 
 ### Next Steps
 
-1. Turn the static runtime package into an interactive data-backed local runtime.
+1. Add richer editable data operations and relation-aware records to the local runtime package.
 2. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
 3. Add browser-native model inspection and merge review in the future studio.
 4. Expand replay and mutation coverage across the full benchmark corpus.

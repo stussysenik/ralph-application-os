@@ -14,7 +14,7 @@ The point is not to predict the future perfectly. The point is to preserve:
 <!-- generated:ledger-snapshot:start -->
 - tracked generated models now exist: yes
 - tracked generated jobs now exist: yes
-- current irreversible move under test: replay proofs and first executable runtime packages
+- current irreversible move under test: interactive local runtime packages with executable workflow actions
 - latest capability contract artifact: artifacts/ralph/runtime-packages/<run-id>/manifest.json
 <!-- generated:ledger-snapshot:end -->
 
@@ -40,11 +40,11 @@ Ralph Application OS is a semantic software platform that turns intent into a wo
 - semantic patch runs now make model corrections durable and proof-visible
 - semantic merge runs now either prove conflict-free branches or preserve typed conflicts for operator review
 - proof runs now include workflow replay and mutation-resistance pressure
-- the builder can now emit a first executable static runtime package instead of only a prose blueprint
+- the builder can now emit an interactive local runtime package instead of only a prose blueprint
 
 ### Current Limits
 
-- no interactive data runtime yet
+- no rich editable data runtime yet
 - no browser studio yet
 - no long-lived orchestration runtime yet
 
@@ -99,7 +99,7 @@ Take this branch if:
 
 ## Next Irreversible Moves
 
-1. Add writable data flow and action execution to the runtime package
+1. Add richer data editing, relation browsing, and persistence semantics to the runtime package
 2. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
 3. Add human-guided conflict resolution on top of typed semantic merge conflicts
 4. Expand benchmark replay and mutation pressure to every benchmark family

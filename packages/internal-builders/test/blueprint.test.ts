@@ -21,12 +21,19 @@ describe("buildApplicationBlueprint", () => {
     const artifact = buildExecutableSubstrateArtifact(rampLikeSpendModel);
     const html = artifact.files.find((file) => file.path === "index.html");
     const manifest = artifact.files.find((file) => file.path === "runtime-manifest.json");
+    const runtimeScript = artifact.files.find((file) => file.path === "runtime.js");
+    const seedData = artifact.files.find((file) => file.path === "seed-data.json");
 
     expect(artifact.entrypoint).toBe("index.html");
     expect(artifact.schema.some((entity) => entity.name === "Invoice")).toBe(true);
     expect(artifact.workflows.some((workflow) => workflow.entity === "Invoice")).toBe(true);
     expect(manifest?.content).toContain('"kind": "ralph-runtime-package"');
+    expect(manifest?.content).toContain('"scriptFile": "runtime.js"');
+    expect(seedData?.content).toContain('"entity": "Invoice"');
+    expect(runtimeScript?.content).toContain("localStorage");
+    expect(runtimeScript?.content).toContain("applyTransition");
     expect(html?.content).toContain("approvalQueue");
     expect(html?.content).toContain("ramp-like-spend-controls");
+    expect(html?.content).toContain('src="runtime.js"');
   });
 });

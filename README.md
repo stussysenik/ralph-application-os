@@ -261,6 +261,8 @@ Runtime package artifacts persist under:
 - `artifacts/ralph/runtime-packages/<run-id>/workflows.json`
 - `artifacts/ralph/runtime-packages/<run-id>/policies.json`
 - `artifacts/ralph/runtime-packages/<run-id>/views.json`
+- `artifacts/ralph/runtime-packages/<run-id>/seed-data.json`
+- `artifacts/ralph/runtime-packages/<run-id>/runtime.js`
 - `artifacts/ralph/runtime-packages/<run-id>/index.html`
 - `artifacts/ralph/runtime-packages/<run-id>/report.md`
 
@@ -338,7 +340,7 @@ Today the primary outputs are:
 - semantic patch documents and patched models
 - semantic merge reports and merged model candidates
 - internal application blueprints
-- runtime package manifests and HTML entrypoints
+- interactive local runtime packages with seed data, runtime scripts, and HTML entrypoints
 - proof results
 - run manifests and reports
 - hypertime ledger entries
@@ -377,7 +379,7 @@ Current benchmark families:
 - `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`: compare semantic drift between tracked models, draft outputs, benchmark fixtures, or job files
 - `pnpm ralph:model:patch <model-input> <patch-file>`: apply a typed semantic patch, persist before/after/diff/proof artifacts, and keep the correction as a durable runtime input
 - `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`: merge two semantic branches against a shared base, prove the merged result when conflict-free, and persist conflicts when they exist
-- `pnpm ralph:artifact <model-or-job-or-draft>`: emit the first runnable substrate artifact as a deterministic static runtime package with a browser-openable `index.html`
+- `pnpm ralph:artifact <model-or-job-or-draft>`: emit an interactive local runtime package with deterministic seed data, executable workflow buttons, and a browser-openable `index.html`
 - `pnpm ralph:loop <job-file>`: validated job -> swarm run -> persisted run artifacts
 - `pnpm ralph:team [jobs-directory]`: batch swarm run over tracked jobs with a persisted team summary
 

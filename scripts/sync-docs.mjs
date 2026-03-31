@@ -136,7 +136,7 @@ function buildLedgerSnapshot({
   return [
     "- tracked generated models now exist: " + (generatedModelCount > 0 ? "yes" : "no"),
     "- tracked generated jobs now exist: " + (generatedJobCount > 0 ? "yes" : "no"),
-    "- current irreversible move under test: replay proofs and first executable runtime packages",
+    "- current irreversible move under test: interactive local runtime packages with executable workflow actions",
     "- latest capability contract artifact: artifacts/ralph/runtime-packages/<run-id>/manifest.json"
   ].join("\n");
 }

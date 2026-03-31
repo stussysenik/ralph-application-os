@@ -103,6 +103,7 @@ export async function runRuntimeArtifactFromArgument(
           modelName: source.model.name,
           proofOk: proof.ok,
           entrypoint: artifact.entrypoint,
+          storageKey: artifact.manifest.storageKey,
           artifactFiles: {
             worldModel: "world-model.json",
             blueprint: "blueprint.json",
@@ -112,6 +113,8 @@ export async function runRuntimeArtifactFromArgument(
             workflows: "workflows.json",
             policies: "policies.json",
             views: "views.json",
+            seedData: artifact.manifest.seedFile,
+            script: artifact.manifest.scriptFile,
             entrypoint: artifact.entrypoint,
             report: "report.md"
           }

@@ -38,10 +38,12 @@ Planned builder families:
 
 These are **our builders**, not just long-term wrappers around someone else's backend. Borrowed runtimes may help during development, but the end platform owns substrate materialization.
 
-Today the first executable output is a deterministic static runtime package:
+Today the first executable output is an interactive local runtime package:
 
 - `runtime-manifest.json`
 - schema, workflow, policy, and view plans
+- deterministic `seed-data.json`
+- `runtime.js` for local action execution and persistence
 - a browser-openable `index.html`
 
 ### Proof Harness
