@@ -125,7 +125,7 @@ function buildProgressSnapshot({
     "- tracked answered interview examples: " + answeredInterviewCount,
     "- tracked generated models: " + generatedModelCount,
     "- tracked generated jobs: " + generatedJobCount,
-    "- current operator path: prompt -> interview -> draft -> promotion -> diff -> patch -> merge -> loop"
+    "- current operator path: prompt -> interview -> draft -> promotion -> diff -> patch -> merge -> artifact -> loop"
   ].join("\n");
 }
 
@@ -136,8 +136,8 @@ function buildLedgerSnapshot({
   return [
     "- tracked generated models now exist: " + (generatedModelCount > 0 ? "yes" : "no"),
     "- tracked generated jobs now exist: " + (generatedJobCount > 0 ? "yes" : "no"),
-    "- current irreversible move under test: semantic merge after diff and patch stabilization",
-    "- latest capability contract artifact: artifacts/ralph/model-merges/<run-id>/manifest.json"
+    "- current irreversible move under test: replay proofs and first executable runtime packages",
+    "- latest capability contract artifact: artifacts/ralph/runtime-packages/<run-id>/manifest.json"
   ].join("\n");
 }
 

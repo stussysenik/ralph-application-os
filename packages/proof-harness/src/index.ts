@@ -3,6 +3,7 @@ import type {
   SemanticInvariant,
   SemanticPolicy,
   SemanticState,
+  SemanticWorldModel as KernelWorldModel,
   SemanticWorldModel
 } from "@ralph/semantic-kernel";
 import { validateWorldModel } from "@ralph/semantic-kernel";
@@ -89,10 +90,154 @@ function checkInvariant(model: SemanticWorldModel, invariant: SemanticInvariant)
   return checkPolicyInvariant(policy, invariant);
 }
 
+function buildReachableStateSet(
+  initialStates: string[],
+  actions: SemanticAction[]
+): Set<string> {
+  const reachable = new Set(initialStates);
+  let changed = true;
+
+  while (changed) {
+    changed = false;
+
+    for (const action of actions) {
+      if (reachable.has(action.from) && !reachable.has(action.to)) {
+        reachable.add(action.to);
+        changed = true;
+      }
+    }
+  }
+
+  return reachable;
+}
+
+function buildWorkflowReplayChecks(model: KernelWorldModel): ProofCheck[] {
+  return model.entities.flatMap((entity) => {
+    const entityStates = model.states.filter((state) => state.entity === entity.name);
+    const entityActions = model.actions.filter((action) => action.entity === entity.name);
+
+    if (entityStates.length === 0 || entityActions.length === 0) {
+      return [];
+    }
+
+    const initialStates = entityStates.filter((state) => state.initial).map((state) => state.name);
+    const terminalStates = entityStates
+      .filter((state) => state.terminal)
+      .map((state) => state.name);
+
+    if (initialStates.length === 0) {
+      return [
+        {
+          name: `workflow-replay:${entity.name}`,
+          ok: false,
+          detail: `Workflow ${entity.name} has transitions but no initial state.`
+        }
+      ];
+    }
+
+    const reachable = buildReachableStateSet(initialStates, entityActions);
+    const unreachableTransitions = entityActions
+      .filter((action) => !reachable.has(action.from))
+      .map((action) => action.name);
+    const reachableTerminals = terminalStates.filter((state) => reachable.has(state));
+    const ok =
+      unreachableTransitions.length === 0 &&
+      (terminalStates.length === 0 || reachableTerminals.length > 0);
+    const detail = ok
+      ? `Workflow ${entity.name} replays from ${initialStates.join(", ")} to ${reachableTerminals.join(", ") || "reachable states"} cleanly.`
+      : `Workflow ${entity.name} cannot replay cleanly. Unreachable transitions: ${unreachableTransitions.join(", ") || "none"}. Reachable terminal states: ${reachableTerminals.join(", ") || "none"}.`;
+
+    return [
+      {
+        name: `workflow-replay:${entity.name}`,
+        ok,
+        detail
+      }
+    ];
+  });
+}
+
+function buildMutationCandidate(
+  model: KernelWorldModel,
+  invariant: SemanticInvariant
+): KernelWorldModel | undefined {
+  if (invariant.kind === "action-state-chain") {
+    const targetAction = model.actions.find((action) => action.name === invariant.action);
+
+    if (!targetAction) {
+      return undefined;
+    }
+
+    return {
+      ...model,
+      actions: model.actions.map((action) =>
+        action.name === invariant.action
+          ? {
+              ...action,
+              to: invariant.requiredFrom
+            }
+          : action
+      )
+    };
+  }
+
+  const targetPolicy = model.policies.find((policy) => policy.name === invariant.policy);
+
+  if (!targetPolicy) {
+    return undefined;
+  }
+
+  return {
+    ...model,
+    policies: model.policies.map((policy) =>
+      policy.name === invariant.policy
+        ? {
+            ...policy,
+            actors: policy.actors.filter((actor) => actor !== invariant.requiredActor),
+            rules: policy.rules.filter(
+              (rule) =>
+                !(
+                  rule.field === invariant.field &&
+                  rule.operator === invariant.operator &&
+                  rule.value === invariant.value
+                )
+            )
+          }
+        : policy
+    )
+  };
+}
+
+function buildMutationResistanceChecks(model: KernelWorldModel): ProofCheck[] {
+  return model.invariants.map((invariant) => {
+    const mutatedModel = buildMutationCandidate(model, invariant);
+
+    if (!mutatedModel) {
+      return {
+        name: `mutation-resistance:${invariant.name}`,
+        ok: false,
+        detail: `Unable to synthesize a mutation candidate for invariant ${invariant.name}.`
+      };
+    }
+
+    const mutatedResult = checkInvariant(mutatedModel, invariant);
+    const ok = !mutatedResult.ok;
+
+    return {
+      name: `mutation-resistance:${invariant.name}`,
+      ok,
+      detail: ok
+        ? `Invariant ${invariant.name} fails on the intentionally mutated model as expected.`
+        : `Invariant ${invariant.name} still passed on the intentionally mutated model.`
+    };
+  });
+}
+
 /**
  * The proof harness is the contract that prevents the repo from drifting
  * into demo-only generation. This first implementation proves that a model
- * is structurally coherent and that benchmark-specific invariants hold.
+ * is structurally coherent, that core workflows replay from initial states,
+ * and that benchmark-specific invariants resist targeted mutations.
  */
 export function runKernelProofs(model: SemanticWorldModel): ProofResult {
   const entityNames = new Set(model.entities.map((entity) => entity.name));
@@ -160,7 +305,9 @@ export function runKernelProofs(model: SemanticWorldModel): ProofResult {
       ok: model.policies.every((policy) => entityNames.has(policy.appliesTo)),
       detail: "Every policy attaches to a known entity."
     },
-    ...model.invariants.map((invariant) => checkInvariant(model, invariant))
+    ...buildWorkflowReplayChecks(model),
+    ...model.invariants.map((invariant) => checkInvariant(model, invariant)),
+    ...buildMutationResistanceChecks(model)
   ];
 
   return {

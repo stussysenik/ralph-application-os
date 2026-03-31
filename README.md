@@ -59,7 +59,8 @@ Instead of hand-assembling schemas, endpoints, workflows, views, and proofs sepa
 6. Diff tracked semantic models before promotion or rebuild.
 7. Apply semantic patches as durable correction artifacts.
 8. Merge semantic branches when parallel edits diverge.
-9. Run the loop and keep iterating.
+9. Materialize a runnable runtime package.
+10. Run the loop and keep iterating.
 
 ## Principles
 
@@ -117,6 +118,7 @@ pnpm ralph:job:from-draft .ralph/interviews/examples/screenshot-studio.answers.m
 pnpm ralph:model:diff .ralph/jobs/examples/screenshot-studio.json .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json
 pnpm ralph:model:patch .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json .ralph/patches/examples/screenshot-studio-relations.json
 pnpm ralph:model:merge ramp-like-spend-controls .ralph/models/examples/ramp-budget-left.json .ralph/models/examples/ramp-budget-right.json
+pnpm ralph:artifact ramp-like-spend-controls
 pnpm ralph:job:validate .ralph/jobs/examples/screenshot-studio.json
 pnpm ralph:loop .ralph/jobs/examples/screenshot-studio.json
 pnpm prompt
@@ -160,6 +162,7 @@ pnpm ralph:job:from-draft .ralph/interviews/examples/screenshot-studio.answers.m
 pnpm ralph:model:diff .ralph/jobs/examples/screenshot-studio.json .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json
 pnpm ralph:model:patch .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json .ralph/patches/examples/screenshot-studio-relations.json
 pnpm ralph:model:merge ramp-like-spend-controls .ralph/models/examples/ramp-budget-left.json .ralph/models/examples/ramp-budget-right.json
+pnpm ralph:artifact ramp-like-spend-controls
 pnpm ralph:job:new screenshot-studio
 pnpm ralph:job:validate .ralph/jobs/examples/screenshot-studio.json
 pnpm ralph:loop .ralph/jobs/examples/screenshot-studio.json
@@ -173,7 +176,7 @@ pnpm ralph:team
 - answered interview examples: 1
 - tracked generated models: 1
 - tracked generated jobs: 1
-- operator commands: ralph:draft, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:model:merge, ralph:model:patch, ralph:team
+- operator commands: ralph:artifact, ralph:draft, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:model:merge, ralph:model:patch, ralph:team
 <!-- generated:readme-snapshot:end -->
 
 ## How To Use Ralph Now
@@ -187,7 +190,8 @@ For a new idea:
 5. `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`
 6. `pnpm ralph:model:patch <model-input> <patch-file>`
 7. `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`
-8. `pnpm ralph:loop <generated-job-file>`
+8. `pnpm ralph:artifact <model-or-job-or-draft>`
+9. `pnpm ralph:loop <generated-job-file>`
 
 For repo hygiene:
 
@@ -247,6 +251,19 @@ Model merge artifacts persist under:
 - `artifacts/ralph/model-merges/<run-id>/proof.json`
 - `artifacts/ralph/model-merges/<run-id>/report.md`
 
+Runtime package artifacts persist under:
+
+- `artifacts/ralph/runtime-packages/<run-id>/world-model.json`
+- `artifacts/ralph/runtime-packages/<run-id>/blueprint.json`
+- `artifacts/ralph/runtime-packages/<run-id>/proof.json`
+- `artifacts/ralph/runtime-packages/<run-id>/runtime-manifest.json`
+- `artifacts/ralph/runtime-packages/<run-id>/schema.json`
+- `artifacts/ralph/runtime-packages/<run-id>/workflows.json`
+- `artifacts/ralph/runtime-packages/<run-id>/policies.json`
+- `artifacts/ralph/runtime-packages/<run-id>/views.json`
+- `artifacts/ralph/runtime-packages/<run-id>/index.html`
+- `artifacts/ralph/runtime-packages/<run-id>/report.md`
+
 Each loop run persists:
 
 - `job.json`
@@ -296,8 +313,10 @@ It is ready for:
 - capability classification for synthesized drafts
 - tracked model persistence and guarded draft-to-job promotion
 - semantic model diffing, patching, and merging with durable artifacts
+- replay-aware proofs and mutation-resistance checks
 - semantic benchmark modeling
 - blueprint generation
+- first executable substrate runtime packages
 - proof-gated loop execution
 - tracked job runs and team runs
 
@@ -319,6 +338,7 @@ Today the primary outputs are:
 - semantic patch documents and patched models
 - semantic merge reports and merged model candidates
 - internal application blueprints
+- runtime package manifests and HTML entrypoints
 - proof results
 - run manifests and reports
 - hypertime ledger entries
@@ -333,6 +353,7 @@ If this becomes defensible, the moat will be:
 
 - a stable semantic kernel
 - proof before promotion
+- replay and mutation pressure in the proof harness
 - correction memory and provenance
 - reusable benchmark corpus
 - operator-grade loop artifacts and ledger history
@@ -356,6 +377,7 @@ Current benchmark families:
 - `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`: compare semantic drift between tracked models, draft outputs, benchmark fixtures, or job files
 - `pnpm ralph:model:patch <model-input> <patch-file>`: apply a typed semantic patch, persist before/after/diff/proof artifacts, and keep the correction as a durable runtime input
 - `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`: merge two semantic branches against a shared base, prove the merged result when conflict-free, and persist conflicts when they exist
+- `pnpm ralph:artifact <model-or-job-or-draft>`: emit the first runnable substrate artifact as a deterministic static runtime package with a browser-openable `index.html`
 - `pnpm ralph:loop <job-file>`: validated job -> swarm run -> persisted run artifacts
 - `pnpm ralph:team [jobs-directory]`: batch swarm run over tracked jobs with a persisted team summary
 

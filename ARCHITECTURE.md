@@ -38,9 +38,15 @@ Planned builder families:
 
 These are **our builders**, not just long-term wrappers around someone else's backend. Borrowed runtimes may help during development, but the end platform owns substrate materialization.
 
+Today the first executable output is a deterministic static runtime package:
+
+- `runtime-manifest.json`
+- schema, workflow, policy, and view plans
+- a browser-openable `index.html`
+
 ### Proof Harness
 
-The proof harness keeps the system honest. It runs invariants, benchmark replays, permission checks, migration checks, and behavioral verification.
+The proof harness keeps the system honest. It runs structural validation, workflow replay, mutation resistance for declared invariants, and benchmark-specific behavioral verification.
 
 ### Supervisor Loop
 

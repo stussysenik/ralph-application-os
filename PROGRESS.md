@@ -9,7 +9,7 @@
 - tracked answered interview examples: 1
 - tracked generated models: 1
 - tracked generated jobs: 1
-- current operator path: prompt -> interview -> draft -> promotion -> diff -> patch -> merge -> loop
+- current operator path: prompt -> interview -> draft -> promotion -> diff -> patch -> merge -> artifact -> loop
 <!-- generated:progress-snapshot:end -->
 
 ### Established
@@ -34,6 +34,8 @@
 - semantic model diffing across tracked models, draft artifacts, benchmark fixtures, and job files
 - semantic patch application with before/after, diff, and proof artifacts
 - semantic model merging with conflict artifacts and proof on conflict-free branches
+- workflow replay and mutation-resistance checks in the proof harness
+- runtime package generation with a browser-openable entrypoint
 
 ### Current Truth
 
@@ -45,11 +47,13 @@
 - The repo can now diff semantic models with stable paths before rebuild, replay, or promotion.
 - The repo can now apply typed semantic patches and prove the patched result immediately.
 - The repo can now merge two semantic branches against a shared base and keep conflicts as typed artifacts when auto-merge is unsafe.
+- The proof harness now checks workflow replay from initial states and verifies invariants fail on intentional mutations.
+- The repo can now materialize a deterministic static runtime package with `index.html`, runtime manifests, and machine-readable schema/workflow/view files.
 - The implementation is still early, but it can now execute validated job files, load tracked workflow and role config, persist durable run artifacts, and batch over tracked jobs.
 
 ### Next Steps
 
-1. Grow the proof harness beyond structural invariants into replay and mutation tests.
-2. Turn blueprints into the first executable substrate artifacts.
-3. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
-4. Add browser-native model inspection and merge review in the future studio.
+1. Turn the static runtime package into an interactive data-backed local runtime.
+2. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
+3. Add browser-native model inspection and merge review in the future studio.
+4. Expand replay and mutation coverage across the full benchmark corpus.

@@ -12,6 +12,7 @@ import {
 } from "@ralph/internal-builders";
 import { runKernelProofs } from "@ralph/proof-harness";
 import { formatRalphRun, runRalphJob } from "@ralph/agent-swarm";
+import { runRuntimeArtifactFromArgument } from "./artifact-files.js";
 import {
   createJobTemplate,
   runLoopFromJobFile,
@@ -147,6 +148,17 @@ function main(): void {
 
       if (command === "benchmark") {
         console.log(renderBenchmarkDemo(argument));
+        return;
+      }
+
+      if (command === "artifact") {
+        const artifactInput = argument ?? "ramp-like-spend-controls";
+        const run = await runRuntimeArtifactFromArgument(process.cwd(), artifactInput);
+        console.log(await fs.readFile(run.reportPath, "utf8"));
+        console.log("");
+        console.log(`Artifacts written to: ${run.packageDir}`);
+        console.log(`Entrypoint: ${run.entrypointPath}`);
+        console.log(`Manifest: ${run.manifestPath}`);
         return;
       }
 
