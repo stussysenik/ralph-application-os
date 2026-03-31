@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/stussysenik/ralph-application-os/compare/v1.0.0...v1.1.0) (2026-03-31)
+
+
+### Features
+
+* add semantic model patching ([a16030c](https://github.com/stussysenik/ralph-application-os/commit/a16030c678abc0a9147bad406a0f27e8eeaf8e07))
+
 # 1.0.0 (2026-03-31)
 
 
