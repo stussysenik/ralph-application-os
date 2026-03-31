@@ -14,6 +14,7 @@ import {
 export type RalphSoftwareCategory =
   | "workflow-app"
   | "knowledge-system"
+  | "review-workspace"
   | "vision-commerce"
   | "developer-tooling"
   | "api-service"
@@ -220,6 +221,70 @@ const CATEGORY_DEFINITIONS: readonly CategoryDefinition[] = [
         blocking: false,
         prompt: "What collaboration, publishing, or review flow must the content support?",
         rationale: "Publishing and collaboration rules determine states, permissions, and views."
+      }
+    ]
+  },
+  {
+    category: "review-workspace",
+    keywords: [
+      "screenshot",
+      "screenshots",
+      "annotate",
+      "annotation",
+      "review link",
+      "share link",
+      "feedback",
+      "capture",
+      "captures",
+      "collection",
+      "collections",
+      "mockup"
+    ],
+    executionMode: "interactive-runtime",
+    semanticAxes: [
+      "captured assets and revisions",
+      "annotation targets and feedback",
+      "review lifecycle and sharing",
+      "collections and workspace organization"
+    ],
+    systemConcerns: [
+      "asset provenance and revision stability",
+      "annotation target durability",
+      "share access and review boundaries"
+    ],
+    proofRegime: [
+      "annotation-target consistency",
+      "review lifecycle invariants",
+      "sharing policy checks"
+    ],
+    builderTargets: [
+      "asset and capture store",
+      "annotation graph",
+      "review workspace views",
+      "sharing layer"
+    ],
+    recommendedSurfaces: ["web", "desktop"],
+    recommendedLanguages: ["TypeScript", "Swift", "Elixir"],
+    interviewQuestions: [
+      {
+        id: "capture-sources-and-asset-lifecycle",
+        category: "workflow",
+        priority: "high",
+        blocking: true,
+        prompt:
+          "What gets captured or imported first, and what lifecycle do those assets move through before they are ready to review or share?",
+        rationale:
+          "Review tools become incoherent when asset revisions and lifecycle states are left implicit."
+      },
+      {
+        id: "annotation-review-and-sharing",
+        category: "policy",
+        priority: "medium",
+        blocking: false,
+        prompt:
+          "Who can annotate, resolve feedback, organize collections, and open or expire share links?",
+        rationale:
+          "Annotation and sharing behavior drives the relation graph, permissions, and review surfaces."
       }
     ]
   },
@@ -1008,6 +1073,18 @@ function inferWorldModelScore(
       )
         ? 3
         : 0;
+    case "review-workspace":
+      return ["capture", "annotation", "share", "review", "collection"].some((token) =>
+        normalizeText(
+          [
+            model.domain,
+            ...model.entities.map((entity) => entity.name),
+            ...model.views.map((view) => view.name)
+          ].join(" ")
+        ).includes(token)
+      )
+        ? 3
+        : 0;
     case "api-service":
       return model.effects.some((effect) =>
         normalizeText(effect.name).includes("webhook") ||
@@ -1092,6 +1169,10 @@ function buildImprovementOpportunities(
     "knowledge-system": [
       "Add semantic backlinks, reusable templates, and change history so the workspace gets smarter over time instead of becoming another flat document pile.",
       "Add publishing and review states early so collaboration rules stay inside the model instead of leaking into ad hoc UI logic."
+    ],
+    "review-workspace": [
+      "Add side-by-side comparison and versioned annotations so feedback stays attached to the right asset revision instead of drifting across captures.",
+      "Add reviewer roles, share-link expiry, and collection-level organization early so the workspace does not collapse into a flat pile of screenshots."
     ],
     "vision-commerce": [
       "Add explainable recommendation reasons so healthier or cheaper alternatives are justified by structured evidence instead of opaque ranking.",

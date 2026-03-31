@@ -1,0 +1,3 @@
+- [x] 1.1 Add a first-class review-workspace ideation category
+- [x] 1.2 Add deterministic tests for screenshot review prompt classification
+- [x] 1.3 Update docs and OpenSpec references for the new category

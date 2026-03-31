@@ -47,6 +47,7 @@ Ralph Application OS is a semantic software platform that turns intent into a wo
 - Ralph can now improve an idea during ideation and again at handoff by suggesting better functionality grounded in category and semantic structure instead of only preserving the idea verbatim
 - Ralph now has a visible correction-memory path, so durable operator lessons can be replayed into later ideation and draft runs instead of staying trapped in one-off artifacts
 - patch and merge artifacts can now propose correction memory directly, so the repo can learn from accepted semantic fixes with an explicit promotion step
+- screenshot and review-oriented prompts now classify into a first-class review-workspace lane instead of generic-product fallback, which makes the ideation surface more honest for real asset-review tools
 
 ### Current Limits
 

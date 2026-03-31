@@ -40,6 +40,22 @@ describe("buildIdeationBrief", () => {
     );
   });
 
+  it("classifies screenshot review prompts into an interactive review-workspace path", () => {
+    const brief = buildIdeationBrief({
+      prompt:
+        "Build a screenshot studio for marketers to capture pages, annotate them, organize collections, and share review links."
+    });
+
+    expect(brief.primaryCategory).toBe("review-workspace");
+    expect(brief.executionMode).toBe("interactive-runtime");
+    expect(brief.interviewFocusIds).toContain("capture-sources-and-asset-lifecycle");
+    expect(brief.interviewFocusIds).toContain("annotation-review-and-sharing");
+    expect(brief.recommendedLanguages).toContain("TypeScript");
+    expect(brief.improvementOpportunities).toContain(
+      "Add side-by-side comparison and versioned annotations so feedback stays attached to the right asset revision instead of drifting across captures."
+    );
+  });
+
   it("surfaces correction-memory matches in the ideation brief when the prompt overlaps known gaps", () => {
     const brief = buildIdeationBrief({
       prompt:

@@ -34,7 +34,7 @@ Ralph Application OS is a semantic application platform that turns intent, resea
 
 ## Domain Context
 - The platform targets the general full-stack application problem through a semantic intermediate representation
-- V1 focuses on business systems, workflow software, knowledge systems, and agent-facing control planes
+- V1 focuses on business systems, workflow software, review workspaces, knowledge systems, and agent-facing control planes
 - Rendering, browser-engine, kernel, and GPU concepts inform the runtime model, especially invalidation, scheduling, isolation, and resource ownership
 
 ## Important Constraints

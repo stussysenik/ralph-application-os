@@ -346,7 +346,7 @@ The interaction target is "as easy as `v0` or Lovable" for supported domains, bu
 - rerun proof
 - keep evolving safely
 
-The first supported domains are operational and workflow-heavy systems, not arbitrary software on day one.
+The first supported domains are operational and workflow-heavy systems, review workspaces, and knowledge systems, not arbitrary software on day one.
 
 ## Current Boundary
 
@@ -355,6 +355,7 @@ This repo is **not ready to execute anything** yet, but it is ready to take almo
 It is ready for:
 
 - prompt-first ideation across workflow software, knowledge systems, compilers, rendering systems, kernels, embedded protocols, agent systems, and data pipelines
+- prompt-first ideation across workflow software, review workspaces, knowledge systems, compilers, rendering systems, kernels, embedded protocols, agent systems, and data pipelines
 - explicit software-category classification with confidence and execution-mode reporting
 - prompt-first interview and clarification
 - deterministic interview-answer to world-model draft synthesis

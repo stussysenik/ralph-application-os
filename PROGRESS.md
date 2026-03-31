@@ -41,6 +41,7 @@
 - relation-aware interview synthesis that can now infer a usable semantic graph for screenshot and vision-commerce style products
 - correction-memory matching and repo-local correction files that feed durable operator lessons back into ideation and draft outputs
 - patch and merge runs can now harvest correction-memory proposals, and operators can explicitly promote those proposals into tracked repo memory
+- review-workspace ideation classification so screenshot and review-tool prompts no longer fall back to generic product intake
 
 ### Current Truth
 
@@ -59,6 +60,7 @@
 - The ideation brief can now suggest stronger functionality earlier in the flow, so product shaping starts before the interview is even answered.
 - The repo can now replay correction memory from `.ralph/corrections/` so project-specific semantic lessons show up during ideation and in engineering handoffs.
 - The repo can now harvest correction-memory proposals from proof-clean patch and merge runs instead of requiring every lesson to start as hand-written JSON.
+- Screenshot and review-workspace prompts now classify onto a first-class interactive-runtime path with review-specific proof and interview pressure.
 - The interview synthesizer now infers relation graphs for supported patterns, so more drafts arrive without a generic `relation-map` ambiguity.
 - The implementation is still early, but it can now execute validated job files, load tracked workflow and role config, persist durable run artifacts, and batch over tracked jobs.
 
