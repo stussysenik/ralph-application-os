@@ -51,10 +51,11 @@ Ralph Application OS is a semantic software platform that turns intent into a wo
 - accepted draft promotions now feed tracked correction memory directly, so Ralph can learn from successful model adoption and not only from manual semantic diffs
 - the interactive runtime package now supports local record creation, editing, relation linking, and event history, so the substrate is closer to a real prototype and future accepted-edit harvesting has a better source
 - current local measurements show the semantic operator path is fast once built, and most remaining CLI latency comes from build/startup overhead rather than semantic execution; removing forced rebuilds already cut common wrapper commands from roughly 1.75s to about 0.72-0.75s
+- exported runtime edit logs can now re-enter the semantic loop as proofed provenance patches and harvested correction-memory artifacts, which closes the first real `use -> learn` loop for supported runtime families
 
 ### Current Limits
 
-- no accepted runtime-edit harvest path yet
+- runtime harvest is still conservative and provenance-first; it does not yet turn arbitrary browser edits into deep semantic restructuring
 - no browser studio yet
 - no long-lived orchestration runtime yet
 
@@ -110,7 +111,7 @@ Take this branch if:
 
 ## Next Irreversible Moves
 
-1. Harvest correction memory from accepted edits beyond draft promotion flows
-2. Harvest accepted runtime edits and corrections from the runtime package back into semantic memory
-3. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
-4. Expand benchmark replay and mutation pressure to every benchmark family
+1. Deepen accepted runtime harvest from provenance-first evidence into richer explicit semantic acceptance flows
+2. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
+3. Expand benchmark replay and mutation pressure to every benchmark family
+4. Grow correction memory beyond CLI/runtime flows into future studio-native edits

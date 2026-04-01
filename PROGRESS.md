@@ -46,6 +46,7 @@
 - runtime packages can now create records, edit values, link relations, and log those local actions in event history
 - default CLI builds now use the incremental TypeScript path, with an explicit `build:force` path retained for clean rebuilds
 - OpenSpec roadmap now exists at `openspec/roadmap.md` to sequence the next major phases
+- runtime packages can now export typed edit logs, and Ralph can harvest those logs back into proofed semantic patches plus correction-memory artifacts
 
 ### Current Truth
 
@@ -60,7 +61,9 @@
 - The repo can now merge two semantic branches against a shared base and keep conflicts as typed artifacts when auto-merge is unsafe.
 - The proof harness now checks workflow replay from initial states and verifies invariants fail on intentional mutations.
 - The repo can now materialize an interactive local runtime package with deterministic seed data, workflow actions, local persistence, relation-aware editing, and machine-readable runtime files.
+- The repo can now round-trip supported runtime usage through `artifact:harvest`, which converts exported runtime edits into a proofed semantic patch plus harvested correction-memory artifacts.
 - The measured semantic operator path is fast once built: roughly 0.1s for ideate, promote, and artifact flows when run directly against the built CLI, and about 0.72-0.75s through the public `pnpm ralph:*` wrappers after removing forced rebuilds.
+- The new runtime-harvest path is similarly light once built: about 0.06s direct and about 0.57s through `pnpm ralph:artifact:harvest`.
 - The repo can now accept prompts from broader software categories and respond with an explicit ideation brief, proof regime, and category-specific interview path instead of forcing every idea into a workflow-app shape.
 - The ideation brief can now suggest stronger functionality earlier in the flow, so product shaping starts before the interview is even answered.
 - The repo can now replay correction memory from `.ralph/corrections/` so project-specific semantic lessons show up during ideation and in engineering handoffs.
@@ -72,10 +75,10 @@
 
 ### Next Steps
 
-1. Harvest correction memory from accepted edits beyond draft promotion flows, especially future studio edits and runtime/model edits.
-2. Harvest accepted runtime edits from the interactive package once a durable edit/correction export path exists.
-3. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
-4. Add browser-native model inspection and merge review in the future studio.
+1. Deepen runtime harvest beyond provenance-only capture so accepted runtime edits can become richer semantic changes with explicit operator approval.
+2. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
+3. Add browser-native model inspection and merge review in the future studio.
+4. Expand correction harvesting beyond CLI and runtime flows into future studio-native edits.
 
 ### Phase Roadmap
 

@@ -40,10 +40,12 @@ describe("runRuntimeArtifactFromArgument", () => {
     expect(htmlRaw).toContain("<!doctype html>");
     expect(htmlRaw).toContain("approvalQueue");
     expect(htmlRaw).toContain('src="runtime.js"');
+    expect(htmlRaw).toContain("Export Runtime Edits");
     expect(scriptRaw).toContain("localStorage");
     expect(scriptRaw).toContain("renderRuntime");
     expect(scriptRaw).toContain("createRecord");
     expect(scriptRaw).toContain("linkRecord");
+    expect(scriptRaw).toContain("buildRuntimeEditExport");
     expect(seedRaw).toContain('"entity": "Invoice"');
     expect(seedRaw).toContain('"links"');
     expect(manifestRaw).toContain('"entrypoint": "index.html"');

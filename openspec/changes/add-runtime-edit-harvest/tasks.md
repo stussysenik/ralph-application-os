@@ -1,0 +1,4 @@
+- [x] 1.1 Add a typed runtime edit export format and parser
+- [x] 1.2 Export runtime edit logs from generated runtime packages
+- [x] 1.3 Add CLI runtime harvest flow that writes patch, proof, and correction-memory artifacts
+- [x] 1.4 Add benchmark/example coverage and verification for the round-trip

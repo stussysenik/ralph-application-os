@@ -13,6 +13,7 @@ import {
 import { runKernelProofs } from "@ralph/proof-harness";
 import { formatRalphRun, runRalphJob } from "@ralph/agent-swarm";
 import { runRuntimeArtifactFromArgument } from "./artifact-files.js";
+import { runRuntimeEditHarvestFromArguments } from "./runtime-edit-harvest-files.js";
 import {
   createJobTemplate,
   runLoopFromJobFile,
@@ -161,6 +162,28 @@ function main(): void {
         console.log("");
         console.log(`Artifacts written to: ${run.packageDir}`);
         console.log(`Entrypoint: ${run.entrypointPath}`);
+        console.log(`Manifest: ${run.manifestPath}`);
+        return;
+      }
+
+      if (command === "artifact:harvest") {
+        const modelInput = argument ?? "screenshot-studio";
+        const runtimeEditInput =
+          process.argv[4] ??
+          path.join(
+            process.cwd(),
+            ".ralph/runtime-edits/examples/screenshot-studio-session.json"
+          );
+        const run = await runRuntimeEditHarvestFromArguments(
+          process.cwd(),
+          modelInput,
+          runtimeEditInput
+        );
+        console.log(await fs.readFile(run.reportPath, "utf8"));
+        console.log("");
+        console.log(`Artifacts written to: ${run.harvestDir}`);
+        console.log(`Patch: ${run.patchPath}`);
+        console.log(`Correction memory: ${run.correctionMemoryPath}`);
         console.log(`Manifest: ${run.manifestPath}`);
         return;
       }

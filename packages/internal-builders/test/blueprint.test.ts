@@ -33,6 +33,8 @@ describe("buildApplicationBlueprint", () => {
     expect(manifest?.content).toContain('"kind": "ralph-runtime-package"');
     expect(manifest?.content).toContain('"capabilities"');
     expect(manifest?.content).toContain('"record-update"');
+    expect(manifest?.content).toContain('"edit-export"');
+    expect(manifest?.content).toContain('"editExportFile": "ramp-like-spend-controls-runtime-edit-log.json"');
     expect(manifest?.content).toContain('"scriptFile": "runtime.js"');
     expect(seedData?.content).toContain('"entity": "Invoice"');
     expect(invoiceCollection?.records[0]?.links).toBeDefined();
@@ -41,8 +43,11 @@ describe("buildApplicationBlueprint", () => {
     expect(runtimeScript?.content).toContain("createRecord");
     expect(runtimeScript?.content).toContain("updateRecord");
     expect(runtimeScript?.content).toContain("linkRecord");
+    expect(runtimeScript?.content).toContain("buildRuntimeEditExport");
+    expect(runtimeScript?.content).toContain("data-runtime-export");
     expect(html?.content).toContain("approvalQueue");
     expect(html?.content).toContain("ramp-like-spend-controls");
     expect(html?.content).toContain('src="runtime.js"');
+    expect(html?.content).toContain("Export Runtime Edits");
   });
 });

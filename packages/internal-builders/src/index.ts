@@ -107,6 +107,7 @@ export interface RuntimeManifest {
   viewFile: string;
   seedFile: string;
   scriptFile: string;
+  editExportFile: string;
   storageKey: string;
   capabilities: string[];
   proofExpected: "required-before-promotion";
@@ -762,7 +763,10 @@ function renderRuntimeIndexHtml(
 
       <div class="toolbar">
         <p>Local browser runtime backed by deterministic seed data and workflow actions.</p>
-        <button class="button" data-runtime-reset type="button">Reset Local Runtime</button>
+        <div class="action-row">
+          <button class="button" data-runtime-export type="button">Export Runtime Edits</button>
+          <button class="button" data-runtime-reset type="button">Reset Local Runtime</button>
+        </div>
       </div>
 
       <section class="stats">
@@ -814,6 +818,7 @@ function renderRuntimeScript(
 
 const root = document.querySelector("[data-runtime-root]");
 const resetButton = document.querySelector("[data-runtime-reset]");
+const exportButton = document.querySelector("[data-runtime-export]");
 const storageKey = boot.manifest.storageKey;
 
 function clone(value) {
@@ -1050,6 +1055,40 @@ function pushEvent(state, event) {
   });
 }
 
+function downloadJson(filename, value) {
+  const blob = new Blob([JSON.stringify(value, null, 2) + "\\n"], {
+    type: "application/json"
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function runtimeEditExportFilename() {
+  return boot.manifest.editExportFile || (boot.modelName + "-runtime-edit-log.json");
+}
+
+function buildRuntimeEditExport(state) {
+  const events = state.events.filter((eventItem) =>
+    ["create", "update", "link", "transition"].includes(eventItem.type)
+  );
+
+  return {
+    kind: "ralph-runtime-edit-export",
+    modelName: boot.modelName,
+    domain: boot.manifest.domain,
+    storageKey,
+    exportedAt: new Date().toISOString(),
+    eventCount: events.length,
+    events
+  };
+}
+
 function createRecord(entity, form) {
   const state = loadState();
   const collection = getCollection(state, entity);
@@ -1079,6 +1118,7 @@ function createRecord(entity, form) {
     type: "create",
     entity,
     recordId: record.id,
+    fieldNames: Object.keys(values).sort(),
     action: "create-record",
     to: record.state || "created"
   });
@@ -1095,11 +1135,17 @@ function updateRecord(entity, recordId, form) {
     return;
   }
 
-  record.values = valuesFromForm(entity, form, record.values);
+  const nextValues = valuesFromForm(entity, form, record.values);
+  const fieldNames = Object.keys(nextValues)
+    .filter((fieldName) => JSON.stringify(nextValues[fieldName]) !== JSON.stringify(record.values[fieldName]))
+    .sort();
+
+  record.values = nextValues;
   pushEvent(state, {
     type: "update",
     entity,
     recordId,
+    fieldNames,
     action: "update-record",
     to: record.state || record.values.status || "updated"
   });
@@ -1134,6 +1180,9 @@ function linkRecord(entity, recordId, relationName, targetRecordId) {
     entity,
     recordId,
     action: relationName,
+    relationName,
+    targetEntity: relation.targetEntity,
+    targetRecordIds: Array.isArray(record.links[relationName]) ? record.links[relationName] : [],
     to: targetRecordId || "cleared"
   });
 
@@ -1149,6 +1198,7 @@ function applyTransition(entityName, recordId, actionName) {
     return;
   }
 
+  const fromState = record.state || record.values.status;
   const transition = availableTransitions(entityName, record).find((candidate) => candidate.name === actionName);
 
   if (!transition) {
@@ -1165,6 +1215,7 @@ function applyTransition(entityName, recordId, actionName) {
     entity: entityName,
     recordId,
     action: transition.name,
+    from: fromState,
     to: transition.to
   });
 
@@ -1385,6 +1436,12 @@ if (resetButton instanceof HTMLElement) {
   });
 }
 
+if (exportButton instanceof HTMLElement) {
+  exportButton.addEventListener("click", function() {
+    downloadJson(runtimeEditExportFilename(), buildRuntimeEditExport(loadState()));
+  });
+}
+
 renderRuntime(loadState());
 `;
 }
@@ -1486,6 +1543,7 @@ export function buildExecutableSubstrateArtifact(
     viewFile: "views.json",
     seedFile: "seed-data.json",
     scriptFile: "runtime.js",
+    editExportFile: `${model.name}-runtime-edit-log.json`,
     storageKey: seedData.storageKey,
     capabilities: [
       "local-persistence",
@@ -1493,7 +1551,8 @@ export function buildExecutableSubstrateArtifact(
       "record-create",
       "record-update",
       "relation-linking",
-      "event-history"
+      "event-history",
+      "edit-export"
     ],
     proofExpected: "required-before-promotion"
   };

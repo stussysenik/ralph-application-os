@@ -56,6 +56,7 @@ Instead of hand-assembling schemas, endpoints, workflows, views, and proofs sepa
 - correction memory now lets Ralph replay durable operator lessons into future ideation and draft runs
 - accepted promotions now harvest reusable lessons directly from promoted models, not only from explicit patch and merge flows
 - patch and merge runs can now harvest correction-memory proposals so accepted semantic fixes become reusable lessons faster
+- interactive runtime packages can now export accepted local usage back into proofed semantic patches and correction-memory artifacts
 
 ## How It Works
 
@@ -70,7 +71,8 @@ Instead of hand-assembling schemas, endpoints, workflows, views, and proofs sepa
 9. Apply semantic patches as durable correction artifacts.
 10. Merge semantic branches when parallel edits diverge.
 11. Materialize a runnable runtime package.
-12. Run the loop and keep iterating.
+12. Export accepted runtime edits back into semantic patches and correction memory.
+13. Run the loop and keep iterating.
 
 ## How Ralph Improves Ideas
 
@@ -141,6 +143,7 @@ pnpm ralph:model:diff .ralph/jobs/examples/screenshot-studio.json .ralph/models/
 pnpm ralph:model:patch .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json .ralph/patches/examples/screenshot-studio-relations.json
 pnpm ralph:model:merge ramp-like-spend-controls .ralph/models/examples/ramp-budget-left.json .ralph/models/examples/ramp-budget-right.json
 pnpm ralph:artifact ramp-like-spend-controls
+pnpm ralph:artifact:harvest screenshot-studio .ralph/runtime-edits/examples/screenshot-studio-session.json
 pnpm ralph:job:validate .ralph/jobs/examples/screenshot-studio.json
 pnpm ralph:loop .ralph/jobs/examples/screenshot-studio.json
 pnpm prompt
@@ -188,6 +191,7 @@ pnpm ralph:model:diff .ralph/jobs/examples/screenshot-studio.json .ralph/models/
 pnpm ralph:model:patch .ralph/models/generated/screenshot-studio-marketers-capture-pages-annotate.json .ralph/patches/examples/screenshot-studio-relations.json
 pnpm ralph:model:merge ramp-like-spend-controls .ralph/models/examples/ramp-budget-left.json .ralph/models/examples/ramp-budget-right.json
 pnpm ralph:artifact ramp-like-spend-controls
+pnpm ralph:artifact:harvest screenshot-studio .ralph/runtime-edits/examples/screenshot-studio-session.json
 pnpm ralph:job:new screenshot-studio
 pnpm ralph:job:validate .ralph/jobs/examples/screenshot-studio.json
 pnpm ralph:loop .ralph/jobs/examples/screenshot-studio.json
@@ -201,7 +205,7 @@ pnpm ralph:team
 - answered interview examples: 2
 - tracked generated models: 1
 - tracked generated jobs: 1
-- operator commands: ralph:artifact, ralph:correction:new, ralph:correction:promote, ralph:draft, ralph:ideate, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:model:merge, ralph:model:patch, ralph:team
+- operator commands: ralph:artifact, ralph:artifact:harvest, ralph:correction:new, ralph:correction:promote, ralph:draft, ralph:ideate, ralph:interview, ralph:job:from-draft, ralph:job:new, ralph:job:validate, ralph:loop, ralph:model:diff, ralph:model:merge, ralph:model:patch, ralph:team
 <!-- generated:readme-snapshot:end -->
 
 ## How To Use Ralph Now
@@ -219,7 +223,8 @@ For a new idea:
 8. Review harvested `correction-memory.json`, then `pnpm ralph:correction:promote <artifact-path>` when the lesson should become tracked repo memory
 9. `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`
 10. `pnpm ralph:artifact <model-or-job-or-draft>`
-11. `pnpm ralph:loop <generated-job-file>`
+11. Use the generated runtime package, export accepted edits, then `pnpm ralph:artifact:harvest <model-or-job-or-draft> <runtime-edit-export.json>`
+12. `pnpm ralph:loop <generated-job-file>`
 
 For repo hygiene:
 
@@ -234,10 +239,12 @@ Current local performance baseline on an already-built workspace:
 - `node packages/ralph-cli/dist/index.js ideate ...`: about `0.11s`
 - `node packages/ralph-cli/dist/index.js job:from-draft ...`: about `0.10s`
 - `node packages/ralph-cli/dist/index.js artifact ...`: about `0.08s`
+- `node packages/ralph-cli/dist/index.js artifact:harvest ...`: about `0.06s`
 - `pnpm build` on an already-built workspace: about `0.45s`
 - `pnpm ralph:ideate ...`: about `0.75s`
 - `pnpm ralph:job:from-draft ...`: about `0.73s`
 - `pnpm ralph:artifact ...`: about `0.72s`
+- `pnpm ralph:artifact:harvest ...`: about `0.57s`
 - the public `pnpm ralph:*` wrappers are still mostly paying build/startup overhead, but they are materially faster than the old forced-rebuild path
 
 Planned next phases live in [openspec/roadmap.md](/Users/s3nik/Desktop/ralph-application-os/openspec/roadmap.md).
@@ -325,6 +332,17 @@ Runtime package artifacts persist under:
 - `artifacts/ralph/runtime-packages/<run-id>/index.html`
 - `artifacts/ralph/runtime-packages/<run-id>/report.md`
 
+Runtime edit harvest artifacts persist under:
+
+- `artifacts/ralph/runtime-harvests/<run-id>/runtime-edit-export.json`
+- `artifacts/ralph/runtime-harvests/<run-id>/patch.json`
+- `artifacts/ralph/runtime-harvests/<run-id>/original.json`
+- `artifacts/ralph/runtime-harvests/<run-id>/patched.json`
+- `artifacts/ralph/runtime-harvests/<run-id>/diff.json`
+- `artifacts/ralph/runtime-harvests/<run-id>/proof.json`
+- `artifacts/ralph/runtime-harvests/<run-id>/correction-memory.json`
+- `artifacts/ralph/runtime-harvests/<run-id>/report.md`
+
 Each loop run persists:
 
 - `job.json`
@@ -367,7 +385,7 @@ The first supported domains are operational and workflow-heavy systems, review w
 
 ## Current Boundary
 
-This repo is **not ready to execute anything** yet, but it is ready to take almost any software idea seriously at the ideation layer.
+This repo is **not ready for universal execution** yet, but it is ready to take almost any software idea seriously at the ideation layer and to round-trip supported workflow-style prototypes through a real semantic loop.
 
 It is ready for:
 
@@ -383,6 +401,7 @@ It is ready for:
 - semantic benchmark modeling
 - blueprint generation
 - first executable substrate runtime packages
+- runtime export -> semantic patch -> proof round-trips for supported interactive runtime families
 - proof-gated loop execution
 - tracked job runs and team runs
 
@@ -410,6 +429,7 @@ Today the primary outputs are:
 - harvested correction-memory proposals from patch and merge runs
 - internal application blueprints
 - interactive local runtime packages with seed data, runtime scripts, HTML entrypoints, local editing, relation linking, and event history
+- runtime edit exports and proofed runtime-harvest artifacts that turn accepted prototype usage back into semantic provenance and correction memory
 - proof results
 - run manifests and reports
 - hypertime ledger entries
@@ -453,6 +473,7 @@ Current benchmark families:
 - `pnpm ralph:model:patch <model-input> <patch-file>`: apply a typed semantic patch, persist before/after/diff/proof artifacts, and harvest reusable correction-memory proposals from the accepted semantic change
 - `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`: merge two semantic branches against a shared base, prove the merged result when conflict-free, persist conflicts when they exist, and harvest reusable correction-memory proposals from the merged patch
 - `pnpm ralph:artifact <model-or-job-or-draft>`: emit an interactive local runtime package with deterministic seed data, executable workflow buttons, local editing, relation linking, event history, and a browser-openable `index.html`
+- `pnpm ralph:artifact:harvest <model-or-job-or-draft> <runtime-edit-export.json>`: turn exported runtime usage into a proofed semantic patch and harvested correction-memory artifacts
 - `pnpm ralph:loop <job-file>`: validated job -> swarm run -> persisted run artifacts
 - `pnpm ralph:team [jobs-directory]`: batch swarm run over tracked jobs with a persisted team summary
 

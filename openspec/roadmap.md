@@ -1,12 +1,16 @@
 # Ralph Roadmap
 
-This roadmap is the current phased view after `v1.12.0`.
+This roadmap is the current phased view after landing the first runtime-edit
+harvest slice.
 
 It is not a promise that every phase will land unchanged. It is the current
 best ordering for closing the gap between a strong semantic ideation tool and
 the long-term application-OS thesis.
 
 ## Phase 1: Runtime Edit Harvest
+
+Status:
+- landed as `add-runtime-edit-harvest`, with exported runtime edit logs now compiling into proofed provenance patches and harvested correction memory
 
 Goal:
 - turn accepted edits in the local interactive runtime back into semantic patches and correction memory
