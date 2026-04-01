@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/stussysenik/ralph-application-os/compare/v1.12.0...v1.13.0) (2026-04-01)
+
+
+### Features
+
+* add fast cli build path ([65d1d63](https://github.com/stussysenik/ralph-application-os/commit/65d1d63ce19c0763da3f1105872791f893f77de0))
+
 # [1.12.0](https://github.com/stussysenik/ralph-application-os/compare/v1.11.0...v1.12.0) (2026-04-01)
 
 
