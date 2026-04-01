@@ -54,6 +54,7 @@ Instead of hand-assembling schemas, endpoints, workflows, views, and proofs sepa
 - drafts can now become tracked models and tracked jobs automatically when they are strong enough
 - drafts now emit an engineering handoff that tells an SWE what to build first and which product improvements the model is signaling
 - correction memory now lets Ralph replay durable operator lessons into future ideation and draft runs
+- accepted promotions now harvest reusable lessons directly from promoted models, not only from explicit patch and merge flows
 - patch and merge runs can now harvest correction-memory proposals so accepted semantic fixes become reusable lessons faster
 
 ## How It Works
@@ -212,6 +213,7 @@ For a new idea:
 3. `pnpm ralph:draft <ideation-dir-or-answer-file>`
 4. Review `engineering-handoff.md` to see what to build first, what relations still matter, and which functionality Ralph thinks should be added
 5. `pnpm ralph:job:from-draft <ideation-dir-or-answer-file>`
+   This now writes promotion-local `correction-memory.json` and automatically tracks harvested lessons when the promotion succeeds.
 6. `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`
 7. `pnpm ralph:model:patch <model-input> <patch-file>`
 8. Review harvested `correction-memory.json`, then `pnpm ralph:correction:promote <artifact-path>` when the lesson should become tracked repo memory
@@ -261,6 +263,7 @@ Promotion artifacts persist under:
 
 - `artifacts/ralph/promotions/<run-id>/promotion.json`
 - `artifacts/ralph/promotions/<run-id>/report.md`
+- `artifacts/ralph/promotions/<run-id>/correction-memory.json`
 
 Model diff artifacts persist under:
 
@@ -386,6 +389,7 @@ Today the primary outputs are:
 - first-draft semantic world models synthesized from interview answers
 - engineering handoffs with build-first sequencing, runtime surface guidance, proof obligations, and product-improvement suggestions
 - capability-tier assessments and promotion recommendations
+- promotion-local correction-memory artifacts and tracked harvested lessons from accepted models
 - semantic world models
 - semantic patch documents and patched models
 - semantic merge reports and merged model candidates
@@ -430,7 +434,7 @@ Current benchmark families:
 - `pnpm swarm:demo`: Ralph loop swarm execution with typed stage artifacts and promotion decisions
 - `pnpm ralph:interview <prompt-or-job-file>`: prompt or tracked job -> deterministic clarification questions -> persisted interview artifacts
 - `pnpm ralph:draft <interview-dir-or-answers-template>`: answered interview -> synthesized world model -> blueprint -> proof -> engineering handoff -> persisted draft artifacts
-- `pnpm ralph:job:from-draft <interview-dir-or-answers-template>`: tier-a draft -> tracked model + generated job when safe, otherwise tracked model + rejection report
+- `pnpm ralph:job:from-draft <interview-dir-or-answers-template>`: tier-a draft -> tracked model + generated job + harvested tracked correction memory when safe, otherwise tracked model + rejection report
 - `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`: compare semantic drift between tracked models, draft outputs, benchmark fixtures, or job files
 - `pnpm ralph:model:patch <model-input> <patch-file>`: apply a typed semantic patch, persist before/after/diff/proof artifacts, and harvest reusable correction-memory proposals from the accepted semantic change
 - `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`: merge two semantic branches against a shared base, prove the merged result when conflict-free, persist conflicts when they exist, and harvest reusable correction-memory proposals from the merged patch

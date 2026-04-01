@@ -1,0 +1,35 @@
+{
+  "id": "screenshot-studio-marketers-capture-pages-annotate-promotion-workflow-capture-sh",
+  "title": "workflow lesson from accepted model screenshot-studio-marketers-capture-pages-annotate",
+  "kind": "workflow",
+  "summary": "17 workflow change(s) tightened states, actions, or invariants around Capture, and ShareLink.",
+  "recommendation": "Lock states, actions, and invariants around Capture, and ShareLink before layering more UI or automation into screenshot-studio-marketers-capture.",
+  "domains": [
+    "screenshot-studio-marketers-capture"
+  ],
+  "entityNames": [
+    "Capture",
+    "ShareLink"
+  ],
+  "promptKeywords": [
+    "screenshot",
+    "studio",
+    "marketers",
+    "capture",
+    "move",
+    "annotated",
+    "share",
+    "ready"
+  ],
+  "source": {
+    "sourceType": "human-edit",
+    "sourceRef": "promotion:screenshot-studio-marketers-capture-pages-annotate",
+    "note": "Draft is tier A, proof passed, and a tracked job was generated.",
+    "confidence": 0.78
+  },
+  "categories": [
+    "review-workspace",
+    "knowledge-system",
+    "workflow-app"
+  ]
+}

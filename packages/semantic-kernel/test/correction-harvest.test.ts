@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { applySemanticPatch, rampLikeSpendModel } from "../src/index.js";
-import { harvestCorrectionMemoriesFromPatch } from "../src/correction-harvest.js";
+import { applySemanticPatch, rampLikeSpendModel, screenshotStudioModel } from "../src/index.js";
+import {
+  harvestCorrectionMemoriesFromAcceptedModel,
+  harvestCorrectionMemoriesFromPatch
+} from "../src/correction-harvest.js";
 
 describe("harvestCorrectionMemoriesFromPatch", () => {
   it("harvests reusable relation and view lessons from semantic patch operations", () => {
@@ -63,5 +66,25 @@ describe("harvestCorrectionMemoriesFromPatch", () => {
     });
 
     expect(harvested).toEqual([]);
+  });
+});
+
+describe("harvestCorrectionMemoriesFromAcceptedModel", () => {
+  it("harvests reusable lessons from an accepted promoted model", () => {
+    const harvested = harvestCorrectionMemoriesFromAcceptedModel({
+      model: screenshotStudioModel,
+      sourceRef: "promotion:screenshot-studio",
+      note: "Accepted as a promoted interactive runtime candidate."
+    });
+
+    expect(harvested.map((memory) => memory.kind)).toEqual(
+      expect.arrayContaining(["policy", "relation", "runtime", "view", "workflow"])
+    );
+    expect(harvested.find((memory) => memory.kind === "relation")?.entityNames).toEqual(
+      expect.arrayContaining(["Annotation", "Capture", "Collection", "ShareLink", "Workspace"])
+    );
+    expect(harvested.find((memory) => memory.kind === "workflow")?.recommendation).toContain(
+      "Lock states, actions, and invariants"
+    );
   });
 });

@@ -1,0 +1,35 @@
+{
+  "id": "screenshot-studio-marketers-capture-pages-annotate-promotion-policy-capture-shar",
+  "title": "policy lesson from accepted model screenshot-studio-marketers-capture-pages-annotate",
+  "kind": "policy",
+  "summary": "3 policy change(s) clarified access and approval boundaries around Capture, and ShareLink.",
+  "recommendation": "Capture durable policy boundaries for Capture, and ShareLink before broadening workflows or exposing more operator surfaces in screenshot-studio-marketers-capture.",
+  "domains": [
+    "screenshot-studio-marketers-capture"
+  ],
+  "entityNames": [
+    "Capture",
+    "ShareLink"
+  ],
+  "promptKeywords": [
+    "screenshot",
+    "studio",
+    "marketers",
+    "capture",
+    "editor",
+    "access",
+    "annotate",
+    "prepare"
+  ],
+  "source": {
+    "sourceType": "human-edit",
+    "sourceRef": "promotion:screenshot-studio-marketers-capture-pages-annotate",
+    "note": "Draft is tier A, proof passed, and a tracked job was generated.",
+    "confidence": 0.78
+  },
+  "categories": [
+    "review-workspace",
+    "knowledge-system",
+    "workflow-app"
+  ]
+}

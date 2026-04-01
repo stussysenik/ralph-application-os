@@ -48,6 +48,7 @@ Ralph Application OS is a semantic software platform that turns intent into a wo
 - Ralph now has a visible correction-memory path, so durable operator lessons can be replayed into later ideation and draft runs instead of staying trapped in one-off artifacts
 - patch and merge artifacts can now propose correction memory directly, so the repo can learn from accepted semantic fixes with an explicit promotion step
 - screenshot and review-oriented prompts now classify into a first-class review-workspace lane instead of generic-product fallback, which makes the ideation surface more honest for real asset-review tools
+- accepted draft promotions now feed tracked correction memory directly, so Ralph can learn from successful model adoption and not only from manual semantic diffs
 
 ### Current Limits
 
@@ -107,7 +108,7 @@ Take this branch if:
 
 ## Next Irreversible Moves
 
-1. Harvest correction memory from accepted edits beyond patch/merge flows
+1. Harvest correction memory from accepted edits beyond draft promotion flows
 2. Add richer data editing, relation browsing, and persistence semantics to the runtime package
 3. Add a minimal studio for inspecting model, blueprint, proof, and ledger history together
 4. Expand benchmark replay and mutation pressure to every benchmark family

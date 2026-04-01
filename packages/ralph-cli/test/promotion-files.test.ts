@@ -140,11 +140,17 @@ describe("promoteDraftFromArgument", () => {
 
     const promotion = await promoteDraftFromArgument(rootDir, answersPath);
     const job = await validateJobFile(rootDir, promotion.jobPath ?? "");
+    const correctionMemoryRaw = await fs.readFile(promotion.correctionMemoryPath, "utf8");
 
     expect(promotion.status).toBe("promote");
     expect(job.id).toBe(`job-${promotion.draft.model.name}`);
+    expect(job.notes?.[0]).toBe(`Promoted from draft synthesis for ${promotion.draft.model.name}.`);
     expect(job.implementationPreferences?.targetSurfaces).toEqual(["web"]);
     expect(job.implementationPreferences?.preferredLanguages).toEqual(["TypeScript"]);
+    expect(promotion.harvestedCorrections.length).toBeGreaterThan(0);
+    expect(promotion.trackedCorrectionPaths.length).toBeGreaterThan(0);
+    expect(correctionMemoryRaw).toContain('"kind": "relation"');
+    expect(correctionMemoryRaw).toContain(`"sourceRef": "promotion:${promotion.draft.model.name}"`);
   });
 
   it("writes a tracked model but blocks job promotion when the draft is not auto-promotable", async () => {
@@ -167,5 +173,7 @@ describe("promoteDraftFromArgument", () => {
     expect(promotion.status).toBe("reject");
     expect(jobExists).toBe(false);
     expect(promotion.reason).toContain("not auto-promotable");
+    expect(promotion.harvestedCorrections).toEqual([]);
+    expect(promotion.trackedCorrectionPaths).toEqual([]);
   });
 });

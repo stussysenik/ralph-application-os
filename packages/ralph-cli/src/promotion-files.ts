@@ -2,8 +2,14 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { type RalphJob } from "@ralph/agent-swarm";
-import { serializeWorldModel } from "@ralph/semantic-kernel";
+import {
+  harvestCorrectionMemoriesFromAcceptedModel,
+  serializeWorldModel,
+  type SemanticCorrectionMemory
+} from "@ralph/semantic-kernel";
 
+import { enrichHarvestedCorrectionMemories } from "./correction-harvest-files.js";
+import { promoteCorrectionMemories } from "./correction-memory-files.js";
 import { runDraftFromArgument, type RalphDraftRun } from "./draft-files.js";
 import { validateJobFile } from "./job-files.js";
 
@@ -17,6 +23,9 @@ export interface RalphDraftPromotion {
   draft: RalphDraftRun;
   modelPath: string;
   jobPath?: string;
+  harvestedCorrections: SemanticCorrectionMemory[];
+  correctionMemoryPath: string;
+  trackedCorrectionPaths: string[];
   promotionDir: string;
   reportPath: string;
 }
@@ -72,7 +81,7 @@ function buildGeneratedJob(draft: RalphDraftRun): RalphJob {
       }
     ],
     notes: [
-      `Promoted from draft ${draft.draftId}.`,
+      `Promoted from draft synthesis for ${draft.model.name}.`,
       draft.capability.summary,
       ...draft.model.openQuestions.map((question) => `Open question: ${question.prompt}`)
     ],
@@ -94,12 +103,33 @@ function formatPromotionReport(
     `Capability tier: ${promotion.draft.capability.tier}`,
     `Tracked model: ${promotion.modelPath}`,
     `Tracked job: ${jobPath ?? "not written"}`,
+    `Correction memory artifact: ${promotion.correctionMemoryPath}`,
     ""
   ];
 
   lines.push("Capability reasons:");
   for (const reason of promotion.draft.capability.reasons) {
     lines.push(`- ${reason}`);
+  }
+
+  lines.push("");
+  lines.push("Harvested Correction Memory:");
+  if (promotion.harvestedCorrections.length === 0) {
+    lines.push("- none");
+  } else {
+    for (const memory of promotion.harvestedCorrections) {
+      lines.push(`- ${memory.title}: ${memory.recommendation}`);
+    }
+  }
+
+  lines.push("");
+  lines.push("Tracked Correction Memory:");
+  if (promotion.trackedCorrectionPaths.length === 0) {
+    lines.push("- none");
+  } else {
+    for (const trackedPath of promotion.trackedCorrectionPaths) {
+      lines.push(`- ${trackedPath}`);
+    }
   }
 
   return lines.join("\n");
@@ -116,6 +146,7 @@ export async function promoteDraftFromArgument(
     DEFAULT_PROMOTIONS_DIR,
     `${new Date().toISOString().replace(/[:.]/g, "-")}-${slugify(draft.model.name)}`
   );
+  const correctionMemoryPath = path.join(promotionDir, "correction-memory.json");
   const reportPath = path.join(promotionDir, "report.md");
   const manifestPath = path.join(promotionDir, "promotion.json");
 
@@ -126,6 +157,8 @@ export async function promoteDraftFromArgument(
   let status: "promote" | "reject" = "reject";
   let reason = draft.capability.summary;
   let jobPath: string | undefined;
+  let harvestedCorrections: SemanticCorrectionMemory[] = [];
+  let trackedCorrectionPaths: string[] = [];
 
   if (draft.proof.ok && draft.capability.autoPromotable) {
     const job = buildGeneratedJob(draft);
@@ -135,6 +168,16 @@ export async function promoteDraftFromArgument(
     await validateJobFile(rootDir, jobPath);
     status = "promote";
     reason = "Draft is tier A, proof passed, and a tracked job was generated.";
+    harvestedCorrections = enrichHarvestedCorrectionMemories(
+      draft.model,
+      draft.answers.prompt,
+      harvestCorrectionMemoriesFromAcceptedModel({
+        model: draft.model,
+        sourceRef: `promotion:${draft.model.name}`,
+        note: reason
+      })
+    );
+    trackedCorrectionPaths = await promoteCorrectionMemories(rootDir, harvestedCorrections);
   } else if (!draft.proof.ok) {
     reason = "Draft proof failed; tracked model was written but tracked job promotion was blocked.";
   } else {
@@ -148,11 +191,19 @@ export async function promoteDraftFromArgument(
     draft,
     modelPath,
     ...(jobPath ? { jobPath } : {}),
+    harvestedCorrections,
+    correctionMemoryPath,
+    trackedCorrectionPaths,
     promotionDir,
     reportPath
   };
 
   await Promise.all([
+    fs.writeFile(
+      correctionMemoryPath,
+      `${JSON.stringify(harvestedCorrections, null, 2)}\n`,
+      "utf8"
+    ),
     fs.writeFile(reportPath, `${formatPromotionReport(promotion, jobPath)}\n`, "utf8"),
     fs.writeFile(
       manifestPath,
@@ -163,7 +214,9 @@ export async function promoteDraftFromArgument(
           draftId: draft.draftId,
           modelPath,
           jobPath,
-          capability: draft.capability
+          capability: draft.capability,
+          correctionMemoryPath,
+          trackedCorrectionPaths
         },
         null,
         2

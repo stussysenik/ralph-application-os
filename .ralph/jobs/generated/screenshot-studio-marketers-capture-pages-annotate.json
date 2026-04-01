@@ -35,9 +35,8 @@
     }
   ],
   "notes": [
-    "Promoted from draft 2026-03-31T18-45-02-832Z-screenshot-studio-marketers-capture-pages-annotate.",
-    "Deployable owned-runtime candidate for the current substrate.",
-    "Open question: How should the core entities relate to one another?"
+    "Promoted from draft synthesis for screenshot-studio-marketers-capture-pages-annotate.",
+    "Deployable owned-runtime candidate for the current substrate."
   ],
   "tags": [
     "generated",
@@ -163,7 +162,38 @@
         ]
       }
     ],
-    "relations": [],
+    "relations": [
+      {
+        "name": "contains",
+        "from": "Workspace",
+        "to": "Capture",
+        "cardinality": "one-to-many"
+      },
+      {
+        "name": "contains",
+        "from": "Workspace",
+        "to": "Collection",
+        "cardinality": "one-to-many"
+      },
+      {
+        "name": "groups",
+        "from": "Collection",
+        "to": "Capture",
+        "cardinality": "one-to-many"
+      },
+      {
+        "name": "marksUp",
+        "from": "Annotation",
+        "to": "Capture",
+        "cardinality": "one-to-many"
+      },
+      {
+        "name": "publishes",
+        "from": "ShareLink",
+        "to": "Capture",
+        "cardinality": "one-to-one"
+      }
+    ],
     "states": [
       {
         "name": "raw",
@@ -399,13 +429,7 @@
         "description": "Synthesized invariant for moveShareLinkToExpired."
       }
     ],
-    "openQuestions": [
-      {
-        "id": "relation-map",
-        "prompt": "How should the core entities relate to one another?",
-        "status": "open"
-      }
-    ],
+    "openQuestions": [],
     "provenance": [
       {
         "sourceType": "prompt",

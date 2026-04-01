@@ -1,0 +1,38 @@
+{
+  "id": "screenshot-studio-marketers-capture-pages-annotate-promotion-relation-annotation",
+  "title": "relation lesson from accepted model screenshot-studio-marketers-capture-pages-annotate",
+  "kind": "relation",
+  "summary": "5 relation change(s) made Annotation, Capture, Collection, ShareLink, and Workspace more explicit in screenshot-studio-marketers-capture.",
+  "recommendation": "Promote explicit relations around Annotation, Capture, Collection, ShareLink, and Workspace so screenshot-studio-marketers-capture stays queryable and readable without hidden joins or implied edges.",
+  "domains": [
+    "screenshot-studio-marketers-capture"
+  ],
+  "entityNames": [
+    "Annotation",
+    "Capture",
+    "Collection",
+    "ShareLink",
+    "Workspace"
+  ],
+  "promptKeywords": [
+    "screenshot",
+    "studio",
+    "marketers",
+    "capture",
+    "contains",
+    "groups",
+    "marks",
+    "publishes"
+  ],
+  "source": {
+    "sourceType": "human-edit",
+    "sourceRef": "promotion:screenshot-studio-marketers-capture-pages-annotate",
+    "note": "Draft is tier A, proof passed, and a tracked job was generated.",
+    "confidence": 0.78
+  },
+  "categories": [
+    "review-workspace",
+    "knowledge-system",
+    "workflow-app"
+  ]
+}

@@ -12,9 +12,22 @@ export interface SemanticCorrectionHarvestInput {
   sourceRef: string;
 }
 
+export interface SemanticAcceptedModelCorrectionHarvestInput {
+  model: SemanticWorldModel;
+  sourceRef: string;
+  note?: string;
+}
+
 interface HarvestGroup {
   kind: SemanticCorrectionKind;
   operations: SemanticPatchOperation[];
+  entityNames: Set<string>;
+  promptKeywords: Set<string>;
+}
+
+interface AcceptedModelHarvestGroup {
+  kind: SemanticCorrectionKind;
+  signalCount: number;
   entityNames: Set<string>;
   promptKeywords: Set<string>;
 }
@@ -63,6 +76,13 @@ function formatEntityList(values: string[]): string {
 function splitDomainKeywords(domain: string): string[] {
   return domain
     .split(/[^a-z0-9]+/i)
+    .map((value) => value.trim().toLowerCase())
+    .filter((value) => value.length >= 4);
+}
+
+function splitKeywordValues(values: string[]): string[] {
+  return values
+    .flatMap((value) => value.replace(/([a-z0-9])([A-Z])/g, "$1 $2").split(/[^a-z0-9]+/i))
     .map((value) => value.trim().toLowerCase())
     .filter((value) => value.length >= 4);
 }
@@ -222,6 +242,91 @@ function groupPatchOperations(
   return [...groups.values()].sort((left, right) => left.kind.localeCompare(right.kind));
 }
 
+function groupAcceptedModelSemantics(model: SemanticWorldModel): AcceptedModelHarvestGroup[] {
+  const groups: AcceptedModelHarvestGroup[] = [];
+
+  if (model.relations.length > 0) {
+    groups.push({
+      kind: "relation",
+      signalCount: model.relations.length,
+      entityNames: new Set(
+        model.relations.flatMap((relation) => [relation.from, relation.to])
+      ),
+      promptKeywords: new Set(
+        splitKeywordValues(model.relations.flatMap((relation) => [relation.name, relation.description ?? ""]))
+      )
+    });
+  }
+
+  if (model.actions.length > 0 || model.states.length > 0 || model.invariants.length > 0) {
+    groups.push({
+      kind: "workflow",
+      signalCount: model.actions.length + model.states.length + model.invariants.length,
+      entityNames: new Set([
+        ...model.actions.map((action) => action.entity),
+        ...model.states.map((state) => state.entity)
+      ]),
+      promptKeywords: new Set(
+        splitKeywordValues([
+          ...model.actions.map((action) => action.name),
+          ...model.states.map((state) => state.name),
+          ...model.invariants.map((invariant) => invariant.name)
+        ])
+      )
+    });
+  }
+
+  if (model.policies.length > 0) {
+    groups.push({
+      kind: "policy",
+      signalCount: model.policies.length,
+      entityNames: new Set(model.policies.map((policy) => policy.appliesTo)),
+      promptKeywords: new Set(
+        splitKeywordValues(
+          model.policies.flatMap((policy) => [
+            policy.name,
+            policy.description ?? "",
+            ...policy.actors
+          ])
+        )
+      )
+    });
+  }
+
+  if (model.views.length > 0) {
+    groups.push({
+      kind: "view",
+      signalCount: model.views.length,
+      entityNames: new Set(model.views.map((view) => view.entity)),
+      promptKeywords: new Set(
+        splitKeywordValues(
+          model.views.flatMap((view) => [view.name, view.kind, view.description ?? ""])
+        )
+      )
+    });
+  }
+
+  if (model.effects.length > 0) {
+    groups.push({
+      kind: "runtime",
+      signalCount: model.effects.length,
+      entityNames: new Set<string>(),
+      promptKeywords: new Set(
+        splitKeywordValues(
+          model.effects.flatMap((effect) => [
+            effect.name,
+            effect.kind,
+            effect.trigger,
+            effect.description ?? ""
+          ])
+        )
+      )
+    });
+  }
+
+  return groups.sort((left, right) => left.kind.localeCompare(right.kind));
+}
+
 /**
  * Patch and merge runs already capture what changed semantically. Harvesting
  * turns those accepted changes into small reusable correction-memory proposals
@@ -266,6 +371,55 @@ export function harvestCorrectionMemoriesFromPatch(
         sourceRef: input.sourceRef,
         ...(input.patch.note ? { note: input.patch.note } : {}),
         confidence: 0.82
+      }
+    };
+  });
+}
+
+/**
+ * Draft promotion is an explicit acceptance point. When a model is good enough
+ * to become a tracked asset, Ralph should preserve the semantic patterns that
+ * made it strong instead of learning only from manual patch/merge documents.
+ */
+export function harvestCorrectionMemoriesFromAcceptedModel(
+  input: SemanticAcceptedModelCorrectionHarvestInput
+): SemanticCorrectionMemory[] {
+  const groups = groupAcceptedModelSemantics(input.model);
+  const domainKeywords = splitDomainKeywords(input.model.domain);
+
+  return groups.map((group) => {
+    const entityNames = [...group.entityNames].sort();
+    const promptKeywords = uniqueStrings([
+      ...domainKeywords,
+      ...[...group.promptKeywords]
+    ]).slice(0, 8);
+    const id = slugify(
+      `${input.model.name}-promotion-${group.kind}-${entityNames.join("-") || "semantic"}`
+    );
+
+    return {
+      id,
+      title: `${group.kind} lesson from accepted model ${input.model.name}`,
+      kind: group.kind,
+      summary: buildHarvestSummary(
+        group.kind,
+        entityNames,
+        group.signalCount,
+        input.model.domain
+      ),
+      recommendation: buildHarvestRecommendation(
+        group.kind,
+        entityNames,
+        input.model.domain
+      ),
+      domains: [input.model.domain],
+      ...(entityNames.length > 0 ? { entityNames } : {}),
+      ...(promptKeywords.length > 0 ? { promptKeywords } : {}),
+      source: {
+        sourceType: "human-edit",
+        sourceRef: input.sourceRef,
+        ...(input.note ? { note: input.note } : {}),
+        confidence: 0.78
       }
     };
   });

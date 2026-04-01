@@ -1,0 +1,31 @@
+{
+  "id": "screenshot-studio-marketers-capture-pages-annotate-promotion-runtime-semantic",
+  "title": "runtime lesson from accepted model screenshot-studio-marketers-capture-pages-annotate",
+  "kind": "runtime",
+  "summary": "2 runtime/effect change(s) made execution concerns around the semantic model more explicit.",
+  "recommendation": "Promote runtime and effect behavior around the semantic model into explicit semantics so screenshot-studio-marketers-capture stays provable under change.",
+  "domains": [
+    "screenshot-studio-marketers-capture"
+  ],
+  "promptKeywords": [
+    "screenshot",
+    "studio",
+    "marketers",
+    "capture",
+    "sync",
+    "browser",
+    "extension",
+    "import"
+  ],
+  "source": {
+    "sourceType": "human-edit",
+    "sourceRef": "promotion:screenshot-studio-marketers-capture-pages-annotate",
+    "note": "Draft is tier A, proof passed, and a tracked job was generated.",
+    "confidence": 0.78
+  },
+  "categories": [
+    "review-workspace",
+    "knowledge-system",
+    "workflow-app"
+  ]
+}

@@ -39,6 +39,7 @@ They go to:
 - interview runs derive clarification questions before a full job loop is necessary
 - draft runs synthesize a first semantic model from answered interviews
 - promotion runs write tracked models first and only generate tracked jobs when the draft is tier A and proof-clean
+- accepted promotion runs now also harvest and track correction memory from the promoted model itself
 - patch examples capture durable semantic corrections that can be replayed against tracked models
 - correction memories capture reusable semantic lessons that should influence future ideation and draft runs
 - patch and merge runs can now emit harvested correction-memory proposals before those lessons are promoted into tracked memory

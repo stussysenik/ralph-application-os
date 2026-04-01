@@ -1,0 +1,4 @@
+- [x] 1.1 Add accepted-model correction-memory harvesting
+- [x] 1.2 Persist promotion-local correction-memory artifacts and tracked outputs
+- [x] 1.3 Cover the behavior with tests and live promotion verification
+- [x] 1.4 Update docs and repo guidance

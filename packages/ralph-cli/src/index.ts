@@ -233,6 +233,7 @@ function main(): void {
         console.log(`Artifacts written to: ${promotion.promotionDir}`);
         console.log(`Tracked model: ${promotion.modelPath}`);
         console.log(`Tracked job: ${promotion.jobPath ?? "not written"}`);
+        console.log(`Correction memory: ${promotion.correctionMemoryPath}`);
         return;
       }
 
