@@ -108,6 +108,7 @@ export interface RuntimeManifest {
   seedFile: string;
   scriptFile: string;
   storageKey: string;
+  capabilities: string[];
   proofExpected: "required-before-promotion";
 }
 
@@ -115,6 +116,7 @@ export interface RuntimeSeedRecord {
   id: string;
   state?: string;
   values: Record<string, unknown>;
+  links: Record<string, string[]>;
 }
 
 export interface RuntimeSeedCollection {
@@ -382,9 +384,33 @@ function buildSeedRecordsForEntity(
     return {
       id: `${entity.name.toLowerCase()}-${recordIndex + 1}`,
       ...(stateName ? { state: stateName } : {}),
-      values
+      values,
+      links: {}
     };
   });
+}
+
+function buildRelationSeedLinks(
+  relation: RuntimeSchemaRelation,
+  targetRecords: RuntimeSeedRecord[],
+  sourceIndex: number
+): string[] {
+  if (targetRecords.length === 0) {
+    return [];
+  }
+
+  const primary = targetRecords[sourceIndex % targetRecords.length]?.id;
+
+  if (!primary) {
+    return [];
+  }
+
+  if (relation.cardinality === "many-to-many" && targetRecords.length > 1) {
+    const secondary = targetRecords[(sourceIndex + 1) % targetRecords.length]?.id;
+    return secondary && secondary !== primary ? [primary, secondary] : [primary];
+  }
+
+  return [primary];
 }
 
 function buildRuntimeSeedData(
@@ -392,13 +418,37 @@ function buildRuntimeSeedData(
   schema: RuntimeSchemaEntity[],
   workflows: RuntimeWorkflowMachine[]
 ): RuntimeSeedData {
+  const collections = schema.map((entity) => ({
+    entity: entity.name,
+    records: buildSeedRecordsForEntity(entity, findWorkflowForEntity(workflows, entity.name))
+  }));
+
+  for (const collection of collections) {
+    const entitySchema = schema.find((entity) => entity.name === collection.entity);
+
+    if (!entitySchema) {
+      continue;
+    }
+
+    collection.records.forEach((record, recordIndex) => {
+      record.links = Object.fromEntries(
+        entitySchema.relations.map((relation) => {
+          const targetCollection = collections.find(
+            (candidate) => candidate.entity === relation.targetEntity
+          );
+          return [
+            relation.name,
+            buildRelationSeedLinks(relation, targetCollection?.records ?? [], recordIndex)
+          ];
+        })
+      );
+    });
+  }
+
   return {
     modelName: model.name,
     storageKey: storageKeyForModel(model),
-    collections: schema.map((entity) => ({
-      entity: entity.name,
-      records: buildSeedRecordsForEntity(entity, findWorkflowForEntity(workflows, entity.name))
-    }))
+    collections
   };
 }
 
@@ -465,6 +515,12 @@ function renderRuntimeIndexHtml(
           <ul>${buildHtmlList(
             entity.fields.map(
               (field) => `${field.name}:${field.type}${field.required ? " required" : ""}`
+            )
+          )}</ul>
+          <p class="muted">relations</p>
+          <ul>${buildHtmlList(
+            entity.relations.map(
+              (relation) => `${relation.name} -> ${relation.targetEntity} (${relation.cardinality})`
             )
           )}</ul>
         </article>`
@@ -603,6 +659,35 @@ function renderRuntimeIndexHtml(
         width: 34%;
         color: var(--muted);
       }
+      .input-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+      .field span {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+      .field input,
+      .field textarea,
+      .field select {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.82);
+        color: var(--ink);
+        font: inherit;
+      }
+      .field textarea {
+        min-height: 96px;
+        resize: vertical;
+      }
       .action-row {
         display: flex;
         flex-wrap: wrap;
@@ -628,6 +713,18 @@ function renderRuntimeIndexHtml(
       }
       .runtime-card {
         min-height: 100%;
+      }
+      .stack {
+        display: grid;
+        gap: 12px;
+      }
+      .relation-block {
+        border-top: 1px solid var(--line);
+        padding-top: 12px;
+        margin-top: 12px;
+      }
+      .relation-block ul {
+        margin-top: 6px;
       }
       .runtime-card header {
         display: flex;
@@ -732,20 +829,60 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
+function defaultCollections() {
+  return clone(boot.seedData.collections);
+}
+
+function normalizeRecord(record) {
+  return {
+    id: String(record.id || "record"),
+    ...(record.state ? { state: String(record.state) } : {}),
+    values: record && typeof record.values === "object" && record.values !== null ? record.values : {},
+    links: Object.fromEntries(
+      Object.entries(record && typeof record.links === "object" && record.links !== null ? record.links : {})
+        .map(([name, value]) => [
+          name,
+          Array.isArray(value) ? value.map((item) => String(item)) : []
+        ])
+    )
+  };
+}
+
+function normalizeState(raw) {
+  const fallbackCollections = defaultCollections();
+  const rawCollections = Array.isArray(raw && raw.collections) ? raw.collections : fallbackCollections;
+  const collections = fallbackCollections.map((seedCollection) => {
+    const existing = rawCollections.find((candidate) => candidate.entity === seedCollection.entity);
+    const records = Array.isArray(existing && existing.records)
+      ? existing.records.map(normalizeRecord)
+      : clone(seedCollection.records);
+
+    return {
+      entity: seedCollection.entity,
+      records
+    };
+  });
+
+  return {
+    collections,
+    events: Array.isArray(raw && raw.events) ? raw.events : []
+  };
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(storageKey);
     if (raw) {
-      return JSON.parse(raw);
+      return normalizeState(JSON.parse(raw));
     }
   } catch {
     // Ignore corrupted local runtime state and fall back to deterministic seed data.
   }
 
-  return {
-    collections: clone(boot.seedData.collections),
+  return normalizeState({
+    collections: defaultCollections(),
     events: []
-  };
+  });
 }
 
 function saveState(state) {
@@ -764,6 +901,11 @@ function getSchema(entity) {
   return boot.schema.find((schema) => schema.name === entity);
 }
 
+function getRecord(state, entity, recordId) {
+  const collection = getCollection(state, entity);
+  return collection && collection.records.find((candidate) => candidate.id === recordId);
+}
+
 function availableTransitions(entity, record) {
   const workflow = getWorkflow(entity);
   if (!workflow) {
@@ -772,6 +914,15 @@ function availableTransitions(entity, record) {
 
   const currentState = record.state || record.values.status;
   return workflow.transitions.filter((transition) => transition.from === currentState);
+}
+
+function editableFields(entity) {
+  const schema = getSchema(entity);
+  const workflow = getWorkflow(entity);
+
+  return schema
+    ? schema.fields.filter((field) => !(workflow && field.name === "status"))
+    : [];
 }
 
 function renderValue(value) {
@@ -784,6 +935,241 @@ function renderValue(value) {
   }
 
   return escapeHtml(String(value));
+}
+
+function describeRecord(record) {
+  const values = record && record.values ? record.values : {};
+  return values.title || values.name || values.slug || record.id;
+}
+
+function renderFieldInput(entity, field, value, formKind, recordId) {
+  const inputName = escapeHtml(field.name);
+  const fieldLabel = "<span>" + inputName + "</span>";
+  const valueString =
+    field.type === "json"
+      ? JSON.stringify(value === undefined ? {} : value, null, 2)
+      : value === undefined || value === null
+        ? ""
+        : String(value);
+  const commonAttrs =
+    ' name="' +
+    inputName +
+    '" data-entity="' +
+    escapeHtml(entity) +
+    '" data-form-kind="' +
+    escapeHtml(formKind) +
+    '"' +
+    (recordId ? ' data-record-id="' + escapeHtml(recordId) + '"' : "");
+
+  if (field.type === "boolean") {
+    return "<label class=\\"field\\">" +
+      fieldLabel +
+      "<select" + commonAttrs + ">" +
+      "<option value=\\"false\\"" + (String(value) === "false" ? " selected" : "") + ">false</option>" +
+      "<option value=\\"true\\"" + (String(value) === "true" ? " selected" : "") + ">true</option>" +
+      "</select></label>";
+  }
+
+  if (field.type === "json") {
+    return "<label class=\\"field\\">" +
+      fieldLabel +
+      "<textarea" + commonAttrs + ">" + escapeHtml(valueString) + "</textarea></label>";
+  }
+
+  const type =
+    field.type === "number" ? "number" :
+    field.type === "date" ? "date" :
+    field.type === "datetime" ? "datetime-local" :
+    "text";
+
+  const normalizedValue =
+    field.type === "datetime" && valueString
+      ? valueString.replace(".000Z", "").slice(0, 16)
+      : valueString;
+
+  return "<label class=\\"field\\">" +
+    fieldLabel +
+    "<input type=\\"" + type + "\\"" + commonAttrs + " value=\\"" + escapeHtml(normalizedValue) + "\\" /></label>";
+}
+
+function coerceFieldValue(field, rawValue) {
+  if (field.type === "number") {
+    return rawValue === "" ? 0 : Number(rawValue);
+  }
+
+  if (field.type === "boolean") {
+    return rawValue === "true";
+  }
+
+  if (field.type === "json") {
+    if (rawValue.trim().length === 0) {
+      return {};
+    }
+
+    try {
+      return JSON.parse(rawValue);
+    } catch {
+      return { raw: rawValue };
+    }
+  }
+
+  if (field.type === "datetime") {
+    return rawValue ? new Date(rawValue).toISOString() : "";
+  }
+
+  return rawValue;
+}
+
+function valuesFromForm(entity, form, existingValues) {
+  const values = existingValues ? clone(existingValues) : {};
+  const formData = new FormData(form);
+
+  for (const field of editableFields(entity)) {
+    const rawValue = formData.get(field.name);
+    values[field.name] = coerceFieldValue(field, typeof rawValue === "string" ? rawValue : "");
+  }
+
+  return values;
+}
+
+function nextRecordId(entity, collection) {
+  const prefix = entity.toLowerCase();
+  let index = collection.records.length + 1;
+
+  while (collection.records.some((record) => record.id === prefix + "-" + String(index))) {
+    index += 1;
+  }
+
+  return prefix + "-" + String(index);
+}
+
+function pushEvent(state, event) {
+  state.events.push({
+    at: new Date().toISOString(),
+    ...event
+  });
+}
+
+function createRecord(entity, form) {
+  const state = loadState();
+  const collection = getCollection(state, entity);
+  const schema = getSchema(entity);
+  const workflow = getWorkflow(entity);
+
+  if (!collection || !schema) {
+    return;
+  }
+
+  const initialState = workflow && workflow.initialStates.length > 0 ? workflow.initialStates[0] : undefined;
+  const values = valuesFromForm(entity, form, {});
+
+  if (initialState && !Object.prototype.hasOwnProperty.call(values, "status")) {
+    values.status = initialState;
+  }
+
+  const record = {
+    id: nextRecordId(entity, collection),
+    ...(initialState ? { state: initialState } : {}),
+    values,
+    links: Object.fromEntries(schema.relations.map((relation) => [relation.name, []]))
+  };
+
+  collection.records.push(record);
+  pushEvent(state, {
+    type: "create",
+    entity,
+    recordId: record.id,
+    action: "create-record",
+    to: record.state || "created"
+  });
+
+  saveState(state);
+  renderRuntime(state);
+}
+
+function updateRecord(entity, recordId, form) {
+  const state = loadState();
+  const record = getRecord(state, entity, recordId);
+
+  if (!record) {
+    return;
+  }
+
+  record.values = valuesFromForm(entity, form, record.values);
+  pushEvent(state, {
+    type: "update",
+    entity,
+    recordId,
+    action: "update-record",
+    to: record.state || record.values.status || "updated"
+  });
+
+  saveState(state);
+  renderRuntime(state);
+}
+
+function linkRecord(entity, recordId, relationName, targetRecordId) {
+  const state = loadState();
+  const record = getRecord(state, entity, recordId);
+  const schema = getSchema(entity);
+  const relation = schema && schema.relations.find((candidate) => candidate.name === relationName);
+
+  if (!record || !relation) {
+    return;
+  }
+
+  const targetIds = targetRecordId ? [targetRecordId] : [];
+
+  if (relation.cardinality === "one-to-many" || relation.cardinality === "many-to-many") {
+    const existing = Array.isArray(record.links[relationName]) ? record.links[relationName] : [];
+    record.links[relationName] = targetRecordId
+      ? Array.from(new Set([...existing, targetRecordId]))
+      : [];
+  } else {
+    record.links[relationName] = targetIds;
+  }
+
+  pushEvent(state, {
+    type: "link",
+    entity,
+    recordId,
+    action: relationName,
+    to: targetRecordId || "cleared"
+  });
+
+  saveState(state);
+  renderRuntime(state);
+}
+
+function applyTransition(entityName, recordId, actionName) {
+  const state = loadState();
+  const record = getRecord(state, entityName, recordId);
+
+  if (!record) {
+    return;
+  }
+
+  const transition = availableTransitions(entityName, record).find((candidate) => candidate.name === actionName);
+
+  if (!transition) {
+    return;
+  }
+
+  record.state = transition.to;
+  if (Object.prototype.hasOwnProperty.call(record.values, "status")) {
+    record.values.status = transition.to;
+  }
+
+  pushEvent(state, {
+    type: "transition",
+    entity: entityName,
+    recordId,
+    action: transition.name,
+    to: transition.to
+  });
+
+  saveState(state);
+  renderRuntime(state);
 }
 
 function renderView(view, state) {
@@ -801,7 +1187,44 @@ function renderView(view, state) {
     "</article>";
 }
 
-function renderRecordCard(entity, record) {
+function renderRelationEditor(entity, record, state) {
+  const schema = getSchema(entity);
+
+  if (!schema || schema.relations.length === 0) {
+    return "";
+  }
+
+  return schema.relations
+    .map((relation) => {
+      const targetCollection = getCollection(state, relation.targetEntity);
+      const linkedIds = Array.isArray(record.links[relation.name]) ? record.links[relation.name] : [];
+      const currentLinks = linkedIds.length > 0
+        ? "<ul>" +
+          linkedIds
+            .map((linkedId) => {
+              const linkedRecord = targetCollection && targetCollection.records.find((candidate) => candidate.id === linkedId);
+              return "<li>" + escapeHtml(linkedId) + " · " + escapeHtml(linkedRecord ? describeRecord(linkedRecord) : "missing") + "</li>";
+            })
+            .join("") +
+          "</ul>"
+        : "<p class=\\"muted\\">No linked records.</p>";
+      const options = (targetCollection ? targetCollection.records : [])
+        .map((candidate) => "<option value=\\"" + escapeHtml(candidate.id) + "\\">" + escapeHtml(candidate.id + " · " + describeRecord(candidate)) + "</option>")
+        .join("");
+
+      return "<div class=\\"relation-block\\">" +
+        "<p><strong>" + escapeHtml(relation.name) + "</strong> → " + escapeHtml(relation.targetEntity) + " (" + escapeHtml(relation.cardinality) + ")</p>" +
+        currentLinks +
+        "<form class=\\"stack\\" data-link-form data-entity=\\"" + escapeHtml(entity) + "\\" data-record-id=\\"" + escapeHtml(record.id) + "\\" data-relation-name=\\"" + escapeHtml(relation.name) + "\\">" +
+        "<div class=\\"input-grid\\"><label class=\\"field\\"><span>target record</span><select name=\\"targetRecordId\\"><option value=\\"\\">clear / none</option>" + options + "</select></label></div>" +
+        "<div class=\\"action-row\\"><button class=\\"action-button secondary\\" type=\\"submit\\">Update relation</button></div>" +
+        "</form>" +
+        "</div>";
+    })
+    .join("");
+}
+
+function renderRecordCard(entity, record, state) {
   const schema = getSchema(entity);
   const transitions = availableTransitions(entity, record);
   const fieldRows = schema.fields
@@ -822,19 +1245,64 @@ function renderRecordCard(entity, record) {
         )
         .join("")
     : "<span class=\\"muted\\">No available actions</span>";
+  const editForm = editableFields(entity)
+    .map((field) => renderFieldInput(entity, field, record.values[field.name], "update", record.id))
+    .join("");
 
   return "<article class=\\"card runtime-card\\">" +
     "<header><h3>" + escapeHtml(record.id) + "</h3><span class=\\"pill\\">" + escapeHtml(String(record.state || record.values.status || "stateless")) + "</span></header>" +
     "<table class=\\"record-table\\"><tbody>" + fieldRows + "</tbody></table>" +
     "<div class=\\"action-row\\">" + actions + "</div>" +
+    "<div class=\\"stack\\">" +
+    "<form class=\\"stack\\" data-update-form data-entity=\\"" + escapeHtml(entity) + "\\" data-record-id=\\"" + escapeHtml(record.id) + "\\">" +
+    "<div class=\\"input-grid\\">" + editForm + "</div>" +
+    "<div class=\\"action-row\\"><button class=\\"action-button secondary\\" type=\\"submit\\">Save fields</button></div>" +
+    "</form>" +
+    renderRelationEditor(entity, record, state) +
+    "</div>" +
+    "</article>";
+}
+
+function renderCreateForm(entity) {
+  const inputs = editableFields(entity)
+    .map((field) => renderFieldInput(entity, field, undefined, "create"))
+    .join("");
+
+  return "<article class=\\"card\\">" +
+    "<h3>Create " + escapeHtml(entity) + "</h3>" +
+    "<form class=\\"stack\\" data-create-form data-entity=\\"" + escapeHtml(entity) + "\\">" +
+    "<div class=\\"input-grid\\">" + inputs + "</div>" +
+    "<div class=\\"action-row\\"><button class=\\"action-button secondary\\" type=\\"submit\\">Add record</button></div>" +
+    "</form>" +
     "</article>";
 }
 
 function renderEntitySection(state, collection) {
   return "<section class=\\"section-stack\\">" +
     "<div><h2>" + escapeHtml(collection.entity) + "</h2><p class=\\"muted\\">" + String(collection.records.length) + " record(s) in the local runtime.</p></div>" +
-    "<div class=\\"grid\\">" + collection.records.map((record) => renderRecordCard(collection.entity, record)).join("") + "</div>" +
+    renderCreateForm(collection.entity) +
+    "<div class=\\"grid\\">" + collection.records.map((record) => renderRecordCard(collection.entity, record, state)).join("") + "</div>" +
     "</section>";
+}
+
+function formatEvent(eventItem) {
+  if (eventItem.type === "transition") {
+    return eventItem.at + " · " + eventItem.entity + " · " + eventItem.recordId + " · " + eventItem.action + " → " + eventItem.to;
+  }
+
+  if (eventItem.type === "link") {
+    return eventItem.at + " · " + eventItem.entity + " · " + eventItem.recordId + " · linked " + eventItem.action + " → " + eventItem.to;
+  }
+
+  if (eventItem.type === "create") {
+    return eventItem.at + " · " + eventItem.entity + " · " + eventItem.recordId + " · created";
+  }
+
+  if (eventItem.type === "update") {
+    return eventItem.at + " · " + eventItem.entity + " · " + eventItem.recordId + " · updated";
+  }
+
+  return eventItem.at + " · runtime event";
 }
 
 function renderEvents(state) {
@@ -842,7 +1310,7 @@ function renderEvents(state) {
     ? state.events
         .slice()
         .reverse()
-        .map((eventItem) => "<li>" + escapeHtml(eventItem.at) + " · " + escapeHtml(eventItem.entity) + " · " + escapeHtml(eventItem.recordId) + " · " + escapeHtml(eventItem.action) + " → " + escapeHtml(eventItem.to) + "</li>")
+        .map((eventItem) => "<li>" + escapeHtml(formatEvent(eventItem)) + "</li>")
         .join("")
     : "<li>No runtime events yet.</li>";
 
@@ -859,41 +1327,9 @@ function renderRuntime(state) {
 
   root.innerHTML =
     "<article class=\\"card\\"><h2>Live Views</h2><div class=\\"grid\\">" + views + "</div></article>" +
-    "<article class=\\"card\\"><h2>Local Data Workspace</h2><p class=\\"muted\\">State persists in localStorage under " + escapeHtml(storageKey) + ".</p></article>" +
+    "<article class=\\"card\\"><h2>Local Data Workspace</h2><p class=\\"muted\\">State persists in localStorage under " + escapeHtml(storageKey) + " and supports local create, update, relation-link, and workflow actions.</p></article>" +
     collections +
     renderEvents(state);
-}
-
-function applyTransition(entityName, recordId, actionName) {
-  const state = loadState();
-  const collection = getCollection(state, entityName);
-  const record = collection && collection.records.find((candidate) => candidate.id === recordId);
-
-  if (!collection || !record) {
-    return;
-  }
-
-  const transition = availableTransitions(entityName, record).find((candidate) => candidate.name === actionName);
-
-  if (!transition) {
-    return;
-  }
-
-  record.state = transition.to;
-  if (Object.prototype.hasOwnProperty.call(record.values, "status")) {
-    record.values.status = transition.to;
-  }
-
-  state.events.push({
-    at: new Date().toISOString(),
-    entity: entityName,
-    recordId,
-    action: transition.name,
-    to: transition.to
-  });
-
-  saveState(state);
-  renderRuntime(state);
 }
 
 document.addEventListener("click", function(event) {
@@ -908,6 +1344,36 @@ document.addEventListener("click", function(event) {
       actionButton.dataset.entity || "",
       actionButton.dataset.recordId || "",
       actionButton.dataset.actionName || ""
+    );
+  }
+});
+
+document.addEventListener("submit", function(event) {
+  const target = event.target;
+  if (!(target instanceof HTMLFormElement)) {
+    return;
+  }
+
+  if (target.matches("[data-create-form]")) {
+    event.preventDefault();
+    createRecord(target.dataset.entity || "", target);
+    return;
+  }
+
+  if (target.matches("[data-update-form]")) {
+    event.preventDefault();
+    updateRecord(target.dataset.entity || "", target.dataset.recordId || "", target);
+    return;
+  }
+
+  if (target.matches("[data-link-form]")) {
+    event.preventDefault();
+    const formData = new FormData(target);
+    linkRecord(
+      target.dataset.entity || "",
+      target.dataset.recordId || "",
+      target.dataset.relationName || "",
+      typeof formData.get("targetRecordId") === "string" ? formData.get("targetRecordId") : ""
     );
   }
 });
@@ -1021,6 +1487,14 @@ export function buildExecutableSubstrateArtifact(
     seedFile: "seed-data.json",
     scriptFile: "runtime.js",
     storageKey: seedData.storageKey,
+    capabilities: [
+      "local-persistence",
+      "workflow-actions",
+      "record-create",
+      "record-update",
+      "relation-linking",
+      "event-history"
+    ],
     proofExpected: "required-before-promotion"
   };
   const artifactContext = {
@@ -1080,8 +1554,8 @@ export function buildExecutableSubstrateArtifact(
     manifest,
     files,
     summary:
-      `${model.name} emits an interactive local runtime package with ${files.length} files ` +
-      `and entrypoint ${manifest.entrypoint}.`
+      `${model.name} emits an interactive local runtime package with ${files.length} files, ` +
+      `entrypoint ${manifest.entrypoint}, and editable local data flows.`
   };
 }
 

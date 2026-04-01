@@ -1,0 +1,4 @@
+- [x] 1.1 Extend runtime seed data with deterministic relation links
+- [x] 1.2 Add generated local create/update/link flows in runtime packages
+- [x] 1.3 Extend runtime event history beyond transitions
+- [x] 1.4 Update docs and verify the slice

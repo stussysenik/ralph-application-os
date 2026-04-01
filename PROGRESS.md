@@ -43,6 +43,7 @@
 - patch and merge runs can now harvest correction-memory proposals, and operators can explicitly promote those proposals into tracked repo memory
 - review-workspace ideation classification so screenshot and review-tool prompts no longer fall back to generic product intake
 - accepted draft promotions can now harvest correction memory directly from promoted models and track those lessons automatically
+- runtime packages can now create records, edit values, link relations, and log those local actions in event history
 
 ### Current Truth
 
@@ -56,7 +57,7 @@
 - The repo can now apply typed semantic patches and prove the patched result immediately.
 - The repo can now merge two semantic branches against a shared base and keep conflicts as typed artifacts when auto-merge is unsafe.
 - The proof harness now checks workflow replay from initial states and verifies invariants fail on intentional mutations.
-- The repo can now materialize an interactive local runtime package with deterministic seed data, workflow actions, local persistence, and machine-readable runtime files.
+- The repo can now materialize an interactive local runtime package with deterministic seed data, workflow actions, local persistence, relation-aware editing, and machine-readable runtime files.
 - The repo can now accept prompts from broader software categories and respond with an explicit ideation brief, proof regime, and category-specific interview path instead of forcing every idea into a workflow-app shape.
 - The ideation brief can now suggest stronger functionality earlier in the flow, so product shaping starts before the interview is even answered.
 - The repo can now replay correction memory from `.ralph/corrections/` so project-specific semantic lessons show up during ideation and in engineering handoffs.
@@ -69,6 +70,6 @@
 ### Next Steps
 
 1. Harvest correction memory from accepted edits beyond draft promotion flows, especially future studio edits and runtime/model edits.
-2. Add relation-aware editing and richer local data operations to the interactive runtime package.
+2. Harvest accepted runtime edits from the interactive package once a durable edit/correction export path exists.
 3. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
 4. Add browser-native model inspection and merge review in the future studio.

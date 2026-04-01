@@ -42,7 +42,10 @@ describe("runRuntimeArtifactFromArgument", () => {
     expect(htmlRaw).toContain('src="runtime.js"');
     expect(scriptRaw).toContain("localStorage");
     expect(scriptRaw).toContain("renderRuntime");
+    expect(scriptRaw).toContain("createRecord");
+    expect(scriptRaw).toContain("linkRecord");
     expect(seedRaw).toContain('"entity": "Invoice"');
+    expect(seedRaw).toContain('"links"');
     expect(manifestRaw).toContain('"entrypoint": "index.html"');
     expect(manifestRaw).toContain('"script": "runtime.js"');
   });

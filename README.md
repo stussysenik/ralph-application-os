@@ -395,7 +395,7 @@ Today the primary outputs are:
 - semantic merge reports and merged model candidates
 - harvested correction-memory proposals from patch and merge runs
 - internal application blueprints
-- interactive local runtime packages with seed data, runtime scripts, and HTML entrypoints
+- interactive local runtime packages with seed data, runtime scripts, HTML entrypoints, local editing, relation linking, and event history
 - proof results
 - run manifests and reports
 - hypertime ledger entries
@@ -438,7 +438,7 @@ Current benchmark families:
 - `pnpm ralph:model:diff <left-model-or-job> <right-model-or-job>`: compare semantic drift between tracked models, draft outputs, benchmark fixtures, or job files
 - `pnpm ralph:model:patch <model-input> <patch-file>`: apply a typed semantic patch, persist before/after/diff/proof artifacts, and harvest reusable correction-memory proposals from the accepted semantic change
 - `pnpm ralph:model:merge <base-model-or-job> <left-model-or-job> <right-model-or-job>`: merge two semantic branches against a shared base, prove the merged result when conflict-free, persist conflicts when they exist, and harvest reusable correction-memory proposals from the merged patch
-- `pnpm ralph:artifact <model-or-job-or-draft>`: emit an interactive local runtime package with deterministic seed data, executable workflow buttons, and a browser-openable `index.html`
+- `pnpm ralph:artifact <model-or-job-or-draft>`: emit an interactive local runtime package with deterministic seed data, executable workflow buttons, local editing, relation linking, event history, and a browser-openable `index.html`
 - `pnpm ralph:loop <job-file>`: validated job -> swarm run -> persisted run artifacts
 - `pnpm ralph:team [jobs-directory]`: batch swarm run over tracked jobs with a persisted team summary
 
