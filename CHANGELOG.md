@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/stussysenik/ralph-application-os/compare/v1.11.0...v1.12.0) (2026-04-01)
+
+
+### Features
+
+* add relation-aware runtime editing ([a22c87f](https://github.com/stussysenik/ralph-application-os/commit/a22c87f7012a44f3a15d7efc6009e3e247f745b1))
+
 # [1.11.0](https://github.com/stussysenik/ralph-application-os/compare/v1.10.0...v1.11.0) (2026-04-01)
 
 
