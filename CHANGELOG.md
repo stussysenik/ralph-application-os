@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/stussysenik/ralph-application-os/compare/v1.10.0...v1.11.0) (2026-04-01)
+
+
+### Features
+
+* learn from accepted draft promotions ([1a528ea](https://github.com/stussysenik/ralph-application-os/commit/1a528ea941a7773436b97fd5f59f8c3685c47dac))
+
 # [1.10.0](https://github.com/stussysenik/ralph-application-os/compare/v1.9.0...v1.10.0) (2026-03-31)
 
 
