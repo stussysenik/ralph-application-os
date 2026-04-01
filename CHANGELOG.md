@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/stussysenik/ralph-application-os/compare/v1.13.0...v1.14.0) (2026-04-01)
+
+
+### Features
+
+* add runtime edit harvest ([0d76625](https://github.com/stussysenik/ralph-application-os/commit/0d76625a55958ab3462a5931f653bb3fb479fe05))
+
 # [1.13.0](https://github.com/stussysenik/ralph-application-os/compare/v1.12.0...v1.13.0) (2026-04-01)
 
 
