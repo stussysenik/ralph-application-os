@@ -1,0 +1,4 @@
+- [x] 1.1 Switch the default build path from forced rebuilds to incremental builds
+- [x] 1.2 Add an explicit force-build script for clean rebuild workflows
+- [x] 1.3 Record the current performance baseline and intended operator-latency expectation
+- [x] 1.4 Verify the updated command timings and docs

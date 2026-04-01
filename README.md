@@ -227,6 +227,20 @@ For repo hygiene:
 2. `pnpm typecheck`
 3. `pnpm test`
 4. `pnpm spec:validate`
+5. `pnpm build:force` when you explicitly want a clean rebuild instead of the normal incremental build path
+
+Current local performance baseline on an already-built workspace:
+
+- `node packages/ralph-cli/dist/index.js ideate ...`: about `0.11s`
+- `node packages/ralph-cli/dist/index.js job:from-draft ...`: about `0.10s`
+- `node packages/ralph-cli/dist/index.js artifact ...`: about `0.08s`
+- `pnpm build` on an already-built workspace: about `0.45s`
+- `pnpm ralph:ideate ...`: about `0.75s`
+- `pnpm ralph:job:from-draft ...`: about `0.73s`
+- `pnpm ralph:artifact ...`: about `0.72s`
+- the public `pnpm ralph:*` wrappers are still mostly paying build/startup overhead, but they are materially faster than the old forced-rebuild path
+
+Planned next phases live in [openspec/roadmap.md](/Users/s3nik/Desktop/ralph-application-os/openspec/roadmap.md).
 
 Ideation artifacts persist under:
 

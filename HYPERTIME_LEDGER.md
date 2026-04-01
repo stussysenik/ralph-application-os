@@ -50,6 +50,7 @@ Ralph Application OS is a semantic software platform that turns intent into a wo
 - screenshot and review-oriented prompts now classify into a first-class review-workspace lane instead of generic-product fallback, which makes the ideation surface more honest for real asset-review tools
 - accepted draft promotions now feed tracked correction memory directly, so Ralph can learn from successful model adoption and not only from manual semantic diffs
 - the interactive runtime package now supports local record creation, editing, relation linking, and event history, so the substrate is closer to a real prototype and future accepted-edit harvesting has a better source
+- current local measurements show the semantic operator path is fast once built, and most remaining CLI latency comes from build/startup overhead rather than semantic execution; removing forced rebuilds already cut common wrapper commands from roughly 1.75s to about 0.72-0.75s
 
 ### Current Limits
 

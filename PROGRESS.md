@@ -44,6 +44,8 @@
 - review-workspace ideation classification so screenshot and review-tool prompts no longer fall back to generic product intake
 - accepted draft promotions can now harvest correction memory directly from promoted models and track those lessons automatically
 - runtime packages can now create records, edit values, link relations, and log those local actions in event history
+- default CLI builds now use the incremental TypeScript path, with an explicit `build:force` path retained for clean rebuilds
+- OpenSpec roadmap now exists at `openspec/roadmap.md` to sequence the next major phases
 
 ### Current Truth
 
@@ -58,6 +60,7 @@
 - The repo can now merge two semantic branches against a shared base and keep conflicts as typed artifacts when auto-merge is unsafe.
 - The proof harness now checks workflow replay from initial states and verifies invariants fail on intentional mutations.
 - The repo can now materialize an interactive local runtime package with deterministic seed data, workflow actions, local persistence, relation-aware editing, and machine-readable runtime files.
+- The measured semantic operator path is fast once built: roughly 0.1s for ideate, promote, and artifact flows when run directly against the built CLI, and about 0.72-0.75s through the public `pnpm ralph:*` wrappers after removing forced rebuilds.
 - The repo can now accept prompts from broader software categories and respond with an explicit ideation brief, proof regime, and category-specific interview path instead of forcing every idea into a workflow-app shape.
 - The ideation brief can now suggest stronger functionality earlier in the flow, so product shaping starts before the interview is even answered.
 - The repo can now replay correction memory from `.ralph/corrections/` so project-specific semantic lessons show up during ideation and in engineering handoffs.
@@ -73,3 +76,7 @@
 2. Harvest accepted runtime edits from the interactive package once a durable edit/correction export path exists.
 3. Persist promoted semantic models as editable tracked assets rather than only generated snapshots.
 4. Add browser-native model inspection and merge review in the future studio.
+
+### Phase Roadmap
+
+- See `openspec/roadmap.md` for the current phased plan after `v1.12.0`.
